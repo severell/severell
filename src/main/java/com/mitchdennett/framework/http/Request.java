@@ -2,7 +2,12 @@ package com.mitchdennett.framework.http;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Request extends HttpServletRequestWrapper {
     /**
@@ -16,6 +21,7 @@ public class Request extends HttpServletRequestWrapper {
     }
 
     private HashMap<String, String> urlParams;
+    private Map<String, String> bodyData;
 
     protected void addParam(String key, String value) {
         if(urlParams == null) {
@@ -32,4 +38,30 @@ public class Request extends HttpServletRequestWrapper {
 
         return urlParams.get(name);
     }
+
+    public String input(String name) {
+        if(bodyData == null) {
+            return null;
+        }
+
+        return bodyData.get(name);
+    }
+
+    protected void parseBody() {
+        if ("POST".equalsIgnoreCase(this.getMethod()))
+        {
+            String body = null;
+            try {
+                body = this.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+                body = URLDecoder.decode(body, "UTF-8");
+                this.bodyData = Arrays.stream(body.split("&")).collect(Collectors.toMap(
+                        entry -> entry.split("=")[0],
+                        entry -> entry.split("=")[1]
+                ));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    };
 }

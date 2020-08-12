@@ -6,5 +6,12 @@ src/main/java/com/mitchdennett/main/**
 src/main/java/com/mitchdennett/controller/**
 src/main/resources/templates/**
 src/main/java/com/mitchdennett/models/**
+src/main/java/com/mitchdennett/middleware/**
 src/main/webapp/**
 
+node_modules/
+mix-manifest.json
+package-lock.json
+package.json
+webpack.mix.js
+tailwind.config.js

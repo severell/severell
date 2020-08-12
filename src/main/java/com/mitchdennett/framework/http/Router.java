@@ -2,12 +2,10 @@ package com.mitchdennett.framework.http;
 
 import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.main.Routes;
-import com.mitchdennett.framework.servlet.BasicServlet;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -16,15 +14,19 @@ public class Router {
     private HashMap<HttpMethod, RouteNode> trees;
     private static ArrayList<Route> routes = new ArrayList<Route>();
 
-    public static void Get(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        routes.add(new Route(path, method, HttpMethod.GET));
+    public static Route Get(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, method, HttpMethod.GET);
+        routes.add(route);
+        return route;
     }
 
-    public static void Post(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        routes.add(new Route(path, method, HttpMethod.POST));
+    public static Route Post(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, method, HttpMethod.POST);
+        routes.add(route);
+        return route;
     }
 
-    public Method lookup(String path, HttpMethod httpMethod, Request req)
+    public Route lookup(String path, HttpMethod httpMethod, Request req)
     {
         RouteNode traverseNode = trees.get(httpMethod);
 
@@ -107,10 +109,10 @@ public class Router {
         for(Route r : getRoutes()) {
             if(trees.containsKey(r.getHttpMethod())) {
                 RouteNode tree = trees.get(r.getHttpMethod());
-                tree.insert(r.getPath(), r.getMethod());
+                tree.insert(r.getPath(), r);
             } else {
                 RouteNode tree = new RouteNode();
-                tree.insert(r.getPath(), r.getMethod());
+                tree.insert(r.getPath(), r);
                 trees.put(r.getHttpMethod(), tree);
             }
         }

@@ -1,6 +1,5 @@
 package com.mitchdennett.framework.http;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -53,7 +52,7 @@ public class RouteNode {
     private String label;
     private ArrayList<RouteNode> children;
     private String indices;
-    private Method handle;
+    private Route handle;
     private boolean isWildCard;
     private NodeType type;
 
@@ -73,7 +72,7 @@ public class RouteNode {
         return this.path;
     }
 
-    protected Method getHandle() {
+    protected Route getHandle() {
         return this.handle;
     }
 
@@ -85,7 +84,7 @@ public class RouteNode {
         return this.type;
     }
 
-    protected void insert(String path, Method handle) throws Exception {
+    protected void insert(String path, Route handle) throws Exception {
         String fullPath = path;
         RouteNode traverseNode = this;
 
@@ -195,7 +194,7 @@ public class RouteNode {
         return new WildCardReturn("", -1, false);
     }
 
-    private void insertChild(String path, String fullPath, Method handle, RouteNode traverseNode) throws Exception {
+    private void insertChild(String path, String fullPath, Route handle, RouteNode traverseNode) throws Exception {
         for(;;) {
             WildCardReturn ret = findWildcard(path);
             if (ret.getIndex() < 0) { // No wildcard found
