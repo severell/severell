@@ -1,7 +1,6 @@
 package com.mitchdennett.framework.http;
 
 import com.mitchdennett.framework.container.Container;
-import com.mitchdennett.main.Routes;
 import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -24,6 +23,10 @@ public class Router {
         Route route = new Route(path, method, HttpMethod.POST);
         routes.add(route);
         return route;
+    }
+
+    protected static void clearRoutes() {
+        routes = new ArrayList<>();
     }
 
     public Route lookup(String path, HttpMethod httpMethod, Request req)
@@ -96,13 +99,6 @@ public class Router {
     }
 
     public void compileRoutes(ServletContextHandler context, Container c) throws Exception {
-        try {
-            Routes.init();
-        }catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
         trees = new HashMap<>();
 
 

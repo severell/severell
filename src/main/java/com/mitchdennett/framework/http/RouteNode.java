@@ -27,41 +27,24 @@ public class RouteNode {
             return wildcard;
         }
 
-        private void setWildcard(String wildcard) {
-            this.wildcard = wildcard;
-        }
-
         private boolean isValid() {
             return valid;
-        }
-
-        private void setValid(boolean valid) {
-            this.valid = valid;
         }
 
         private int getIndex() {
             return index;
         }
 
-        private void setIndex(int index) {
-            this.index = index;
-        }
     }
 
     private String path;
-    private String label;
     private ArrayList<RouteNode> children;
-    private String indices;
     private Route handle;
     private boolean isWildCard;
     private NodeType type;
 
     protected RouteNode() {
         children = new ArrayList<RouteNode>();
-    }
-
-    protected boolean isLeaf() {
-        return handle != null;
     }
 
     protected ArrayList<RouteNode> getChildren() {
@@ -89,7 +72,7 @@ public class RouteNode {
         RouteNode traverseNode = this;
 
         //is First Route
-        if(traverseNode.path == null && (children == null || children.size() ==0)) {
+        if(traverseNode.path == null && children.size() == 0) {
             insertChild(path, fullPath, handle, traverseNode);
             return;
         }
@@ -119,12 +102,17 @@ public class RouteNode {
                 if(traverseNode.isWildCard()){
                     traverseNode = traverseNode.getChildren().get(0);
 
-                    boolean pathIsGreaterThanOrEqualToNodePath = path.length() >= traverseNode.getPath().length();
-                    boolean nodePathSubStringEqualsPath = traverseNode.getPath().equals(path.substring(0,traverseNode.getPath().length()));
+//                    if len(path) >= len(n.path) && n.path == path[:len(n.path)] &&
+//                    // Adding a child to a catchAll is not possible
+//                    n.nType != catchAll &&
+//                            // Check for longer wildcard, e.g. :name and :names
+//                            (len(n.path) >= len(path) || path[len(n.path)] == '/') {
+
+                    boolean pathIsGreaterThanOrEqualToNodePath = (path.length() >= traverseNode.getPath().length() && traverseNode.getPath().equals(path.substring(0,traverseNode.getPath().length())));
                     boolean isNotCatchAll = traverseNode.getType() != NodeType.CatchAll;
                     boolean checkForLongerNames = (traverseNode.getPath().length() >= path.length() || path.charAt(traverseNode.getPath().length()) == '/');
 
-                    if( pathIsGreaterThanOrEqualToNodePath && nodePathSubStringEqualsPath
+                    if( pathIsGreaterThanOrEqualToNodePath
                             && isNotCatchAll && checkForLongerNames) {
                         continue walk;
                     } else {
@@ -153,10 +141,15 @@ public class RouteNode {
                     RouteNode newChild = new RouteNode();
                     newChild.path = path;
                     newChild.handle = handle;
+                    RouteNode oldNode = traverseNode;
                     traverseNode.getChildren().add(newChild);
                     traverseNode = newChild;
+                    insertChild(path, fullPath, handle, traverseNode);
+
+
+                } else {
+                    insertChild(path, fullPath, handle, traverseNode);
                 }
-                insertChild(path, fullPath, handle, traverseNode);
                 return;
             } else {
                 traverseNode.handle = handle;
@@ -244,7 +237,7 @@ public class RouteNode {
                     throw new Exception("catch-all routes are only allowed at the end of the path in path '" + fullPath + "'");
                 }
 
-                if(traverseNode.getPath().length() > 0 && traverseNode.getPath().substring(traverseNode.getPath().length()-1).equals('/')) {
+                if((traverseNode.getPath() != null && traverseNode.getPath().length() > 0) && traverseNode.getPath().substring(traverseNode.getPath().length()-1).equals("/")) {
                     throw new Exception("catch-all conflicts with existing handle for the path segment root in path '" + fullPath + "'");
                 }
 
@@ -258,6 +251,7 @@ public class RouteNode {
                 RouteNode newChild = new RouteNode();
                 newChild.isWildCard = true;
                 newChild.type = NodeType.CatchAll;
+                newChild.path = "/";
                 traverseNode.children = new ArrayList<RouteNode>(Arrays.asList(new RouteNode[]{newChild}));
                 traverseNode = newChild;
 
