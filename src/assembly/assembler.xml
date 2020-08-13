@@ -14,9 +14,13 @@
             <scope>runtime</scope>
             <unpackOptions>
                 <excludes>
+                    <exclude>**/webapp</exclude>
+                    <exclude>**/*.env</exclude>
                     <exclude>**/*.mustache</exclude>
                     <exclude>com/mitchdennett/main/**</exclude>
                     <exclude>com/mitchdennett/controller/**</exclude>
+                    <exclude>com/mitchdennett/middleware/**</exclude>
+                    <exclude>com/mitchdennett/models/**</exclude>
                 </excludes>
             </unpackOptions>
         </dependencySet>

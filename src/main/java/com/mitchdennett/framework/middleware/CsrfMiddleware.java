@@ -22,7 +22,7 @@ public class CsrfMiddleware {
         String storedToken = session.getString("csrfToken");
         if("POST".equalsIgnoreCase(r.getMethod())) {
             token = r.input("__token");
-            if(!compareTokens(token,storedToken, session)){
+            if(!compareTokens(token,storedToken)){
                 throw new Exception("Invalid CSRFToken");
             }
             return token;
@@ -31,7 +31,7 @@ public class CsrfMiddleware {
         }
     }
 
-    private boolean compareTokens(String token, String storedToken, Session session) {
+    private boolean compareTokens(String token, String storedToken) {
         if(storedToken != null && token != null) {
             return storedToken.equals(token);
         }
