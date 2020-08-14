@@ -1,4 +1,4 @@
-package com.mitchdennett.framework.auth;
+package com.mitchdennett.auth;
 
 import com.mitchdennett.framework.crypto.PasswordUtils;
 import com.mitchdennett.framework.http.NeedsRequest;

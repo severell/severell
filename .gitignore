@@ -3,6 +3,7 @@
 **/.env
 target/**
 src/main/java/com/mitchdennett/main/**
+src/main/java/com/mitchdennett/auth/**
 src/main/java/com/mitchdennett/controller/**
 src/main/resources/templates/**
 src/main/java/com/mitchdennett/models/**

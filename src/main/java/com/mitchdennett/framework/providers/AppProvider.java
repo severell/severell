@@ -1,7 +1,7 @@
 package com.mitchdennett.framework.providers;
 
 import com.github.mustachejava.DefaultMustacheFactory;
-import com.mitchdennett.framework.auth.Auth;
+import com.mitchdennett.auth.Auth;
 import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
 import org.apache.commons.dbcp2.BasicDataSource;
