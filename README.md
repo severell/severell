@@ -1,3 +1,3 @@
-[![Coverage Status](https://coveralls.io/repos/github/mitchdennett/severell-core/badge.svg?branch=master)](https://coveralls.io/github/mitchdennett/severell-core?branch=master)
+[![codecov](https://codecov.io/gh/mitchdennett/severell-core/branch/master/graph/badge.svg)](https://codecov.io/gh/mitchdennett/severell-core)
 
 # severell-core
