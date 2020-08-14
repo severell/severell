@@ -1,22 +1,18 @@
 package com.mitchdennett.framework.middleware;
 
 import com.mitchdennett.framework.drivers.Session;
-import com.mitchdennett.framework.drivers.SessionMemoryDriver;
 import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import java.util.UUID;
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class CsrfMiddlewareTest {
 

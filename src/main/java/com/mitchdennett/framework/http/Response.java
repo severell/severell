@@ -10,9 +10,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public class Response extends HttpServletResponseWrapper {
 

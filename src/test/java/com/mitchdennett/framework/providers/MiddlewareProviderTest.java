@@ -1,8 +1,6 @@
 package com.mitchdennett.framework.providers;
 
 import com.mitchdennett.framework.container.Container;
-import com.mitchdennett.framework.http.Request;
-import com.mitchdennett.framework.http.Response;
 import com.mitchdennett.framework.middleware.MiddlewareMapper;
 import com.mitchdennett.framework.middleware.MockMiddleware;
 import org.junit.jupiter.api.BeforeAll;
@@ -13,7 +11,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 

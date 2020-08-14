@@ -1,12 +1,10 @@
 package com.mitchdennett.framework.drivers;
 
 import com.mitchdennett.framework.http.Request;
-import com.mitchdennett.framework.middleware.CsrfMiddleware;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.servlet.http.HttpSession;
-
 import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
