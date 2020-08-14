@@ -4,8 +4,6 @@ import com.mitchdennett.framework.annotations.After;
 import com.mitchdennett.framework.annotations.Before;
 import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.middleware.MiddlewareMapper;
-import com.mitchdennett.main.Middleware;
-import com.mitchdennett.main.Providers;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -24,8 +22,10 @@ public class MiddlewareProvider extends ServiceProvider{
 
     @Override
     public void boot() {
+        Class[] middleware = c.make("_MiddlewareList", Class[].class);
+
         ArrayList defaultMiddlewareBefore = new ArrayList<>();
-        for(Class p : Middleware.MIDDLEWARE) {
+        for(Class p : middleware) {
             try {
                 Object midd = p.getDeclaredConstructor().newInstance();
                 for (Method method : midd.getClass().getDeclaredMethods()) {
@@ -42,7 +42,7 @@ public class MiddlewareProvider extends ServiceProvider{
         c.bind("DefaultMiddlewareBefore",defaultMiddlewareBefore);
 
         ArrayList defaultMiddlewareAfter = new ArrayList<>();
-        for(Class p : Middleware.MIDDLEWARE) {
+        for(Class p : middleware) {
             try {
                 Object midd = p.getDeclaredConstructor().newInstance();
                 for (Method method : midd.getClass().getDeclaredMethods()) {

@@ -10,8 +10,7 @@ import org.mockito.ArgumentCaptor;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class RouterTest {
@@ -45,6 +44,7 @@ public class RouterTest {
         Router.Get("/blogging", "com.mitchdennett.framework.http.RouterTest::index");
         Router.Get("/post/:id/settings", "com.mitchdennett.framework.http.RouterTest::index");
         Router.Get("/house/:id/*homes", "com.mitchdennett.framework.http.RouterTest::index");
+        Router.Get("/user_:name","com.mitchdennett.framework.http.RouterTest::index");
     }
 
     @Test
@@ -300,6 +300,35 @@ public class RouterTest {
     }
 
     @Test
+    public void testSameRouteWithParamAppended() throws Exception {
+        Router.clearRoutes();
+        Router.Get("/some", "com.mitchdennett.framework.http.RouterTest::index");
+        Router.Get("/some:name", "com.mitchdennett.framework.http.RouterTest::index");
+        Method meth = Class.forName("com.mitchdennett.framework.http.RouterTest").getDeclaredMethod("index");
+        Router router = new Router();
+        Request req = mock(Request.class);
+
+        ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
+
+        String path = "/some";
+        router.compileRoutes(context, c);
+        Route route = router.lookup(path, HttpMethod.GET, req);
+
+        assertEquals("/some", route.getPath());
+        assertEquals(meth, route.getMethod());
+
+        route = router.lookup("/something", HttpMethod.GET, req);
+        verify(req).addParam(key.capture(), val.capture());
+
+        assertEquals("/some:name", route.getPath());
+        assertEquals(meth, route.getMethod());
+
+        assertEquals("name", key.getAllValues().get(0));
+        assertEquals("thing", val.getAllValues().get(0));
+    }
+
+    @Test
     public void testWildCardWithLongerDupeNames() throws Exception {
         assertThrows(Exception.class, () -> {
             Router.clearRoutes();
@@ -307,6 +336,53 @@ public class RouterTest {
             Router.Get("/*testing", "com.mitchdennett.framework.http.RouterTest::index");
             Router router = new Router();
             router.compileRoutes(context, c);
+        });
+    }
+
+    @Test
+    public void routerHandlesPartFixedPartWildcard() throws Exception {
+        Method meth = Class.forName("com.mitchdennett.framework.http.RouterTest").getDeclaredMethod("index");
+        Router router = new Router();
+        Request req = mock(Request.class);
+
+        ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
+
+
+        String path = "/user_mitch";
+        router.compileRoutes(context, c);
+        Route route = router.lookup(path, HttpMethod.GET, req);
+
+        verify(req).addParam(key.capture(), val.capture());
+        assertEquals("name", key.getValue());
+        assertEquals("mitch", val.getValue());
+
+        assertEquals("/user_:name", route.getPath());
+        assertEquals(meth, route.getMethod());
+    }
+
+    @Test
+    public void testRouterReturnsNullWhenNotFindingPath() throws Exception {
+        Router.clearRoutes();
+        Router.Get("/", "com.mitchdennett.framework.http.RouterTest::index");
+        Router.Get("/search", "com.mitchdennett.framework.http.RouterTest::index");
+        Router.Get("/blog/:id", "com.mitchdennett.framework.http.RouterTest::index");
+        Router router = new Router();
+        Request req = mock(Request.class);
+
+        String path = "/homebase";
+        router.compileRoutes(context, c);
+        assertNull(router.lookup(path, HttpMethod.GET, req));
+        assertNull(router.lookup("/search/2", HttpMethod.GET, req));
+        assertNull(router.lookup("/blog/2/home", HttpMethod.GET, req));
+        assertNull(router.lookup("/blog/2/", HttpMethod.GET, req));
+    }
+
+    @Test
+    public void testRouterThrowsErrorWhenMethodNotFound() throws Exception {
+        assertThrows(RuntimeException.class, () -> {
+            Router.clearRoutes();
+            Router.Get("/", "com.mitchdennett.framework.http.RouterTest::notFound");
         });
     }
 }
