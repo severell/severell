@@ -27,7 +27,4 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
         file: ./coverage.xml # optional
-        files: ./coverage1.xml,./coverage2.xml # optional
-        flags: unittests # optional
-        name: codecov-umbrella # optional
         fail_ci_if_error: true # optional (default = false)
