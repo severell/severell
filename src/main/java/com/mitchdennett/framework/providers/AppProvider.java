@@ -1,7 +1,6 @@
 package com.mitchdennett.framework.providers;
 
 import com.github.mustachejava.DefaultMustacheFactory;
-import com.mitchdennett.auth.Auth;
 import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -24,7 +23,6 @@ public class AppProvider extends ServiceProvider{
     @Override
     public void register() {
         c.bind(new DefaultMustacheFactory());
-        c.bind(new Auth());
         c.bind(new ServletContextHandler(ServletContextHandler.SESSIONS));
     }
 
