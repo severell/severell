@@ -65,6 +65,7 @@ public class BasicServlet extends HttpServlet {
     private void runBeforeMiddleware(Route ref, Request req, Response resp) throws InvocationTargetException, IllegalAccessException {
         ArrayList<MiddlewareMapper> toRun = ref.getMiddlewareBefore();
         ArrayList<MiddlewareMapper> defaultBefore = c.make("DefaultMiddlewareBefore", ArrayList.class);
+        defaultBefore = defaultBefore == null ? new ArrayList<MiddlewareMapper>() : defaultBefore;
 
         defaultBefore.addAll(toRun);
 
@@ -76,10 +77,10 @@ public class BasicServlet extends HttpServlet {
     private void runAfterMiddleware(Route ref, Request req, Response resp) throws InvocationTargetException, IllegalAccessException {
 //        ArrayList<MiddlewareMapper> toRun = ref.getMiddlewareAfter();
         ArrayList<MiddlewareMapper> defaultAfter = c.make("DefaultMiddlewareAfter", ArrayList.class);
+        defaultAfter = defaultAfter == null ? new ArrayList<MiddlewareMapper>() : defaultAfter;
 
 //        defaultAfter.addAll(toRun);
-
-        for(MiddlewareMapper m : defaultAfter) {
+        for (MiddlewareMapper m : defaultAfter) {
             m.run(c, req, resp);
         }
     }
@@ -89,7 +90,7 @@ public class BasicServlet extends HttpServlet {
 
         if(ref != null) {
             runBeforeMiddleware(ref, request, response);
-            Container.invoke(c, request, response, ref.getMethod(), null);
+            c.invoke(request, response, ref.getMethod(), null);
             runAfterMiddleware(ref, request, response);
         } else {
             //throw new ServletException("Not Found");

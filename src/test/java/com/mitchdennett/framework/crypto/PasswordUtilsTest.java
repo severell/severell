@@ -8,6 +8,8 @@ public class PasswordUtilsTest {
 
     @Test
     public void testHashPasswordCorrectly() {
+        PasswordUtils utils = new PasswordUtils();
+
         String password = "mypassword";
         String hashed = PasswordUtils.hashPassword(password);
         assertNotNull(hashed);

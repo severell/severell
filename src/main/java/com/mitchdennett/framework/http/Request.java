@@ -56,8 +56,17 @@ public class Request extends HttpServletRequestWrapper {
 
                 body = URLDecoder.decode(body, "UTF-8");
                 this.bodyData = Arrays.stream(body.split("&")).collect(Collectors.toMap(
-                        entry -> entry.split("=")[0],
-                        entry -> entry.split("=")[1]
+                        entry -> {
+                            return entry.split("=")[0];
+                        },
+                        entry -> {
+                            String[] spl = entry.split("=");
+                            if(spl != null && spl.length > 1) {
+                                return spl[1];
+                            } else {
+                                return "";
+                            }
+                        }
                 ));
             } catch (IOException e) {
                 e.printStackTrace();

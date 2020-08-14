@@ -18,6 +18,6 @@ public class MiddlewareMapper {
     }
 
     public void run(Container c, Request req, Response resp) throws InvocationTargetException, IllegalAccessException {
-        Container.invoke(c, req, resp, meth, inst);
+        c.invoke(req, resp, meth, inst);
     }
 }

@@ -39,13 +39,13 @@ public class Container {
         ioc.put(c.getName(), obj);
     }
 
-    public static void invoke(Container c, Request req, Response resp, Method meth, Object inst) throws InvocationTargetException, IllegalAccessException {
+    public void invoke(Request req, Response resp, Method meth, Object inst) throws InvocationTargetException, IllegalAccessException {
         Class[] params = meth.getParameterTypes();
         ArrayList<Object> paramsToPass = new ArrayList<Object>(params.length);
         for (Class p : params) {
             if (p != Request.class && p != Response.class) {
 
-                Object obj = c.make(p);
+                Object obj = make(p);
 
                 if(obj instanceof NeedsRequest) {
                     ((NeedsRequest) obj).setRequest(req);
