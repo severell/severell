@@ -1,6 +1,5 @@
 package com.mitchdennett.framework.providers;
 
-import com.mitchdennett.framework.MailSmtpDriver;
 import com.mitchdennett.framework.container.Container;
 
 public class MailProvider extends ServiceProvider{
@@ -11,7 +10,6 @@ public class MailProvider extends ServiceProvider{
 
     @Override
     public void register() {
-        c.bind(new MailSmtpDriver());
     }
 
     @Override
