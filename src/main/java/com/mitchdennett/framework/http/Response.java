@@ -45,15 +45,14 @@ public class Response extends HttpServletResponseWrapper {
     public void view(String template, HashMap<String, Object> data) throws IOException {
         this.setContentType("text/html");
         MustacheFactory mf;
-        if(c == null) {
-            mf = new DefaultMustacheFactory();
-        } else {
-            mf = c.make(DefaultMustacheFactory.class);
+
+        mf = c.make(DefaultMustacheFactory.class);
+        if(mf != null) {
+            Mustache m = mf.compile("src/main/resources/templates/" + template);
+            PrintWriter writer = this.getWriter();
+            data.putAll(shared);
+            m.execute(writer, data).flush();
         }
-        Mustache m = mf.compile("src/main/resources/templates/" + template);
-        PrintWriter writer = this.getWriter();
-        data.putAll(shared);
-        m.execute(writer, data).flush();
     }
 
     public void share(String key, Object obj) {

@@ -17,8 +17,7 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class ResponseTest {
 
@@ -35,7 +34,10 @@ public class ResponseTest {
         given(r.getWriter()).willReturn(printWriter);
         given(m.execute(any(Writer.class), any(HashMap.class))).willReturn(w);
         HashMap<String, Object> data = new HashMap<String, Object>();
+        data.put("something", "else");
 
+        HashMap<String, Object> expectedData = new HashMap<String, Object>();
+        expectedData.put("something", "else");
 
         Response resp = new Response(r, c);
         resp.view("sometemplate", data);
@@ -50,6 +52,110 @@ public class ResponseTest {
         ArgumentCaptor<HashMap<String, Object>> dataCaptor = ArgumentCaptor.forClass(HashMap.class);
         verify(m).execute(writerCaptor.capture(), dataCaptor.capture());
 
-        assertEquals(data, dataCaptor.getValue());
+        assertEquals(expectedData, dataCaptor.getValue());
+    }
+
+    @Test
+    public void testViewWithShareData() throws IOException {
+        HttpServletResponse r = mock(HttpServletResponse.class);
+        Container c = mock(Container.class);
+        DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
+        given(c.make(DefaultMustacheFactory.class)).willReturn(mf);
+        Mustache m = mock(Mustache.class);
+        given(mf.compile(any(String.class))).willReturn(m);
+        Writer w = mock(Writer.class);
+        PrintWriter printWriter = mock(PrintWriter.class);
+        given(r.getWriter()).willReturn(printWriter);
+        given(m.execute(any(Writer.class), any(HashMap.class))).willReturn(w);
+        HashMap<String, Object> data = new HashMap<String, Object>();
+
+
+        HashMap<String, Object> expectedData = new HashMap<String, Object>();
+        expectedData.put("otherdata", "moredata");
+
+
+        Response resp = new Response(r, c);
+        resp.share("otherdata", "moredata");
+        resp.view("sometemplate", data);
+
+
+        ArgumentCaptor<String> templateCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(mf).compile(templateCaptor.capture());
+
+        assertEquals("src/main/resources/templates/sometemplate", templateCaptor.getValue());
+
+        ArgumentCaptor<Writer> writerCaptor = ArgumentCaptor.forClass(Writer.class);
+        ArgumentCaptor<HashMap<String, Object>> dataCaptor = ArgumentCaptor.forClass(HashMap.class);
+        verify(m).execute(writerCaptor.capture(), dataCaptor.capture());
+
+        assertEquals(expectedData, dataCaptor.getValue());
+    }
+
+    @Test
+    public void testViewNoMustacheFactory() throws IOException {
+        HttpServletResponse r = mock(HttpServletResponse.class);
+        Container c = mock(Container.class);
+        DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
+        given(c.make(DefaultMustacheFactory.class)).willReturn(null);
+
+
+        Response resp = new Response(r, c);
+        resp.view("sometemplate", null);
+
+        //Doesn't throw a null pointer.
+
+    }
+
+
+    @Test
+    public void responseHeadersTest() {
+        HttpServletResponse r = mock(HttpServletResponse.class);
+        Response resp = new Response(r, null);
+
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Test1", "Value1");
+        headers.put("Test2", "Value2");
+
+        resp.headers(headers);
+
+        ArgumentCaptor<String> keyCap = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> valCap = ArgumentCaptor.forClass(String.class);
+
+        verify(r, times(2)).addHeader(keyCap.capture(), valCap.capture());
+
+        assertEquals("Test1", keyCap.getAllValues().get(0));
+        assertEquals("Test2", keyCap.getAllValues().get(1));
+
+        assertEquals("Value1", valCap.getAllValues().get(0));
+        assertEquals("Value2", valCap.getAllValues().get(1));
+
+    }
+
+    @Test
+    public void responseNullHeadersTest() {
+        HttpServletResponse r = mock(HttpServletResponse.class);
+        Response resp = new Response(r, null);
+
+        resp.headers(null);
+
+        ArgumentCaptor<String> keyCap = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> valCap = ArgumentCaptor.forClass(String.class);
+
+        verify(r, times(0)).addHeader(keyCap.capture(), valCap.capture());
+    }
+
+    @Test
+    public void testRedirect() throws IOException {
+        HttpServletResponse r = mock(HttpServletResponse.class);
+        Response resp = new Response(r, null);
+
+        resp.redirect("/somewhere");
+
+        ArgumentCaptor<String> keyCap = ArgumentCaptor.forClass(String.class);
+
+        verify(r, times(1)).sendRedirect(keyCap.capture());
+
+        assertEquals("/somewhere", keyCap.getValue());
     }
 }
