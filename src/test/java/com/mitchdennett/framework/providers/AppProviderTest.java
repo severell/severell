@@ -50,6 +50,5 @@ public class AppProviderTest {
         ContextHandlerCollection collect = (ContextHandlerCollection) handlerCaptor.getValue();
         Handler[] handlers = collect.getHandlers();
         assertEquals(2, handlers.length);
-
     }
 }
