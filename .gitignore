@@ -1,6 +1,7 @@
 .idea
 .DS_Store
 **/.env
+!src/test/resources/.env
 target/**
 src/main/java/com/mitchdennett/main/**
 src/main/java/com/mitchdennett/auth/**
