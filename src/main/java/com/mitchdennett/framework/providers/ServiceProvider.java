@@ -12,6 +12,6 @@ public abstract class ServiceProvider implements Provider {
 
     public abstract void register();
 
-    public abstract void boot();
+    public abstract void boot() throws Exception;
 
 }

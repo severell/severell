@@ -12,17 +12,12 @@ public class RouteProvider extends ServiceProvider{
 
     @Override
     public void register() {
-
+        c.bind(new Router());
     }
 
     @Override
-    public void boot() {
-        Router r = new Router();
-        try {
-            r.compileRoutes(c.make(ServletContextHandler.class), c);
-        }catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+    public void boot() throws Exception {
+        Router r = c.make(Router.class);
+        r.compileRoutes(c.make(ServletContextHandler.class), c);
     }
 }
