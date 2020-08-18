@@ -55,7 +55,7 @@ public class AppProvider extends ServiceProvider{
         BasicDataSource connectionPool = new BasicDataSource();
         connectionPool.setUsername(Config.get("DB_USERNAME"));
         connectionPool.setPassword(Config.get("DB_PASSWORD"));
-        connectionPool.setDriverClassName("org.postgresql.Driver");
+        connectionPool.setDriverClassName(Config.get("DB_DRIVER"));
         connectionPool.setUrl(Config.get("DB_CONNSTRING"));
         connectionPool.setInitialSize(5);
         connectionPool.setMinIdle(5);

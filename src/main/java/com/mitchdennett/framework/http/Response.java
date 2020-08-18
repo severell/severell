@@ -45,7 +45,6 @@ public class Response extends HttpServletResponseWrapper {
     public void view(String template, HashMap<String, Object> data) throws IOException {
         this.setContentType("text/html");
         MustacheFactory mf;
-
         mf = c.make(DefaultMustacheFactory.class);
         if(mf != null) {
             Mustache m = mf.compile("src/main/resources/templates/" + template);

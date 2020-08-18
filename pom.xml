@@ -6,7 +6,7 @@
 
     <groupId>com.mitchdennett</groupId>
     <artifactId>CaspianMaven</artifactId>
-    <version>0.01</version>
+    <version>0.02</version>
     <name>CaspianMaven</name>
     <packaging>jar</packaging>
 

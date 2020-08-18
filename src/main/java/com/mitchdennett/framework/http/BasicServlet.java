@@ -45,7 +45,7 @@ public class BasicServlet extends HttpServlet {
 
     public void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IllegalAccessException, InvocationTargetException, IOException {
         Request req = new Request(request);
-        Response resp = new Response(response);
+        Response resp = new Response(response, c);
         req.parseBody();
 
         if(myDS == null) {
