@@ -8,16 +8,15 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Migrate {
 
@@ -33,17 +32,10 @@ public class Migrate {
 
     private static Connection connection;
     private static DatabaseMigrationRepository repository;
+    private static URLClassLoader loader;
 
-    public static void runUp(String[] args) throws URISyntaxException, IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException, SQLException {
-        System.out.println(String.format("%s Starting Migrator... %s", ANSI_GREEN, ANSI_RESET));
-
-        createConnection();
-        Builder b = new PostgresBuilder(connection);
-        Schema.setBuilder(b);
-        prepareDatabase();
-
-        Iterable<Class> list = getMigrations("migrations");
-        List<Class> pendingList = getPendingMigrations(list);
+    public static void runUp(String[] args) throws Exception {
+        List<Class> pendingList = getPendingMigrations(prepareMigrations());
 
         if(pendingList.size() == 0) {
             System.out.println(String.format("%s Nothing to Migrate %s", ANSI_RED, ANSI_RESET));
@@ -65,14 +57,19 @@ public class Migrate {
         }
     }
 
-    public static void reset(String[] args) throws URISyntaxException, IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException, SQLException {
+    private static ArrayList<Class> prepareMigrations() throws Exception {
+        loader = setupClassLoader();
         System.out.println(String.format("%s Starting Migrator... %s", ANSI_GREEN, ANSI_RESET));
         createConnection();
         Builder b = new PostgresBuilder(connection);
         Schema.setBuilder(b);
         prepareDatabase();
-        Iterable<Class> list = getMigrations("migrations");
-        List<Class> resetList = getMigrationsToReset(list);
+
+        return getMigrations("migrations");
+    }
+
+    public static void reset(String[] args) throws Exception {
+        List<Class> resetList = getMigrationsToReset(prepareMigrations());
 
         if(resetList.size() == 0){
             System.out.println(String.format("%s Nothing to reset %s", ANSI_RED, ANSI_RESET));
@@ -82,15 +79,23 @@ public class Migrate {
         runDown(resetList);
     }
 
-    public static void rollback(String[] args) throws URISyntaxException, IOException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException, SQLException {
-        createConnection();
-        Builder b = new PostgresBuilder(connection);
-        Schema.setBuilder(b);
-        prepareDatabase();
-        Iterable<Class> list = getMigrations("migrations");
-        List<Class> resetList = getMigrationsToRollback(list);
+    public static void rollback(String[] args) throws Exception {
+        List<Class> resetList = getMigrationsToRollback(prepareMigrations());
+
+        if(resetList.size() == 0){
+            System.out.println(String.format("%s Nothing to reset %s", ANSI_RED, ANSI_RESET));
+            return;
+        }
 
         runDown(resetList);
+    }
+
+    private static URLClassLoader setupClassLoader() throws Exception {
+        Path p = Paths.get("target/classes");
+        File f = p.toFile();
+        URL[] urls = new URL[]{f.toURI().toURL()};
+        URLClassLoader loader = URLClassLoader.newInstance(urls,Migrate.class.getClassLoader());
+        return loader;
     }
 
     private static void runDown(List<Class> resetList) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
@@ -176,48 +181,18 @@ public class Migrate {
         connection.setDataSource(connectionPool);
     }
 
-    private static Iterable<Class> getMigrations(String packageName) throws ClassNotFoundException, IOException, URISyntaxException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        String path = packageName.replace('.', '/');
-        Enumeration<URL> resources = classLoader.getResources(path);
-        List<File> dirs = new ArrayList<File>();
-        while (resources.hasMoreElements())
-        {
-            URL resource = resources.nextElement();
-            URI uri = new URI(resource.toString());
-            dirs.add(new File(uri.getPath()));
-        }
-        List<Class> classes = new ArrayList<Class>();
-        for (File directory : dirs)
-        {
-            classes.addAll(findClasses(directory, packageName));
+    private static ArrayList<Class> getMigrations(String packageName) throws ClassNotFoundException, IOException, URISyntaxException {
+        ArrayList<Class> classList = new ArrayList<>();
+
+        Path p = Paths.get("src/db/java/migrations");
+        File f = p.toFile();
+        String[] migrationFiles = f.getAbsoluteFile().list();
+
+        for(String file : migrationFiles) {
+            classList.add(loader.loadClass("migrations" + "." + file.substring(0, file.length() - 5)));
         }
 
-        return classes;
+        return classList;
     }
-
-    private static List<Class> findClasses(File directory, String packageName) throws ClassNotFoundException
-    {
-        List<Class> classes = new ArrayList<Class>();
-        if (!directory.exists())
-        {
-            return classes;
-        }
-        File[] files = directory.listFiles();
-        for (File file : files)
-        {
-            if (file.isDirectory())
-            {
-                classes.addAll(findClasses(file, packageName + "." + file.getName()));
-            }
-            else if (file.getName().endsWith(".class"))
-            {
-                classes.add(Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6)));
-            }
-        }
-        return classes;
-    }
-
-
 
 }
