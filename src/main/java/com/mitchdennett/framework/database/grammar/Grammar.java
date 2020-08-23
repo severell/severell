@@ -5,11 +5,9 @@ import com.mitchdennett.framework.database.migrations.ColumnDefinition;
 
 import java.util.ArrayList;
 
-public class Grammar {
+public abstract class Grammar {
 
-    public String create(Blueprint table) {
-        return null;
-    }
+    public abstract String create(Blueprint table);
 
     public String[] getColumns(Blueprint table) {
         ArrayList<String> cols = new ArrayList<String>();
@@ -35,36 +33,35 @@ public class Grammar {
     }
 
 
-    public String typeString(ColumnDefinition col) {
-        return null;
-    }
+    public abstract String typeString(ColumnDefinition col);
 
-    public String typeBigInteger(ColumnDefinition col) {
-        return null;
-    }
+    public abstract String typeBigInteger(ColumnDefinition col);
 
-    public String typeTimestamp(ColumnDefinition c) {
-        return null;
-    }
+    public abstract String typeTimestamp(ColumnDefinition c);
 
-    public String generatableColumn(String type, ColumnDefinition col) {
-        return null;
-    }
+    public abstract String generatableColumn(String type, ColumnDefinition col);
 
-    public String modifyNullable(ColumnDefinition col) {
-        return null;
-    }
+    public abstract  String modifyNullable(ColumnDefinition col);
 
     public Modifier[] getModifiers() {
         return new Modifier[]{};
     }
 
-    public String drop(Blueprint table) {
-        return null;
-    }
+    public abstract String drop(Blueprint table);
 
-    public String compileTableExists() {
-        return null;
-    }
+    public abstract String compileTableExists();
 
+    public abstract String typeBinary(ColumnDefinition c);
+
+    public abstract String typeBool(ColumnDefinition c);
+
+    public abstract String typeInteger(ColumnDefinition c);
+
+    public abstract String typeText(ColumnDefinition c);
+
+    public abstract String typeDecimal(ColumnDefinition c);
+
+    public abstract String typeDouble(ColumnDefinition c);
+
+    public abstract String typeDate(ColumnDefinition c);
 }

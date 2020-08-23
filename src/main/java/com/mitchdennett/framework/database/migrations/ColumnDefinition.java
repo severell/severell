@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 public class ColumnDefinition {
 
+
     enum ColumnType{
         STRING {
             @Override
@@ -25,9 +26,50 @@ public class ColumnDefinition {
             public String compile(Grammar grammar, ColumnDefinition c) {
                 return grammar.typeTimestamp(c);
             }
-        };;
+        },
+        BINARY {
+            @Override
+            public String compile(Grammar grammar, ColumnDefinition c) {
+                return grammar.typeBinary(c);
+            }
+        },
+        BOOL {
+            @Override
+            public String compile(Grammar grammar, ColumnDefinition c) {
+                return grammar.typeBool(c);
+            }
+        },
+        INTEGER {
+            @Override
+            public String compile(Grammar grammar, ColumnDefinition c) {
+                return grammar.typeInteger(c);
+            }
+        },
+        TEXT {
+            @Override
+            public String compile(Grammar grammar, ColumnDefinition c) {
+                return grammar.typeText(c);
+            }
+        },
+        DECIMAL {
+            @Override
+            public String compile(Grammar grammar, ColumnDefinition c) {
+                return grammar.typeDecimal(c);
+            }
+        }, DOUBLE{
+            @Override
+            public String compile(Grammar grammar, ColumnDefinition c) {
+                return grammar.typeDouble(c);
+            }
+        }, DATE {
+            @Override
+            public String compile(Grammar grammar, ColumnDefinition c) {
+                return grammar.typeDate(c);
+            }
+        };
 
-        public abstract String compile(Grammar grammar,  ColumnDefinition c);
+
+        public abstract String compile(Grammar grammar, ColumnDefinition c);
     }
 
     private ColumnType type;

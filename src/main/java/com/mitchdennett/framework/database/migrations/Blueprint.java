@@ -42,6 +42,38 @@ public class Blueprint {
         this.timestamp("updated_at").nullable();
     }
 
+    public ColumnDefinition binary(String column) {
+        return this.addColumn(ColumnDefinition.ColumnType.BINARY, column);
+    }
+
+    public ColumnDefinition bool(String column) {
+        return this.addColumn(ColumnDefinition.ColumnType.BOOL, column);
+    }
+
+    public ColumnDefinition integer(String column) {
+        return this.addColumn(ColumnDefinition.ColumnType.INTEGER, column);
+    }
+
+    public ColumnDefinition text(String column) {
+        return this.addColumn(ColumnDefinition.ColumnType.TEXT, column);
+    }
+
+    public ColumnDefinition decimal(String column, int precision, int scale) {
+        return this.addColumn(ColumnDefinition.ColumnType.DECIMAL,column, new ColumnParams("precision", precision), new ColumnParams("scale", scale));
+    }
+
+    public ColumnDefinition dbl(String column) {
+        return dbl(column, null,null);
+    }
+
+    public ColumnDefinition dbl(String column, Integer precision, Integer scale) {
+        return this.addColumn(ColumnDefinition.ColumnType.DOUBLE,column, new ColumnParams("precision", precision), new ColumnParams("scale", scale));
+    }
+
+    public ColumnDefinition date(String column, Integer precision, Integer scale) {
+        return this.addColumn(ColumnDefinition.ColumnType.DATE,column);
+    }
+
     private ColumnDefinition addColumn(ColumnDefinition.ColumnType type, String name, ColumnParams... params) {
         ColumnDefinition column = new ColumnDefinition(type, name, params);
         columns.add(column);

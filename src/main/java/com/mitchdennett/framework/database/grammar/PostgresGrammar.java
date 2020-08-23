@@ -84,4 +84,41 @@ public class PostgresGrammar extends Grammar {
     public String compileTableExists() {
         return "select * from information_schema.tables where table_schema = ? and table_name = ? and table_type = 'BASE TABLE'";
     }
+
+    @Override
+    public String typeBinary(ColumnDefinition c) {
+        return "bytea";
+    }
+
+    @Override
+    public String typeBool(ColumnDefinition c) {
+        return "boolean";
+    }
+
+    @Override
+    public String typeInteger(ColumnDefinition c) {
+        return this.generatableColumn("integer", c);
+    }
+
+    @Override
+    public String typeText(ColumnDefinition c) {
+        return "text";
+    }
+
+    @Override
+    public String typeDecimal(ColumnDefinition c) {
+        int precision = c.get("precision", Integer.class);
+        int scale = c.get("scale", Integer.class);
+        return String.format("decimal(%d,%d)", precision, scale);
+    }
+
+    @Override
+    public String typeDouble(ColumnDefinition c) {
+        return "double precision";
+    }
+
+    @Override
+    public String typeDate(ColumnDefinition c) {
+        return "date";
+    }
 }
