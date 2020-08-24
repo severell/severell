@@ -8,8 +8,8 @@ public class MigrationException extends Throwable {
     private final String additionalMessage;
 
     enum MigrationExceptionType {
-        TABLEEXISTS("Table Already Exists"),
-        UNKNOWN("Unknown Error: ");
+        RELATIONEXISTS("Relation Already Exists: "),
+        UNKNOWN("Error: ");
 
         private String reason;
         MigrationExceptionType(String s) {

@@ -38,6 +38,7 @@
     </content>
     <orderEntry type="jdk" jdkName="openjdk-14" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.squareup:javapoet:1.13.0" level="project" />
     <orderEntry type="library" name="Maven: org.postgresql:postgresql:42.2.14.jre7" level="project" />
     <orderEntry type="library" name="Maven: org.javalite:activejdbc:2.3.2-j8" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.30" level="project" />

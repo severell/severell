@@ -196,7 +196,7 @@ public class Migrate {
     private static ArrayList<Class> getMigrations(String packageName) throws ClassNotFoundException, IOException, URISyntaxException {
         ArrayList<Class> classList = new ArrayList<>();
 
-        Path p = Paths.get("src/db/java/migrations");
+        Path p = Paths.get("src/db/migrations");
         File f = p.toFile();
         String[] migrationFiles = f.getAbsoluteFile().list();
 

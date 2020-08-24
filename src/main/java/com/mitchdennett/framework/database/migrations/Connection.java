@@ -28,8 +28,8 @@ public abstract class Connection {
             PreparedStatement st = c.prepareStatement(s);
             st.execute();
         } catch (Exception e) {
-            if(e.getMessage() != null && e.getMessage().contains("already exists")) {
-                throw new MigrationException(MigrationException.MigrationExceptionType.TABLEEXISTS);
+            if(e.getMessage() != null && e.getMessage().contains("already exists") && e.getMessage().contains("relation"))  {
+                throw new MigrationException(MigrationException.MigrationExceptionType.RELATIONEXISTS, e.getMessage());
             } else {
                 throw new MigrationException(MigrationException.MigrationExceptionType.UNKNOWN, e.getMessage());
             }
