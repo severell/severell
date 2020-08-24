@@ -14,16 +14,22 @@ public class Schema {
         return builder;
     }
 
-    public static void create(String tableName, Consumer<Blueprint> function) {
+    public static void create(String tableName, Consumer<Blueprint> function) throws MigrationException {
         Blueprint table = new Blueprint(tableName);
         table.create();
         function.accept(table);
         builder.build(table);
     }
 
-    public static void drop(String tableName) {
+    public static void drop(String tableName) throws MigrationException {
         Blueprint table = new Blueprint(tableName);
         table.drop();
+        builder.build(table);
+    }
+
+    public static void table(String tableName, Consumer<Blueprint> function) throws MigrationException {
+        Blueprint table = new Blueprint(tableName);
+        function.accept(table);
         builder.build(table);
     }
 }

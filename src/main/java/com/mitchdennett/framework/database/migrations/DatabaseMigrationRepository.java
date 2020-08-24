@@ -12,7 +12,7 @@ public class DatabaseMigrationRepository {
         this.connection = connection;
     }
 
-    public void createRepository() {
+    public void createRepository() throws MigrationException {
         Schema.create("migrations", (Blueprint table) -> {
             table.id();
             table.string("migration");

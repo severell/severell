@@ -20,6 +20,12 @@ public class Command {
             public String compile(Blueprint table,Grammar grammar) {
                 return grammar.drop(table);
             }
+        },
+        ADD{
+            @Override
+            public String compile(Blueprint table,Grammar grammar) {
+                return grammar.add(table);
+            }
         };
 
 
@@ -30,6 +36,10 @@ public class Command {
     public Command(CommandType type, Object[] params) {
         this.type = type;
         this.params = params;
+    }
+
+    protected CommandType getType() {
+        return this.type;
     }
 
     public String compile(Blueprint table, Grammar grammar) {

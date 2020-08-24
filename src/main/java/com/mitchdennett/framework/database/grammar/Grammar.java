@@ -4,6 +4,9 @@ import com.mitchdennett.framework.database.migrations.Blueprint;
 import com.mitchdennett.framework.database.migrations.ColumnDefinition;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class Grammar {
 
@@ -30,6 +33,10 @@ public abstract class Grammar {
         }
 
         return sql;
+    }
+
+    protected String[] prefixArray(String[] list, String prefix) {
+        return Arrays.stream(list).map((val) -> prefix + " " + val).toArray(String[]::new);
     }
 
 
@@ -64,4 +71,6 @@ public abstract class Grammar {
     public abstract String typeDouble(ColumnDefinition c);
 
     public abstract String typeDate(ColumnDefinition c);
+
+    public abstract String add(Blueprint table);
 }

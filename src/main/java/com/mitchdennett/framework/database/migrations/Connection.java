@@ -23,12 +23,16 @@ public abstract class Connection {
         return dataSource;
     }
 
-    public void statement(String s) {
+    public void statement(String s) throws MigrationException {
         try (java.sql.Connection c = dataSource.getConnection()){
             PreparedStatement st = c.prepareStatement(s);
             st.execute();
         } catch (Exception e) {
-            e.printStackTrace();
+            if(e.getMessage() != null && e.getMessage().contains("already exists")) {
+                throw new MigrationException(MigrationException.MigrationExceptionType.TABLEEXISTS);
+            } else {
+                throw new MigrationException(MigrationException.MigrationExceptionType.UNKNOWN, e.getMessage());
+            }
         }
     }
 

@@ -48,12 +48,20 @@ public class Migrate {
             Method method = cl.getDeclaredMethod("up");
             LocalDateTime start = LocalDateTime.now();
             System.out.println(String.format("%s Migrating - %s %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
-            method.invoke(null);
-            repository.log(cl.getSimpleName(), batch);
-            LocalDateTime end = LocalDateTime.now();
-            long diff = ChronoUnit.MILLIS.between(start, end);
-            System.out.println(String.format("%s Migrated - %s (%d ms) %s", ANSI_GREEN, cl.getSimpleName(), diff, ANSI_RESET));
-            System.out.println("");
+            try {
+                method.invoke(null);
+                repository.log(cl.getSimpleName(), batch);
+                LocalDateTime end = LocalDateTime.now();
+                long diff = ChronoUnit.MILLIS.between(start, end);
+                System.out.println(String.format("%s Migrated - %s (%d ms) %s", ANSI_GREEN, cl.getSimpleName(), diff, ANSI_RESET));
+                System.out.println("");
+            }catch (InvocationTargetException e) {
+                MigrationException me = (MigrationException) e.getCause();
+                System.out.println(String.format("%s Failed to Migrate - %s  %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
+                System.out.println(String.format("%s Reason - %s  %s", ANSI_RED, me.getMessage(), ANSI_RESET));
+                System.out.println("");
+            }
+
         }
     }
 
@@ -164,7 +172,11 @@ public class Migrate {
     private static void prepareDatabase() throws SQLException {
         repository = new DatabaseMigrationRepository(connection);
         if( !repository.repositoryExists()) {
-            repository.createRepository();
+            try {
+                repository.createRepository();
+            }catch (MigrationException e ) {
+                e.printStackTrace();
+            }
         }
     }
 

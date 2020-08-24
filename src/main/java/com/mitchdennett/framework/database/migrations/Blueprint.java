@@ -1,8 +1,11 @@
 package com.mitchdennett.framework.database.migrations;
 
 import com.mitchdennett.framework.database.grammar.Grammar;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Blueprint {
 
@@ -80,8 +83,10 @@ public class Blueprint {
         return column;
     }
 
-    public void build(Connection connection, Grammar grammar) {
+    public void build(Connection connection, Grammar grammar) throws MigrationException {
+        getImpliedCommands();
         ArrayList<String> statements = new ArrayList<String>();
+
         for(Command c : commands) {
             String sql = c.compile(this, grammar);
             if(sql != null) {
@@ -92,6 +97,29 @@ public class Blueprint {
         for(String statement : statements) {
             connection.statement(statement);
         }
+    }
+
+    private boolean creating() {
+        for(Command c : commands) {
+            if(c.getType() == Command.CommandType.CREATE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void getImpliedCommands() {
+        if(!this.creating()) {
+            if(getAddedColumns().size() > 0) {
+                this.addCommand(Command.CommandType.ADD);
+            }
+        }
+    }
+
+    private List<ColumnDefinition> getAddedColumns() {
+        return columns.stream().filter((col) -> !col.get("change", Boolean.class))
+                .collect(Collectors.toList());
     }
 
     public void create() {

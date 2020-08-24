@@ -14,7 +14,7 @@ public class Builder {
         this.grammar = connection.getDefaultGrammar();
     }
 
-    public void build(Blueprint table) {
+    public void build(Blueprint table) throws MigrationException {
         table.build(connection, grammar);
     }
 

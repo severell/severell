@@ -23,6 +23,15 @@ public class PostgresGrammar extends Grammar {
     }
 
     @Override
+    public String add(Blueprint table) {
+        return String.format("%s table %s %s",
+                "alter",
+                table.getTableName(),
+                StringUtils.join(prefixArray(getColumns(table), "add column"), ", ")
+        );
+    }
+
+    @Override
     public String drop(Blueprint table) {
         return String.format("drop table %s", table.getTableName());
     }
@@ -121,4 +130,5 @@ public class PostgresGrammar extends Grammar {
     public String typeDate(ColumnDefinition c) {
         return "date";
     }
+
 }
