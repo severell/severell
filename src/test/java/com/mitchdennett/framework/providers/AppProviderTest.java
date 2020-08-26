@@ -35,10 +35,6 @@ public class AppProviderTest {
 
     @Test
     public void appProviderTest() throws Exception {
-        if(!Config.isLoaded()) {
-            Config.setDir("src/test/resources");
-            Config.loadConfig();
-        }
         Container c = mock(Container.class);
         Server server = mock(Server.class);
         given(c.make(Server.class)).willReturn(server);
