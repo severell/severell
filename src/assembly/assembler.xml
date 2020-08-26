@@ -12,8 +12,12 @@
             <useProjectArtifact>true</useProjectArtifact>
             <unpack>true</unpack>
             <scope>runtime</scope>
+            <excludes>
+                <exclude>*:xml:*</exclude>
+            </excludes>
             <unpackOptions>
                 <excludes>
+                    <exclude>**/*.xml</exclude>
                     <exclude>**/webapp</exclude>
                     <exclude>**/*.env</exclude>
                     <exclude>**/*.mustache</exclude>
@@ -21,6 +25,9 @@
                     <exclude>com/mitchdennett/controller/**</exclude>
                     <exclude>com/mitchdennett/middleware/**</exclude>
                     <exclude>com/mitchdennett/models/**</exclude>
+                    <exclude>com/mitchdennett/auth/**</exclude>
+                    <exclude>com/mitchdennett/commands/**</exclude>
+                    <exclude>com/mitchdennett/routes/**</exclude>
                 </excludes>
             </unpackOptions>
         </dependencySet>

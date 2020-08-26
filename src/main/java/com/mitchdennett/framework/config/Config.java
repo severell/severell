@@ -16,7 +16,11 @@ public class Config {
         dotenv = Dotenv.configure().directory(dir).load();
     }
 
-    protected static void setDir(String directory) {
+    public static boolean isLoaded() {
+        return dotenv != null;
+    }
+
+    public static void setDir(String directory) {
         dir = directory;
     }
 

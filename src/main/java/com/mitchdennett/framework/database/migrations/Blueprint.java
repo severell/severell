@@ -1,7 +1,6 @@
 package com.mitchdennett.framework.database.migrations;
 
 import com.mitchdennett.framework.database.grammar.Grammar;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.ArrayList;
 import java.util.List;

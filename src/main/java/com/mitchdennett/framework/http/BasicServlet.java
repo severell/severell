@@ -2,9 +2,7 @@ package com.mitchdennett.framework.http;
 
 import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.middleware.MiddlewareMapper;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.eclipse.jetty.http.HttpMethod;
-import org.javalite.activejdbc.Base;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,15 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class BasicServlet extends HttpServlet {
 
     private final Container c;
     private final Router router;
-    private BasicDataSource myDS;
 
     public BasicServlet(Container c, Router router) {
         this.c = c;
@@ -32,6 +27,12 @@ public class BasicServlet extends HttpServlet {
             this.processRequest(request, response);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try{
+                response.getWriter().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -40,6 +41,12 @@ public class BasicServlet extends HttpServlet {
             this.processRequest(request, response);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try{
+                response.getWriter().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -47,19 +54,7 @@ public class BasicServlet extends HttpServlet {
         Request req = new Request(request);
         Response resp = new Response(response, c);
         req.parseBody();
-
-        if(myDS == null) {
-            myDS = c.make(BasicDataSource.class);
-        }
-
-        try(Connection conn = myDS.getConnection()) {
-            Base.attach(conn);
-            doRequest(req, resp);
-        }catch(SQLException e) {
-            e.printStackTrace();
-        } finally {
-            Base.detach();
-        }
+        doRequest(req, resp);
     }
 
     private void runBeforeMiddleware(Route ref, Request req, Response resp) throws InvocationTargetException, IllegalAccessException {
@@ -67,9 +62,11 @@ public class BasicServlet extends HttpServlet {
         ArrayList<MiddlewareMapper> defaultBefore = c.make("DefaultMiddlewareBefore", ArrayList.class);
         defaultBefore = defaultBefore == null ? new ArrayList<MiddlewareMapper>() : defaultBefore;
 
-        defaultBefore.addAll(toRun);
+        ArrayList<MiddlewareMapper> middlewareList = new ArrayList<MiddlewareMapper>();
+        middlewareList.addAll(defaultBefore);
+        middlewareList.addAll(toRun);
 
-        for(MiddlewareMapper m : defaultBefore) {
+        for(MiddlewareMapper m : middlewareList) {
             m.run(c, req, resp);
         }
     }

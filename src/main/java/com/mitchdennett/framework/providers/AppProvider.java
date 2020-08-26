@@ -3,6 +3,10 @@ package com.mitchdennett.framework.providers;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
+import io.ebean.Database;
+import io.ebean.DatabaseFactory;
+import io.ebean.config.DatabaseConfig;
+import io.ebean.datasource.DataSourceConfig;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -18,7 +22,7 @@ public class AppProvider extends ServiceProvider{
 
     public AppProvider(Container c) {
         super(c);
-    };
+    }
 
     @Override
     public void register() {
@@ -52,19 +56,25 @@ public class AppProvider extends ServiceProvider{
                 context0, context
         );
 
-        BasicDataSource connectionPool = new BasicDataSource();
-        connectionPool.setUsername(Config.get("DB_USERNAME"));
-        connectionPool.setPassword(Config.get("DB_PASSWORD"));
-        connectionPool.setDriverClassName(Config.get("DB_DRIVER"));
-        connectionPool.setUrl(Config.get("DB_CONNSTRING"));
-        connectionPool.setInitialSize(5);
-        connectionPool.setMinIdle(5);
-        connectionPool.setMaxIdle(10);
+        DataSourceConfig dataSourceConfig = new DataSourceConfig();
 
-        c.bind(connectionPool);
+        dataSourceConfig.setUsername(Config.get("DB_USERNAME"));
+        dataSourceConfig.setPassword(Config.get("DB_PASSWORD"));
+        dataSourceConfig.setDriver(Config.get("DB_DRIVER"));
+        dataSourceConfig.setUrl(Config.get("DB_CONNSTRING"));
+        DatabaseConfig config = new DatabaseConfig();
+        config.setDataSourceConfig(dataSourceConfig);
+
+        Database database = createDatabse(config);
+
+        c.bind(database);
 
         server.setHandler(contexts);
 
 
+    }
+
+    protected Database createDatabse(DatabaseConfig config) {
+        return DatabaseFactory.create(config);
     }
 }

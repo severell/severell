@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class BasicServletTest {
         Router r = mock(Router.class);
         HttpServletRequest req = mock(HttpServletRequest.class);
         HttpServletResponse resp = mock(HttpServletResponse.class);
+        given(resp.getWriter()).willReturn(mock(PrintWriter.class));
         setUpRequest(c, r, req, "GET", new ArrayList<>());
 
         BasicServlet servlet = new BasicServlet(c, r);
@@ -52,6 +54,7 @@ public class BasicServletTest {
         Router r = mock(Router.class);
         HttpServletRequest req = mock(HttpServletRequest.class);
         HttpServletResponse resp = mock(HttpServletResponse.class);
+        given(resp.getWriter()).willReturn(mock(PrintWriter.class));
         setUpRequest(c, r, req, "POST",new ArrayList<>());
 
         BasicServlet servlet = new BasicServlet(c, r);
@@ -74,6 +77,7 @@ public class BasicServletTest {
         Router r = mock(Router.class);
         HttpServletRequest req = mock(HttpServletRequest.class);
         HttpServletResponse resp = mock(HttpServletResponse.class);
+        given(resp.getWriter()).willReturn(mock(PrintWriter.class));
 
         doMiddlewareTest(c, r, req, resp, "DefaultMiddlewareBefore");
 
