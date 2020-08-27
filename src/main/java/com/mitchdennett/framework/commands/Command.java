@@ -7,6 +7,7 @@ public abstract class Command {
     protected String description;
     protected String command;
     protected ArrayList<Flag> flags;
+    protected String calleePackage;
 
     public abstract void execute(String[] args);
 
@@ -59,5 +60,9 @@ public abstract class Command {
         }
 
         this.flags.add(new Flag(flag, description));
+    }
+
+    public void setCalleePackage(String calleePackage) {
+        this.calleePackage = calleePackage;
     }
 }

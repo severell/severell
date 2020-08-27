@@ -31,9 +31,7 @@ public class MakeController extends Command {
                 .addMethod(index)
                 .build();
 
-        String[] parts = this.getClass().getCanonicalName().split("\\.");
-        String[] subarray = Arrays.copyOfRange(parts, 0, parts.length - 2);
-        JavaFile javaFile = JavaFile.builder(StringUtils.join(subarray, ".") + ".controller", helloWorld)
+        JavaFile javaFile = JavaFile.builder(this.calleePackage + ".controller", helloWorld)
                 .build();
 
         try {

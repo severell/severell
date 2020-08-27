@@ -39,9 +39,7 @@ public class MakeCommand extends Command {
                 .addMethod(index)
                 .build();
 
-        String[] parts = this.getClass().getCanonicalName().split("\\.");
-        String[] subarray = Arrays.copyOfRange(parts, 0, parts.length - 1);
-        JavaFile javaFile = JavaFile.builder(StringUtils.join(subarray, "."), helloWorld)
+        JavaFile javaFile = JavaFile.builder(this.calleePackage + ".commands", helloWorld)
                 .build();
 
         try {
