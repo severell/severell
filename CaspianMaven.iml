@@ -35,6 +35,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/annotations" isTestSource="false" generated="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/webapp" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/src/main/java/com/mitchdennett/auth" />
       <excludeFolder url="file://$MODULE_DIR$/src/main/java/com/mitchdennett/commands" />
       <excludeFolder url="file://$MODULE_DIR$/src/main/java/com/mitchdennett/controller" />
@@ -63,8 +64,6 @@
     <orderEntry type="library" name="Maven: io.avaje:classpath-scanner-api:4.1" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr4-runtime:4.7.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.10.0" level="project" />
-    <orderEntry type="library" name="Maven: io.ebean:ebean-querybean:12.3.6" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: io.ebean:querybean-generator:12.3.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: io.ebean:ebean-test:12.3.6" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: io.ebean.test:ebean-test-docker:3.1.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.assertj:assertj-core:3.14.0" level="project" />

@@ -3,6 +3,7 @@ package com.mitchdennett.framework.http;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
+import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
 
 import javax.servlet.http.HttpServletResponse;
@@ -46,12 +47,15 @@ public class Response extends HttpServletResponseWrapper {
         this.setContentType("text/html");
         MustacheFactory mf;
         mf = c.make(DefaultMustacheFactory.class);
-        if(mf != null) {
-            Mustache m = mf.compile("src/main/resources/templates/" + template);
-            PrintWriter writer = this.getWriter();
-            data.putAll(shared);
-            m.execute(writer, data).flush();
+
+        if(mf == null || Config.equals("ENV", "TEST")) {
+            mf = new DefaultMustacheFactory();
         }
+
+        Mustache m = mf.compile("templates/" + template);
+        PrintWriter writer = this.getWriter();
+        data.putAll(shared);
+        m.execute(writer, data).flush();
     }
 
     public void share(String key, Object obj) {

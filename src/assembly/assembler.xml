@@ -28,6 +28,8 @@
                     <exclude>com/mitchdennett/auth/**</exclude>
                     <exclude>com/mitchdennett/commands/**</exclude>
                     <exclude>com/mitchdennett/routes/**</exclude>
+                    <exclude>**/ebean-generated-info.mf</exclude>
+                    <exclude>**/io.ebean.config.ModuleInfoLoader</exclude>
                 </excludes>
             </unpackOptions>
         </dependencySet>

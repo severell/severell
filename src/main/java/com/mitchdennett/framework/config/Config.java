@@ -13,7 +13,13 @@ public class Config {
         if(dotenv != null) {
             throw new Exception("Config has already been loaded");
         }
-        dotenv = Dotenv.configure().directory(dir).load();
+        dotenv = Dotenv.configure().load();
+    }
+
+    public static void unload() {
+        if(dotenv != null) {
+            dotenv = null;
+        }
     }
 
     public static boolean isLoaded() {
@@ -27,5 +33,15 @@ public class Config {
     public static String get(String key) {
         Optional<Dotenv> env = Optional.ofNullable(dotenv);
         return env.isPresent() ? env.get().get(key) :  null;
+    }
+
+    public static boolean equals(String key, String expected) {
+        Optional<Dotenv> env = Optional.ofNullable(dotenv);
+        if(env.isPresent()){
+            Optional<String> val = Optional.ofNullable(env.get().get(key));
+            String actualVal = val.isPresent() ? val.get() : "";
+            return actualVal.equals(expected);
+        }
+        return false;
     }
 }

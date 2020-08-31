@@ -19,5 +19,7 @@ public class ConfigTest {
         assertThrows(Exception.class, () -> {
             Config.loadConfig();
         });
+
+        Config.unload();
     }
 }

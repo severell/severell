@@ -35,17 +35,6 @@
         </dependency>
         <dependency>
             <groupId>io.ebean</groupId>
-            <artifactId>ebean-querybean</artifactId>
-            <version>12.3.6</version>
-        </dependency>
-        <dependency>
-            <groupId>io.ebean</groupId>
-            <artifactId>querybean-generator</artifactId>
-            <version>12.3.6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.ebean</groupId>
             <artifactId>ebean-test</artifactId>
             <version>12.3.6</version>
             <scope>test</scope>
@@ -129,17 +118,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>io.repaint.maven</groupId>
-                <artifactId>tiles-maven-plugin</artifactId>
-                <version>2.17</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <tiles>
-                        <tile>io.ebean.tile:enhancement:12.3.6</tile>
-                    </tiles>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

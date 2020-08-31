@@ -12,7 +12,12 @@ public enum ColumnType {
             return int.class;
         }
     },
-    BIGINT(-5),
+    BIGINT(-5){
+        @Override
+        public Class getJavaType() {
+            return long.class;
+        }
+    },
     FLOAT(6),
     REAL(7),
     DOUBLE(8),
@@ -48,8 +53,18 @@ public enum ColumnType {
     DISTINCT(2001),
     STRUCT(2002),
     ARRAY(2003),
-    BLOB(2004),
-    CLOB(2005),
+    BLOB(2004){
+        @Override
+        public Class getJavaType() {
+            return byte[].class;
+        }
+    },
+    CLOB(2005){
+        @Override
+        public Class getJavaType() {
+            return String.class;
+        }
+    },
     REF(2006),
     DATALINK(70),
     BOOLEAN(16),

@@ -2,8 +2,9 @@ package com.mitchdennett.framework.http;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheNotFoundException;
+import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -15,6 +16,7 @@ import java.io.Writer;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -46,7 +48,7 @@ public class ResponseTest {
 
         verify(mf).compile(templateCaptor.capture());
 
-        assertEquals("src/main/resources/templates/sometemplate", templateCaptor.getValue());
+        assertEquals("templates/sometemplate", templateCaptor.getValue());
 
         ArgumentCaptor<Writer> writerCaptor = ArgumentCaptor.forClass(Writer.class);
         ArgumentCaptor<HashMap<String, Object>> dataCaptor = ArgumentCaptor.forClass(HashMap.class);
@@ -83,7 +85,7 @@ public class ResponseTest {
 
         verify(mf).compile(templateCaptor.capture());
 
-        assertEquals("src/main/resources/templates/sometemplate", templateCaptor.getValue());
+        assertEquals("templates/sometemplate", templateCaptor.getValue());
 
         ArgumentCaptor<Writer> writerCaptor = ArgumentCaptor.forClass(Writer.class);
         ArgumentCaptor<HashMap<String, Object>> dataCaptor = ArgumentCaptor.forClass(HashMap.class);
@@ -93,18 +95,23 @@ public class ResponseTest {
     }
 
     @Test
-    public void testViewNoMustacheFactory() throws IOException {
+    public void testViewNoMustacheFactory() throws Exception {
+        if(!Config.isLoaded()) {
+            Config.setDir("src/test/resources");
+            Config.loadConfig();
+        }
         HttpServletResponse r = mock(HttpServletResponse.class);
         Container c = mock(Container.class);
         DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
-        given(c.make(DefaultMustacheFactory.class)).willReturn(null);
+        given(c.make(DefaultMustacheFactory.class)).willReturn(mock(DefaultMustacheFactory.class));
 
 
         Response resp = new Response(r, c);
-        resp.view("sometemplate", null);
+        assertThrows(MustacheNotFoundException.class, () -> {
+            resp.view("sometemplate", null);
+        });
 
-        //Doesn't throw a null pointer.
-
+        Config.unload();
     }
 
 
