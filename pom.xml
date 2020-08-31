@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.mitchdennett</groupId>
-    <artifactId>CaspianMaven</artifactId>
+    <artifactId>severell-framework</artifactId>
     <version>0.03</version>
-    <name>CaspianMaven</name>
+    <name>Severell-Framework</name>
     <packaging>jar</packaging>
 
     <properties>

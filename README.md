@@ -16,11 +16,9 @@ Run `severell-cli` to make sure you have installed it correctly.
 
 ### Getting Started
 
-Next you can run `severell-cli create myapp` to create a new Maven project and then export it into your favorite IDE. I recommend IntelliJ since
+Next you can run `severell-cli create myapp` to create a new Maven project and then import it into your favorite IDE as a maven project. I recommend IntelliJ since
 that is what I use. I have not tried it in Eclipse yet. 
 
-After you have created your new app run `severell-cli load` to load all the commands from your project - ***This step will go away soon***
-
-Compile and run start your application. 
+Compile and run your application. 
 
 
