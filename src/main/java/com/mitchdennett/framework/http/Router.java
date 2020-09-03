@@ -12,22 +12,15 @@ public class Router {
 
     private HashMap<HttpMethod, RouteNode> trees;
     private static ArrayList<Route> routes = new ArrayList<Route>();
-    private static Container container;
-
-    public static void setContainer(Container c) {
-        container = c;
-    }
 
     public static Route Get(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, HttpMethod.GET);
-        route.setContainer(container);
         routes.add(route);
         return route;
     }
 
     public static Route Post(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, HttpMethod.POST);
-        route.setContainer(container);
         routes.add(route);
         return route;
     }

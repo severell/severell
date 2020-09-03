@@ -28,7 +28,6 @@ public class AppProvider extends ServiceProvider{
 
     @Override
     public void register() {
-        Router.setContainer(c);
         c.bind(new DefaultMustacheFactory());
         c.bind(new ErrorHandler(c));
         c.bind(new ServletContextHandler(ServletContextHandler.SESSIONS));

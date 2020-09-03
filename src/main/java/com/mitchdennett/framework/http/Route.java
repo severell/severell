@@ -18,8 +18,6 @@ public class Route {
     private Method method;
     private HttpMethod httpMethod;
     private ArrayList middleware;
-    private Container container;
-
 
     protected Route(String path, String method, HttpMethod httpMethod) throws ClassNotFoundException, NoSuchMethodException {
         this.path = path;
@@ -30,9 +28,6 @@ public class Route {
         this.middleware = new ArrayList();
     }
 
-    protected void setContainer(Container container) {
-        this.container = container;
-    }
     public void middleware(Class... middleware) throws MiddlewareException{
         for(Class p : middleware) {
             try {

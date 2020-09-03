@@ -46,10 +46,8 @@ public class Container {
         for (Field p : fields) {
 
             boolean injectable = p.isAnnotationPresent(Inject.class);
-            System.out.println(String.format("%s - %s", p.getName(), injectable));
             if(injectable) {
                 p.setAccessible(true);
-                System.out.println(p.getType().getSimpleName());
                 Object fieldObj = make(p.getType());
 
                 if(fieldObj instanceof NeedsRequest) {
