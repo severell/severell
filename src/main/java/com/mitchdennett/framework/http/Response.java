@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +44,11 @@ public class Response extends HttpServletResponseWrapper {
         shared = new HashMap<>();
     }
 
-    public void view(String template, HashMap<String, Object> data) throws IOException {
+    public void render(String template, HashMap<String, Object> data) throws IOException {
+        this.render(template, data, "templates/");
+    }
+
+    protected void render(String template, HashMap<String, Object> data, String baseDir) throws IOException {
         this.setContentType("text/html");
         MustacheFactory mf;
         mf = c.make(DefaultMustacheFactory.class);
@@ -52,7 +57,7 @@ public class Response extends HttpServletResponseWrapper {
             mf = new DefaultMustacheFactory();
         }
 
-        Mustache m = mf.compile("templates/" + template);
+        Mustache m = mf.compile(baseDir + template);
         PrintWriter writer = this.getWriter();
         data.putAll(shared);
         m.execute(writer, data).flush();
@@ -73,5 +78,20 @@ public class Response extends HttpServletResponseWrapper {
                 addHeader(key, value);
             }
         }
+    }
+
+    public void renderTemplateLiteral(String templateFile, HashMap<String, Object> data) throws IOException {
+        this.setContentType("text/html");
+        MustacheFactory mf;
+        mf = c.make(DefaultMustacheFactory.class);
+
+        if(mf == null || Config.equals("ENV", "TEST")) {
+            mf = new DefaultMustacheFactory();
+        }
+
+        Mustache m = mf.compile(new StringReader(templateFile), "error.mustache");
+        PrintWriter writer = this.getWriter();
+        data.putAll(shared);
+        m.execute(writer, data).flush();
     }
 }

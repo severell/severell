@@ -1,11 +1,13 @@
 package com.mitchdennett.framework.middleware;
 
 import com.mitchdennett.framework.drivers.Session;
+import com.mitchdennett.framework.http.MiddlewareChain;
 import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.lang.reflect.Field;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -20,6 +22,7 @@ public class CsrfMiddlewareTest {
     public void shouldStoreNewTokenInSession() throws Exception {
         Request request = mock(Request.class);
         given(request.getMethod()).willReturn("GET");
+        MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Response resp = mock(Response.class);
         Session session = mock(Session.class);
@@ -28,7 +31,10 @@ public class CsrfMiddlewareTest {
         ArgumentCaptor<Object> val = ArgumentCaptor.forClass(Object.class);
 
         CsrfMiddleware middleware = new CsrfMiddleware();
-        middleware.before(resp, request, session);
+        Field f = middleware.getClass().getDeclaredField("session");
+        f.setAccessible(true);
+        f.set(middleware, session);
+        middleware.handle(request, resp, chain);
 
         verify(session).put(key.capture(), val.capture());
         assertEquals("csrfToken", key.getValue());
@@ -40,6 +46,7 @@ public class CsrfMiddlewareTest {
         String token = UUID.randomUUID().toString();
         Request request = mock(Request.class);
         given(request.getMethod()).willReturn("GET");
+        MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Response resp = mock(Response.class);
         Session session = mock(Session.class);
@@ -50,7 +57,10 @@ public class CsrfMiddlewareTest {
         ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
 
         CsrfMiddleware middleware = new CsrfMiddleware();
-        middleware.before(resp, request, session);
+        Field f = middleware.getClass().getDeclaredField("session");
+        f.setAccessible(true);
+        f.set(middleware, session);
+        middleware.handle(request, resp, chain);
 
         verify(resp).share(key.capture(), val.capture());
         assertEquals("csrf", key.getValue());
@@ -63,6 +73,7 @@ public class CsrfMiddlewareTest {
 
         Request request = mock(Request.class);
         given(request.getMethod()).willReturn("POST");
+        MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Response resp = mock(Response.class);
         Session session = mock(Session.class);
@@ -73,7 +84,11 @@ public class CsrfMiddlewareTest {
         ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
 
         CsrfMiddleware middleware = new CsrfMiddleware();
-        middleware.before(resp, request, session);
+        Field f = middleware.getClass().getDeclaredField("session");
+        f.setAccessible(true);
+        f.set(middleware, session);
+
+        middleware.handle(request, resp, chain);
 
         verify(resp).share(key.capture(), val.capture());
         assertEquals("csrf", key.getValue());
@@ -83,6 +98,7 @@ public class CsrfMiddlewareTest {
     @Test
     public void errorShouldBeThrownWhenTokensDontMatch() throws Exception {
         String token = UUID.randomUUID().toString();
+        MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Request request = mock(Request.class);
         given(request.getMethod()).willReturn("POST");
@@ -93,15 +109,19 @@ public class CsrfMiddlewareTest {
         given(request.input("__token")).willReturn("");
 
         CsrfMiddleware middleware = new CsrfMiddleware();
+        Field f = middleware.getClass().getDeclaredField("session");
+        f.setAccessible(true);
+        f.set(middleware, session);
 
         assertThrows(Exception.class, () -> {
-            middleware.before(resp, request, session);
+            middleware.handle(request, resp, chain);
         });
     }
 
     @Test
     public void errorShouldBeThrownWhenNoTokenPassedUp() throws Exception {
         String token = UUID.randomUUID().toString();
+        MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Request request = mock(Request.class);
         given(request.getMethod()).willReturn("POST");
@@ -112,9 +132,12 @@ public class CsrfMiddlewareTest {
         given(request.input("__token")).willReturn(null);
 
         CsrfMiddleware middleware = new CsrfMiddleware();
+        Field f = middleware.getClass().getDeclaredField("session");
+        f.setAccessible(true);
+        f.set(middleware, session);
 
         assertThrows(Exception.class, () -> {
-            middleware.before(resp, request, session);
+            middleware.handle(request, resp,  chain);
         });
     }
 
@@ -122,6 +145,7 @@ public class CsrfMiddlewareTest {
     public void errorShouldBeThrownWhenNoTokenStored() throws Exception {
         Request request = mock(Request.class);
         given(request.getMethod()).willReturn("POST");
+        MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Response resp = mock(Response.class);
         Session session = mock(Session.class);
@@ -129,9 +153,12 @@ public class CsrfMiddlewareTest {
         given(request.input("__token")).willReturn(null);
 
         CsrfMiddleware middleware = new CsrfMiddleware();
+        Field f = middleware.getClass().getDeclaredField("session");
+        f.setAccessible(true);
+        f.set(middleware, session);
 
         assertThrows(Exception.class, () -> {
-            middleware.before(resp, request, session);
+            middleware.handle(request,resp, chain);
         });
     }
 }

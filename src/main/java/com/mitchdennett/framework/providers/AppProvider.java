@@ -3,24 +3,22 @@ package com.mitchdennett.framework.providers;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
+import com.mitchdennett.framework.error.ErrorHandler;
+import com.mitchdennett.framework.http.Router;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.datasource.DataSourceConfig;
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.util.resource.PathResource;
 import org.eclipse.jetty.util.resource.Resource;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 
 public class AppProvider extends ServiceProvider{
 
@@ -30,7 +28,9 @@ public class AppProvider extends ServiceProvider{
 
     @Override
     public void register() {
+        Router.setContainer(c);
         c.bind(new DefaultMustacheFactory());
+        c.bind(new ErrorHandler(c));
         c.bind(new ServletContextHandler(ServletContextHandler.SESSIONS));
     }
 

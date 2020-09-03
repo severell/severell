@@ -1,21 +1,28 @@
 package com.mitchdennett.framework.middleware;
 
-import com.mitchdennett.framework.annotations.Before;
 import com.mitchdennett.framework.drivers.Session;
+import com.mitchdennett.framework.http.MiddlewareChain;
 import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
 
+import javax.inject.Inject;
 import java.util.UUID;
 import java.util.function.Function;
 
-public class CsrfMiddleware {
+public class CsrfMiddleware implements Middleware{
 
-    @Before
-    public void before(Response resp, Request req, Session session) throws Exception {
-        String finalToken = verifyToken(req, session);
+    @Inject
+    private Session session;
+
+
+    @Override
+    public void handle(Request request, Response response, MiddlewareChain chain) throws Exception {
+        String finalToken = verifyToken(request, session);
         Function<String, String> func = (obj) -> String.format("<input type='hidden' name='__token' value='%s' />", finalToken);
-        resp.share("csrf", func);
+        response.share("csrf", func);
+        chain.next();
     }
+
 
     private String verifyToken(Request r, Session session) throws Exception {
         String token;
@@ -43,4 +50,5 @@ public class CsrfMiddleware {
         session.put("csrfToken", token);
         return token;
     }
+
 }

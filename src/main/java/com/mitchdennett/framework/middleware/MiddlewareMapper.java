@@ -1,6 +1,7 @@
 package com.mitchdennett.framework.middleware;
 
 import com.mitchdennett.framework.container.Container;
+import com.mitchdennett.framework.http.MiddlewareChain;
 import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
 
@@ -17,7 +18,9 @@ public class MiddlewareMapper {
         this.inst = inst;
     }
 
-    public void run(Container c, Request req, Response resp) throws InvocationTargetException, IllegalAccessException {
-        c.invoke(req, resp, meth, inst);
+    public void run(Container c, Request req, Response resp, MiddlewareChain middlewareChain) throws InvocationTargetException, IllegalAccessException {
+        c.hydrate(inst, req);
+        meth.invoke(inst, req, resp, middlewareChain);
     }
+
 }

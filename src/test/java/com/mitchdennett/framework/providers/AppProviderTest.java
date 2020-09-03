@@ -3,6 +3,7 @@ package com.mitchdennett.framework.providers;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
+import com.mitchdennett.framework.error.ErrorHandler;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
@@ -50,11 +51,12 @@ public class AppProviderTest {
         ArgumentCaptor<Object> classCaptor = ArgumentCaptor.forClass(Object.class);
         ArgumentCaptor<Handler> handlerCaptor = ArgumentCaptor.forClass(Handler.class);
 
-        verify(c, times(3)).bind(classCaptor.capture());
+        verify(c, times(4)).bind(classCaptor.capture());
 
         assertTrue(classCaptor.getAllValues().get(0) instanceof DefaultMustacheFactory);
-        assertTrue(classCaptor.getAllValues().get(1) instanceof ServletContextHandler);
-        assertTrue(classCaptor.getAllValues().get(2) instanceof Database);
+        assertTrue(classCaptor.getAllValues().get(1) instanceof ErrorHandler);
+        assertTrue(classCaptor.getAllValues().get(2) instanceof ServletContextHandler);
+        assertTrue(classCaptor.getAllValues().get(3) instanceof Database);
 
         verify(server).setHandler(handlerCaptor.capture());
 

@@ -1,8 +1,9 @@
 package com.mitchdennett.framework.providers;
 
 import com.mitchdennett.framework.container.Container;
+import com.mitchdennett.framework.exceptions.MiddlewareException;
 import com.mitchdennett.framework.middleware.MiddlewareMapper;
-import com.mitchdennett.framework.middleware.MockMiddleware;
+import com.mitchdennett.framework.middleware.SecureHeadersMiddleware;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,9 +26,9 @@ public class MiddlewareProviderTest {
 
 
     @Test
-    public void testThatMiddlewareGetsAddedToList() throws InvocationTargetException, IllegalAccessException {
+    public void testThatMiddlewareGetsAddedToList() throws InvocationTargetException, IllegalAccessException, MiddlewareException {
         Class[] midds = new Class[]{
-                MockMiddleware.class
+                SecureHeadersMiddleware.class
         };
         given(c.make("_MiddlewareList", Class[].class)).willReturn(midds);
 
@@ -37,12 +38,9 @@ public class MiddlewareProviderTest {
         MiddlewareProvider provider = new MiddlewareProvider(c);
         provider.register();
         provider.boot();
-        verify(c, times(2)).bind(name.capture(), list.capture());
+        verify(c, times(1)).bind(name.capture(), list.capture());
 
         assertEquals(1, list.getAllValues().get(0).size());
-        assertEquals("DefaultMiddlewareBefore", name.getAllValues().get(0));
-
-        assertEquals(1, list.getAllValues().get(1).size());
-        assertEquals("DefaultMiddlewareAfter", name.getAllValues().get(1));
+        assertEquals("DefaultMiddleware", name.getAllValues().get(0));
     }
 }

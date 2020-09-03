@@ -1,13 +1,14 @@
 package com.mitchdennett.framework.middleware;
 
-import com.mitchdennett.framework.annotations.Before;
+import com.mitchdennett.framework.http.MiddlewareChain;
+import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
 
 import java.util.HashMap;
 
-public class SecureHeadersMiddleware {
+public class SecureHeadersMiddleware implements Middleware{
 
-    private HashMap<String, String> headers;
+    private final HashMap<String, String> headers;
 
     public SecureHeadersMiddleware() {
         headers = new HashMap<>();
@@ -20,8 +21,9 @@ public class SecureHeadersMiddleware {
         headers.put("Pragma", "no-cache");
     }
 
-    @Before
-    public void before(Response resp) {
-        resp.headers(this.headers);
+    @Override
+    public void handle(Request request, Response response, MiddlewareChain chain) {
+        response.headers(this.headers);
+        chain.next();
     }
 }

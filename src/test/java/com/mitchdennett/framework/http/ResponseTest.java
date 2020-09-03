@@ -42,7 +42,7 @@ public class ResponseTest {
         expectedData.put("something", "else");
 
         Response resp = new Response(r, c);
-        resp.view("sometemplate", data);
+        resp.render("sometemplate", data);
 
         ArgumentCaptor<String> templateCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -78,7 +78,7 @@ public class ResponseTest {
 
         Response resp = new Response(r, c);
         resp.share("otherdata", "moredata");
-        resp.view("sometemplate", data);
+        resp.render("sometemplate", data);
 
 
         ArgumentCaptor<String> templateCaptor = ArgumentCaptor.forClass(String.class);
@@ -108,7 +108,7 @@ public class ResponseTest {
 
         Response resp = new Response(r, c);
         assertThrows(MustacheNotFoundException.class, () -> {
-            resp.view("sometemplate", null);
+            resp.render("sometemplate", null);
         });
 
         Config.unload();

@@ -6,7 +6,7 @@
 
     <groupId>com.mitchdennett</groupId>
     <artifactId>severell-framework</artifactId>
-    <version>0.03</version>
+    <version>0.03-SNAPSHOT</version>
     <name>Severell-Framework</name>
     <packaging>jar</packaging>
 

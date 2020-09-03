@@ -3,12 +3,10 @@ package com.mitchdennett.framework.commands;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import org.codehaus.plexus.util.StringUtils;
 
 import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class MakeCommand extends Command {
 

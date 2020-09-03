@@ -1,6 +1,5 @@
 package com.mitchdennett.framework.database.grammar;
 
-import com.mitchdennett.framework.database.grammar.Grammar;
 import com.mitchdennett.framework.database.migrations.ColumnDefinition;
 
 public enum Modifier {

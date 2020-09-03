@@ -4,8 +4,9 @@ import com.mitchdennett.framework.http.NeedsRequest;
 import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import javax.inject.Inject;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -39,7 +40,28 @@ public class Container {
         ioc.put(c.getName(), obj);
     }
 
-    public void invoke(Request req, Response resp, Method meth, Object inst) throws InvocationTargetException, IllegalAccessException {
+    public void hydrate(Object obj, Request request) throws IllegalAccessException {
+        Field[] fields = obj.getClass().getDeclaredFields();
+
+        for (Field p : fields) {
+
+            boolean injectable = p.isAnnotationPresent(Inject.class);
+            System.out.println(String.format("%s - %s", p.getName(), injectable));
+            if(injectable) {
+                p.setAccessible(true);
+                System.out.println(p.getType().getSimpleName());
+                Object fieldObj = make(p.getType());
+
+                if(fieldObj instanceof NeedsRequest) {
+                    ((NeedsRequest) fieldObj).setRequest(request);
+                }
+
+                p.set(obj, fieldObj);
+            }
+        }
+    }
+
+    public Object[] resolve(Request req, Response resp, Method meth) {
         Class[] params = meth.getParameterTypes();
         ArrayList<Object> paramsToPass = new ArrayList<Object>(params.length);
         for (Class p : params) {
@@ -61,6 +83,10 @@ public class Container {
             }
         }
 
-        meth.invoke(inst, paramsToPass.toArray());
+        return paramsToPass.toArray();
+    }
+
+    public void invoke(Request req, Response resp, Method meth, Object inst) throws InvocationTargetException, IllegalAccessException {
+        meth.invoke(inst, resolve(req, resp, meth));
     }
 }

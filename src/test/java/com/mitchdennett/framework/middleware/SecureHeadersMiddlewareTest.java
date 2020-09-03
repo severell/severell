@@ -1,5 +1,7 @@
 package com.mitchdennett.framework.middleware;
 
+import com.mitchdennett.framework.http.MiddlewareChain;
+import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -15,11 +17,13 @@ public class SecureHeadersMiddlewareTest {
     @Test
     public void headersShouldBeSet() {
         Response resp = mock(Response.class);
+        Request req = mock(Request.class);
+        MiddlewareChain chain = mock(MiddlewareChain.class);
 
         ArgumentCaptor<HashMap<String, String>> key = ArgumentCaptor.forClass(HashMap.class);
 
         SecureHeadersMiddleware middleware = new SecureHeadersMiddleware();
-        middleware.before(resp);
+        middleware.handle(req, resp, chain);
 
         verify(resp).headers(key.capture());
 

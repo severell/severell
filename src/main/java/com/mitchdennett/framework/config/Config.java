@@ -44,4 +44,8 @@ public class Config {
         }
         return false;
     }
+
+    public static boolean isLocal() {
+        return equals("ENV", "TEST");
+    }
 }

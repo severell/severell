@@ -1,7 +1,5 @@
 package com.mitchdennett.framework.database.migrations;
 
-import com.mitchdennett.framework.commands.Migrate;
-
 public class MigrationException extends Throwable {
 
     private final MigrationExceptionType type;

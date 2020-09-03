@@ -1,7 +1,5 @@
 package com.mitchdennett.framework.commands;
 
-import com.mitchdennett.framework.commands.Command;
-import com.mitchdennett.framework.commands.Flag;
 import com.mitchdennett.framework.config.Config;
 import com.squareup.javapoet.*;
 import io.ebean.Model;
