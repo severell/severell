@@ -1,12 +1,15 @@
 package com.mitchdennett.framework.http;
 
+import jdk.internal.joptsimple.internal.Strings;
+
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Request extends HttpServletRequestWrapper {
@@ -21,7 +24,7 @@ public class Request extends HttpServletRequestWrapper {
     }
 
     private HashMap<String, String> urlParams;
-    private Map<String, String> bodyData;
+    private Map<String, String> queryData;
 
     protected void addParam(String key, String value) {
         if(urlParams == null) {
@@ -31,7 +34,7 @@ public class Request extends HttpServletRequestWrapper {
         urlParams.put(key, value);
     }
 
-    public String getParam(String name) {
+    public String param(String name) {
         if(urlParams == null) {
             return null;
         }
@@ -40,37 +43,50 @@ public class Request extends HttpServletRequestWrapper {
     }
 
     public String input(String name) {
-        if(bodyData == null) {
-            return null;
-        }
-
-        return bodyData.get(name);
+        return getParameter(name);
     }
 
-    protected void parseBody() {
-        if ("POST".equalsIgnoreCase(this.getMethod()))
-        {
-            String body = null;
-            try {
-                body = this.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-
-                body = URLDecoder.decode(body, "UTF-8");
-                this.bodyData = Arrays.stream(body.split("&")).collect(Collectors.toMap(
-                        entry -> {
-                            return entry.split("=")[0];
-                        },
-                        entry -> {
-                            String[] spl = entry.split("=");
-                            if(spl != null && spl.length > 1) {
-                                return spl[1];
-                            } else {
-                                return "";
-                            }
-                        }
-                ));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    public String query(String key) {
+        if(queryData == null) {
+            parseQueryString();
         }
-    };
+
+        return queryData.get(key);
+    }
+
+    private void parseQueryString() {
+        String queryString = getQueryString();
+        if(queryString != null) {
+            this.queryData = Arrays.stream(queryString.split("&")).map(entry -> {
+                try {
+                    return URLDecoder.decode(entry, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                return entry;
+            }).collect(Collectors.toMap(
+                    entry -> {
+                        String[] parts = entry.split("=");
+                        if(parts != null && parts.length > 0) {
+                            return parts[0];
+                        }
+
+                        return "";
+                    },
+                    entry -> {
+                        String[] parts = entry.split("=");
+                        if(parts != null && parts.length > 1) {
+                            return parts[1];
+                        }
+
+                        return "";
+                    },
+                    (key1, key2) -> key1
+            ));
+        }
+
+        if(queryData == null) {
+            queryData = new HashMap<>();
+        }
+    }
 }

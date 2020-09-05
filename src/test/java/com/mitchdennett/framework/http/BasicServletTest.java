@@ -130,7 +130,7 @@ public class BasicServletTest {
         given(req.getMethod()).willReturn(method);
         given(req.getRequestURI()).willReturn("/");
         Route route = mock(Route.class);
-        given(r.lookup(any(String.class), any(HttpMethod.class), any(Request.class))).willReturn(route);
+        given(r.lookup(any(String.class), any(String.class), any(Request.class))).willReturn(route);
         given(route.getMiddleware()).willReturn(middleware);
 //        given(route.getMiddlewareAfter()).willReturn(middleware);
         BufferedReader reader = mock(BufferedReader.class);

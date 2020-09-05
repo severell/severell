@@ -54,7 +54,7 @@ public class RouterTest {
 
         Router router = new Router();
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
         assertEquals(route.getPath(), path);
         assertEquals(route.getMethod(), meth);
     }
@@ -66,7 +66,7 @@ public class RouterTest {
 
         Router router = new Router();
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.POST, req);
+        Route route = router.lookup(path, "POST", req);
         assertEquals(route.getPath(), path);
         assertEquals(route.getMethod(), meth);
     }
@@ -83,7 +83,7 @@ public class RouterTest {
 
         Router router = new Router();
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
         verify(req).addParam(key.capture(), val.capture());
         assertEquals("/user/:id",route.getPath() );
         assertEquals(route.getMethod(), meth);
@@ -103,7 +103,7 @@ public class RouterTest {
 
         Router router = new Router();
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
         verify(req).addParam(key.capture(), val.capture());
 
         assertEquals("/user/:id/:name",route.getPath() );
@@ -124,7 +124,7 @@ public class RouterTest {
 
         Router router = new Router();
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
         verify(req).addParam(key.capture(), val.capture());
         assertEquals(route.getPath(), "/page/:id/");
         assertEquals(route.getMethod(), meth);
@@ -140,7 +140,7 @@ public class RouterTest {
 
         String path = "/blog/hello";
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
 
         assertEquals(route.getPath(), "/blog/*files");
         assertEquals(route.getMethod(), meth);
@@ -167,7 +167,7 @@ public class RouterTest {
 
         String path = "/post/123/settings";
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
 
         verify(req).addParam(key.capture(), val.capture());
         assertEquals(key.getValue(), "id");
@@ -185,7 +185,7 @@ public class RouterTest {
 
         String path = "/search";
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
 
 
         assertEquals(route.getPath(), "/search");
@@ -203,7 +203,7 @@ public class RouterTest {
 
         String path = "/user/123/mitch";
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
 
         verify(req, times(2)).addParam(key.capture(), val.capture());
         assertEquals(key.getAllValues().get(0), "id");
@@ -270,7 +270,7 @@ public class RouterTest {
 
         String path = "/house/1/something";
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
 
 
         assertEquals(route.getPath(), "/house/:id/*homes");
@@ -313,12 +313,12 @@ public class RouterTest {
 
         String path = "/some";
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
 
         assertEquals("/some", route.getPath());
         assertEquals(meth, route.getMethod());
 
-        route = router.lookup("/something", HttpMethod.GET, req);
+        route = router.lookup("/something", "GET", req);
         verify(req).addParam(key.capture(), val.capture());
 
         assertEquals("/some:name", route.getPath());
@@ -351,7 +351,7 @@ public class RouterTest {
 
         String path = "/user_mitch";
         router.compileRoutes(context, c);
-        Route route = router.lookup(path, HttpMethod.GET, req);
+        Route route = router.lookup(path, "GET", req);
 
         verify(req).addParam(key.capture(), val.capture());
         assertEquals("name", key.getValue());
@@ -372,10 +372,10 @@ public class RouterTest {
 
         String path = "/homebase";
         router.compileRoutes(context, c);
-        assertNull(router.lookup(path, HttpMethod.GET, req));
-        assertNull(router.lookup("/search/2", HttpMethod.GET, req));
-        assertNull(router.lookup("/blog/2/home", HttpMethod.GET, req));
-        assertNull(router.lookup("/blog/2/", HttpMethod.GET, req));
+        assertNull(router.lookup(path, "GET", req));
+        assertNull(router.lookup("/search/2", "GET", req));
+        assertNull(router.lookup("/blog/2/home", "GET", req));
+        assertNull(router.lookup("/blog/2/", "GET", req));
     }
 
     @Test

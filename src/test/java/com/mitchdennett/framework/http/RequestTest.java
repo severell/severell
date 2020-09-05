@@ -1,11 +1,8 @@
 package com.mitchdennett.framework.http;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -23,10 +20,10 @@ public class RequestTest {
         r.addParam("key1", "val1");
 
 
-        assertEquals("test2", r.getParam("test1"));
-        assertEquals("val1", r.getParam("key1"));
-        assertNull(r.getParam("val999"));
-        assertNull(r.getParam(null));
+        assertEquals("test2", r.param("test1"));
+        assertEquals("val1", r.param("key1"));
+        assertNull(r.param("val999"));
+        assertNull(r.param(null));
 
     }
 
@@ -35,7 +32,7 @@ public class RequestTest {
         HttpServletRequest req = mock(HttpServletRequest.class);
         Request r = new Request(req);
 
-        assertNull(r.getParam(null));
+        assertNull(r.param(null));
 
     }
 

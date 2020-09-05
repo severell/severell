@@ -2,7 +2,6 @@ package com.mitchdennett.framework.http;
 
 import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.error.ErrorHandler;
-import org.eclipse.jetty.http.HttpMethod;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,11 +22,41 @@ public class BasicServlet extends HttpServlet {
         this.errorHandler = c.make(ErrorHandler.class);
     }
 
+    @Override
+    public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (request.getMethod().equalsIgnoreCase("PATCH")){
+            doPatch(request, response);
+        } else {
+            super.service(request, response);
+        }
+    }
+
+    public void doPatch(HttpServletRequest request, HttpServletResponse response) {
+        doRequest(request, response);
+    }
+
+    @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         doRequest(request, response);
     }
 
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
+        doRequest(request, response);
+    }
+
+    @Override
+    public void doPut(HttpServletRequest request, HttpServletResponse response) {
+        doRequest(request, response);
+    }
+
+    @Override
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) {
+        doRequest(request, response);
+    }
+
+    @Override
+    public void doOptions(HttpServletRequest request, HttpServletResponse response) {
         doRequest(request, response);
     }
 
@@ -48,12 +77,11 @@ public class BasicServlet extends HttpServlet {
     public void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IllegalAccessException, InvocationTargetException, IOException {
         Request req = new Request(request);
         Response resp = new Response(response, c);
-        req.parseBody();
         doRequest(req, resp);
     }
 
     private void doRequest(Request request, Response response) throws InvocationTargetException, IllegalAccessException {
-        Route ref = router.lookup(request.getRequestURI(), HttpMethod.fromString(request.getMethod()), request);
+        Route ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
 
         if(ref != null) {
             MiddlewareManager manager = new MiddlewareManager(ref, c);

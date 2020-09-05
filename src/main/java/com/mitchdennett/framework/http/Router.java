@@ -5,22 +5,49 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
+import javax.servlet.MultipartConfigElement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Router {
 
-    private HashMap<HttpMethod, RouteNode> trees;
+    private HashMap<String, RouteNode> trees;
     private static ArrayList<Route> routes = new ArrayList<Route>();
 
     public static Route Get(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, method, HttpMethod.GET);
+        Route route = new Route(path, method, "GET");
+        Route headRoute = new Route(path, method, "HEAD");
         routes.add(route);
+        routes.add(headRoute);
         return route;
     }
 
     public static Route Post(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, method, HttpMethod.POST);
+        Route route = new Route(path, method, "POST");
+        routes.add(route);
+        return route;
+    }
+
+    public static Route Put(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, method, "PUT");
+        routes.add(route);
+        return route;
+    }
+
+    public static Route Patch(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, method, "PATCH");
+        routes.add(route);
+        return route;
+    }
+
+    public static Route Delete(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, method, "DELETE");
+        routes.add(route);
+        return route;
+    }
+
+    public static Route Options(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, method, "OPTIONS");
         routes.add(route);
         return route;
     }
@@ -29,7 +56,7 @@ public class Router {
         routes = new ArrayList<>();
     }
 
-    public Route lookup(String path, HttpMethod httpMethod, Request req)
+    public Route lookup(String path, String httpMethod, Request req)
     {
         RouteNode traverseNode = trees.get(httpMethod);
 
@@ -115,6 +142,7 @@ public class Router {
 
         BasicServlet defaultServlet = new BasicServlet(c, this);
         ServletHolder holderPwd = new ServletHolder("default", defaultServlet);
+        holderPwd.getRegistration().setMultipartConfig(new MultipartConfigElement("/tmp"));
         context.addServlet(holderPwd, "/*");
     }
 

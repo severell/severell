@@ -16,10 +16,10 @@ public class Route {
 
     private String path;
     private Method method;
-    private HttpMethod httpMethod;
+    private String httpMethod;
     private ArrayList middleware;
 
-    protected Route(String path, String method, HttpMethod httpMethod) throws ClassNotFoundException, NoSuchMethodException {
+    protected Route(String path, String method, String httpMethod) throws ClassNotFoundException, NoSuchMethodException {
         this.path = path;
         String clazz = method.split("::")[0];
         String meth = method.split("::")[1];
@@ -60,7 +60,7 @@ public class Route {
         return this.path;
     }
 
-    protected HttpMethod getHttpMethod() {
+    protected String getHttpMethod() {
         return this.httpMethod;
     }
 
