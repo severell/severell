@@ -1,11 +1,11 @@
 package com.mitchdennett.framework.managers;
 
 import com.mitchdennett.framework.container.Container;
-import com.mitchdennett.framework.drivers.Session;
 import com.mitchdennett.framework.drivers.SessionMemoryDriver;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 

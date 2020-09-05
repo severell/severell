@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public class MiddlewareMapperTest {
 

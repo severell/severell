@@ -1,30 +1,17 @@
 package com.mitchdennett.framework.providers;
 
 import com.github.mustachejava.DefaultMustacheFactory;
-import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.error.ErrorHandler;
 import io.ebean.Database;
-import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
-import io.ebean.datasource.DataSourceConfig;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.util.resource.PathResource;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
-
-import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

@@ -3,11 +3,8 @@ package com.mitchdennett.framework.http;
 import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.middleware.MiddlewareMapper;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.eclipse.jetty.http.HttpMethod;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

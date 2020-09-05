@@ -4,7 +4,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.mitchdennett.framework.config.Config;
 import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.error.ErrorHandler;
-import com.mitchdennett.framework.http.Router;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;

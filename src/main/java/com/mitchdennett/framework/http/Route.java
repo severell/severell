@@ -1,11 +1,8 @@
 package com.mitchdennett.framework.http;
 
-import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.exceptions.MiddlewareException;
 import com.mitchdennett.framework.middleware.MiddlewareMapper;
-import org.eclipse.jetty.http.HttpMethod;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

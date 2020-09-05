@@ -1,7 +1,6 @@
 package com.mitchdennett.framework.providers;
 
 import com.mitchdennett.framework.container.Container;
-import com.mitchdennett.framework.drivers.Session;
 import com.mitchdennett.framework.drivers.SessionMemoryDriver;
 import com.mitchdennett.framework.managers.SessionManager;
 import org.junit.jupiter.api.Test;

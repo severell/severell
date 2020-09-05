@@ -1,7 +1,6 @@
 package com.mitchdennett.framework.http;
 
 import com.mitchdennett.framework.container.Container;
-import org.eclipse.jetty.http.HttpMethod;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
