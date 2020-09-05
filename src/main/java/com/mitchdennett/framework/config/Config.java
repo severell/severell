@@ -35,6 +35,10 @@ public class Config {
         return env.isPresent() ? env.get().get(key) :  null;
     }
 
+    public static String get(String key, String defaultValue) {
+        return get(key) == null ? defaultValue : get(key);
+    }
+
     public static boolean equals(String key, String expected) {
         Optional<Dotenv> env = Optional.ofNullable(dotenv);
         if(env.isPresent()){
@@ -43,6 +47,11 @@ public class Config {
             return actualVal.equals(expected);
         }
         return false;
+    }
+
+    public static boolean isSet(String key) {
+        String value = get(key);
+        return !(value == null || value.isEmpty());
     }
 
     public static boolean isLocal() {

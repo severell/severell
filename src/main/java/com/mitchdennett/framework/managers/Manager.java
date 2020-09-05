@@ -8,7 +8,6 @@ public class Manager {
     protected String config;
     protected String driver_prefix;
     private Container container;
-    private Session manage_driver;
 
     public Manager(Container c) {
         this.container = c;
