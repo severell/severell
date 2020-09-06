@@ -27,10 +27,11 @@ public class SessionProviderTest {
         ArgumentCaptor<Object> objCaptor = ArgumentCaptor.forClass(Object.class);
         ArgumentCaptor<Object> sesssionCaptor = ArgumentCaptor.forClass(SessionMemoryDriver.class);
 
-        verify(c, times(2)).bind(objCaptor.capture());
+        verify(c).bind(objCaptor.capture());
+        verify(c).bind(any(String.class), sesssionCaptor.capture());
 
-        assertTrue(objCaptor.getAllValues().get(0) instanceof SessionMemoryDriver);
-        assertTrue(objCaptor.getAllValues().get(1) instanceof SessionManager);
+        assertTrue(sesssionCaptor.getValue() instanceof SessionMemoryDriver);
+        assertTrue(objCaptor.getValue() instanceof SessionManager);
 
         p.boot();
 

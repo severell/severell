@@ -14,7 +14,7 @@ public class SessionProvider extends ServiceProvider {
 
     @Override
     public void register() {
-        this.c.bind(new SessionMemoryDriver());
+        this.c.bind("SessionMemoryDriver", new SessionMemoryDriver());
         this.c.bind(new SessionManager(this.c));
     }
 

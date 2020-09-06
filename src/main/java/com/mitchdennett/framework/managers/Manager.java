@@ -14,12 +14,7 @@ public class Manager {
     }
 
     public <T> T create_driver(String driver, Class<T> c) {
-        try {
-            return (T) this.container.make(Class.forName("com.mitchdennett.framework.drivers." + driver_prefix + driver + "Driver"));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return (T) this.container.make(driver_prefix + driver + "Driver", c);
     }
 
 }

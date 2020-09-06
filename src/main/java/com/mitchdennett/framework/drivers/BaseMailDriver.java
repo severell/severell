@@ -4,12 +4,12 @@ import java.util.HashMap;
 
 public abstract class BaseMailDriver implements Mail {
 
-    String[] to;
-    String[] cc;
-    String[] bcc;
-    String from;
-    String subject;
-    String text;
+    protected String[] to;
+    protected String[] cc;
+    protected String[] bcc;
+    protected String from;
+    protected String subject;
+    protected String text;
 
     @Override
     public Mail to(String... to) {
