@@ -1,7 +1,6 @@
 package com.severell.core.commands;
 
 import com.severell.core.config.Config;
-import com.mitchdennett.framework.database.migrations.*;
 import com.severell.core.database.migrations.*;
 import org.apache.commons.dbcp2.BasicDataSource;
 

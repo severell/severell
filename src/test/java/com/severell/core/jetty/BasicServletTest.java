@@ -1,7 +1,6 @@
 package com.severell.core.jetty;
 
 import com.severell.core.container.Container;
-import com.mitchdennett.framework.http.*;
 import com.severell.core.http.*;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.Test;
