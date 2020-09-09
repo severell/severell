@@ -1,6 +1,7 @@
-package com.mitchdennett.framework.http;
+package com.mitchdennett.framework.jetty;
 
 import com.mitchdennett.framework.container.Container;
+import com.mitchdennett.framework.http.*;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -10,14 +11,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class BasicServletTest {
 
@@ -26,13 +26,17 @@ public class BasicServletTest {
         Container c = mock(Container.class);
         Router r = mock(Router.class);
         RouteExecutor executor = mock(RouteExecutor.class);
+        given(c.make(Router.class)).willReturn(r);
+
+        Dispatcher dispatcher = new Dispatcher(c);
+        given(c.make(Dispatcher.class)).willReturn(dispatcher);
 
         HttpServletRequest req = mock(HttpServletRequest.class);
         HttpServletResponse resp = mock(HttpServletResponse.class);
         given(resp.getWriter()).willReturn(mock(PrintWriter.class));
         setUpRequest(c, r, req, "GET", new ArrayList<>(), executor);
 
-        BasicServlet servlet = new BasicServlet(c, r);
+        BasicServlet servlet = new BasicServlet(c);
         servlet.doGet(req, resp);
 
         ArgumentCaptor<Request> reqCapt = ArgumentCaptor.forClass(Request.class);
@@ -51,9 +55,15 @@ public class BasicServletTest {
         HttpServletResponse resp = mock(HttpServletResponse.class);
         given(resp.getWriter()).willReturn(mock(PrintWriter.class));
         RouteExecutor executor = mock(RouteExecutor.class);
+
+        given(c.make(Router.class)).willReturn(r);
+
+        Dispatcher dispatcher = new Dispatcher(c);
+        given(c.make(Dispatcher.class)).willReturn(dispatcher);
+
         setUpRequest(c, r, req, "POST",new ArrayList<>(), executor);
 
-        BasicServlet servlet = new BasicServlet(c, r);
+        BasicServlet servlet = new BasicServlet(c);
         servlet.doPost(req, resp);
 
         ArgumentCaptor<Request> reqCapt = ArgumentCaptor.forClass(Request.class);

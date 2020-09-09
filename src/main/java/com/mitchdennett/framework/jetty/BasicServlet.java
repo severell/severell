@@ -1,25 +1,24 @@
-package com.mitchdennett.framework.http;
+package com.mitchdennett.framework.jetty;
 
 import com.mitchdennett.framework.container.Container;
-import com.mitchdennett.framework.error.ErrorHandler;
+import com.mitchdennett.framework.http.Dispatcher;
+import com.mitchdennett.framework.http.Request;
+import com.mitchdennett.framework.http.Response;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 public class BasicServlet extends HttpServlet {
 
     private final Container c;
-    private final Router router;
-    private final ErrorHandler errorHandler;
+    private final Dispatcher dispatcher;
 
-    public BasicServlet(Container c, Router router) {
+    public BasicServlet(Container c) {
         this.c = c;
-        this.router = router;
-        this.errorHandler = c.make(ErrorHandler.class);
+        this.dispatcher = c.make(Dispatcher.class);
     }
 
     @Override
@@ -61,33 +60,12 @@ public class BasicServlet extends HttpServlet {
     }
 
     private void doRequest(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            this.processRequest(request, response);
-        } catch (Exception e) {
-            errorHandler.handle(e, request, response);
-        } finally {
-            try{
-                response.getWriter().close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        this.processRequest(request, response);
     }
 
-    public void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IllegalAccessException, InvocationTargetException, IOException {
+    public void processRequest(HttpServletRequest request, HttpServletResponse response){
         Request req = new Request(request);
         Response resp = new Response(response, c);
-        doRequest(req, resp);
-    }
-
-    private void doRequest(Request request, Response response) throws InvocationTargetException, IllegalAccessException {
-        RouteExecutor ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
-
-        if(ref != null) {
-            MiddlewareManager manager = new MiddlewareManager(ref, c);
-            manager.filterRequest(request, response);
-        } else {
-            //throw new ServletException("Not Found");
-        }
+        dispatcher.dispatch(req, resp);
     }
 }

@@ -1,18 +1,9 @@
 package com.mitchdennett.framework.providers;
 
 import com.mitchdennett.framework.container.Container;
-import com.mitchdennett.framework.exceptions.MiddlewareException;
-import com.mitchdennett.framework.middleware.SecureHeadersMiddleware;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public class MiddlewareProviderTest {
 

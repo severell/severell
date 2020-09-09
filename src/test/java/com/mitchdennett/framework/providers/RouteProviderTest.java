@@ -31,7 +31,7 @@ public class RouteProviderTest {
 
         p.boot();
 
-        verify(r).compileRoutes(any(ServletContextHandler.class), any(Container.class));
+        verify(r).compileRoutes();
 
     }
 }

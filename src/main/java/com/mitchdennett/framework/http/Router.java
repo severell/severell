@@ -1,10 +1,5 @@
 package com.mitchdennett.framework.http;
 
-import com.mitchdennett.framework.container.Container;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
-
-import javax.servlet.MultipartConfigElement;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -130,9 +125,8 @@ public class Router {
         return Router.routes;
     }
 
-    public void compileRoutes(ServletContextHandler context, Container c) throws Exception {
+    public void compileRoutes() throws Exception {
         trees = new HashMap<>();
-
 
         for(RouteExecutor r : Router.compiledRoutes) {
             if(trees.containsKey(r.getHttpMethod())) {
@@ -144,11 +138,5 @@ public class Router {
                 trees.put(r.getHttpMethod(), tree);
             }
         }
-
-        BasicServlet defaultServlet = new BasicServlet(c, this);
-        ServletHolder holderPwd = new ServletHolder("default", defaultServlet);
-        holderPwd.getRegistration().setMultipartConfig(new MultipartConfigElement("/tmp"));
-        context.addServlet(holderPwd, "/*");
     }
-
 }

@@ -93,7 +93,7 @@ public class RouterTest {
         Method meth = Class.forName("com.mitchdennett.framework.http.RouterTest").getDeclaredMethod("index");
 
         Router router = new Router();
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
         assertEquals(route.getPath(), path);
 //        assertEquals(route.getMethod(), meth);
@@ -105,7 +105,7 @@ public class RouterTest {
         Method meth = Class.forName("com.mitchdennett.framework.http.RouterTest").getDeclaredMethod("post");
 
         Router router = new Router();
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "POST", req);
         assertEquals(route.getPath(), path);
 //        assertEquals(route.getMethod(), meth);
@@ -120,7 +120,7 @@ public class RouterTest {
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         Router router = new Router();
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
         verify(req).addParam(key.capture(), val.capture());
         assertEquals("/user/:id",route.getPath() );
@@ -138,7 +138,7 @@ public class RouterTest {
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         Router router = new Router();
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
         verify(req).addParam(key.capture(), val.capture());
 
@@ -157,11 +157,10 @@ public class RouterTest {
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         Router router = new Router();
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
         verify(req).addParam(key.capture(), val.capture());
         assertEquals(route.getPath(), "/page/:id/");
-//        assertEquals(route.getMethod(), meth);
         assertEquals(key.getValue(), "id");
         assertEquals(val.getValue(), id);
     }
@@ -173,7 +172,7 @@ public class RouterTest {
 
 
         String path = "/blog/hello";
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
 
         assertEquals(route.getPath(), "/blog/*files");
@@ -187,7 +186,7 @@ public class RouterTest {
                 index();
             })));
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -201,7 +200,7 @@ public class RouterTest {
 
 
         String path = "/post/123/settings";
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
 
         verify(req).addParam(key.capture(), val.capture());
@@ -218,7 +217,7 @@ public class RouterTest {
 
 
         String path = "/search";
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
 
 
@@ -235,7 +234,7 @@ public class RouterTest {
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         String path = "/user/123/mitch";
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
 
         verify(req, times(2)).addParam(key.capture(), val.capture());
@@ -256,7 +255,7 @@ public class RouterTest {
                 index();
             })));
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -267,7 +266,7 @@ public class RouterTest {
                 index();
             })));
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -281,7 +280,7 @@ public class RouterTest {
                 index();
             })));
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -292,7 +291,7 @@ public class RouterTest {
                 index();
             })));
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -303,7 +302,7 @@ public class RouterTest {
                 index();
             })));
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -313,7 +312,7 @@ public class RouterTest {
 
 
         String path = "/house/1/something";
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
 
 
@@ -333,7 +332,7 @@ public class RouterTest {
             })));
             Router.setCompiledRoutes(routes);
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -349,7 +348,7 @@ public class RouterTest {
             })));
             Router.setCompiledRoutes(routes);
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -371,7 +370,7 @@ public class RouterTest {
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         String path = "/some";
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
 
         assertEquals("/some", route.getPath());
@@ -399,7 +398,7 @@ public class RouterTest {
             })));
             Router.setCompiledRoutes(routes);
             Router router = new Router();
-            router.compileRoutes(context, c);
+            router.compileRoutes();
         });
     }
 
@@ -413,7 +412,7 @@ public class RouterTest {
 
 
         String path = "/user_mitch";
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         RouteExecutor route = router.lookup(path, "GET", req);
 
         verify(req).addParam(key.capture(), val.capture());
@@ -442,7 +441,7 @@ public class RouterTest {
         Request req = mock(Request.class);
 
         String path = "/homebase";
-        router.compileRoutes(context, c);
+        router.compileRoutes();
         assertNull(router.lookup(path, "GET", req));
         assertNull(router.lookup("/search/2", "GET", req));
         assertNull(router.lookup("/blog/2/home", "GET", req));
