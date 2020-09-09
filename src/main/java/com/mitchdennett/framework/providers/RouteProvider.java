@@ -12,7 +12,7 @@ public class RouteProvider extends ServiceProvider{
 
     @Override
     public void register() {
-        c.bind(new Router());
+        c.singleton(Router.class, new Router());
     }
 
     @Override

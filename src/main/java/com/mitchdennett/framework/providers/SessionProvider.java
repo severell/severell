@@ -14,12 +14,12 @@ public class SessionProvider extends ServiceProvider {
 
     @Override
     public void register() {
-        this.c.bind("SessionMemoryDriver", new SessionMemoryDriver());
-        this.c.bind(new SessionManager(this.c));
+        this.c.bind("SessionMemoryDriver", (container) -> new SessionMemoryDriver());
+        this.c.singleton(SessionManager.class, new SessionManager(this.c));
     }
 
     @Override
     public void boot() {
-        this.c.bind(Session.class,  this.c.make(SessionManager.class).create_driver(Config.get("SESSION_DRIVER")));
+        this.c.bind(Session.class,  (container) -> container.make(SessionManager.class).create_driver(Config.get("SESSION_DRIVER")));
     }
 }

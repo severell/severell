@@ -1,9 +1,7 @@
 package com.mitchdennett.framework.http;
 
 import com.mitchdennett.framework.exceptions.MiddlewareException;
-import com.mitchdennett.framework.middleware.MiddlewareMapper;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +12,7 @@ public class Route {
     private String path;
     private Method method;
     private String httpMethod;
-    private ArrayList middleware;
+    private ArrayList<Class> middlewareClassList;
 
     protected Route(String path, String method, String httpMethod) throws ClassNotFoundException, NoSuchMethodException {
         this.path = path;
@@ -22,43 +20,27 @@ public class Route {
         String meth = method.split("::")[1];
         this.method = getMethodLike(Class.forName(clazz), meth);
         this.httpMethod = httpMethod;
-        this.middleware = new ArrayList();
     }
 
     public void middleware(Class... middleware) throws MiddlewareException{
-        for(Class p : middleware) {
-            try {
-                Object midd = instantiateMiddleware(p);
-                Method meth = midd.getClass().getMethod("handle", Request.class, Response.class, MiddlewareChain.class);
-                this.middleware.add(new MiddlewareMapper(meth, midd));
-            }catch (NoSuchMethodException ex) {
-                throw new MiddlewareException(String.format("Unable to resolve middleware"));
-            }
-        }
+        middlewareClassList = new ArrayList<>();
+        middlewareClassList.addAll(Arrays.asList(middleware));
     }
 
-    private Object instantiateMiddleware(Class p) throws MiddlewareException {
-        try {
-            return p.getConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-            throw new MiddlewareException(String.format("Middlware: %s has no valid constructor.", p.getSimpleName()));
-        }
-    }
-
-    protected ArrayList<MiddlewareMapper> getMiddleware() {
-        return this.middleware;
-    }
-
-    protected Method getMethod() {
+    public Method getMethod() {
         return this.method;
     }
 
-    protected String getPath() {
+    public String getPath() {
         return this.path;
     }
 
-    protected String getHttpMethod() {
+    public String getHttpMethod() {
         return this.httpMethod;
+    }
+
+    public ArrayList<Class> getMiddlewareClassList() {
+        return this.middlewareClassList;
     }
 
     private static Method getMethodLike(Class c, String name) {

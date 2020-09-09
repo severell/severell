@@ -6,6 +6,8 @@ import com.mitchdennett.framework.managers.SessionManager;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.function.Function;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -24,18 +26,20 @@ public class SessionProviderTest {
 
         p.register();
 
-        ArgumentCaptor<Object> objCaptor = ArgumentCaptor.forClass(Object.class);
-        ArgumentCaptor<Object> sesssionCaptor = ArgumentCaptor.forClass(SessionMemoryDriver.class);
 
-        verify(c).bind(objCaptor.capture());
-        verify(c).bind(any(String.class), sesssionCaptor.capture());
+        ArgumentCaptor<Function<Container, Object>> objCaptor = ArgumentCaptor.forClass(Function.class);
+        ArgumentCaptor<Object> sesssionCaptor = ArgumentCaptor.forClass(Object.class);
+        ArgumentCaptor<Function<Container, Object>> sessCaptor = ArgumentCaptor.forClass(Function.class);
 
-        assertTrue(sesssionCaptor.getValue() instanceof SessionMemoryDriver);
-        assertTrue(objCaptor.getValue() instanceof SessionManager);
+        verify(c).bind(any(String.class), objCaptor.capture());
+        verify(c).singleton(any(Class.class), sesssionCaptor.capture());
+
+        assertTrue(sesssionCaptor.getValue() instanceof SessionManager);
+        assertTrue(objCaptor.getValue().apply(null) instanceof SessionMemoryDriver);
 
         p.boot();
 
-        verify(c).bind(any(Class.class), sesssionCaptor.capture());
+        verify(c).bind(any(Class.class), sessCaptor.capture());
 
 
     }

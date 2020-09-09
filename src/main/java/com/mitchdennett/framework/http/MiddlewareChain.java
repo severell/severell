@@ -1,7 +1,6 @@
 package com.mitchdennett.framework.http;
 
 import com.mitchdennett.framework.container.Container;
-import com.mitchdennett.framework.middleware.MiddlewareMapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -10,19 +9,19 @@ import java.util.Objects;
 
 public class MiddlewareChain {
 
-    private Iterator<MiddlewareMapper> middleware;
-    private Route target;
+    private Iterator<MiddlewareExecutor> middleware;
+    private RouteExecutor target;
     private Container container;
 
     private Response response;
     private Request request;
 
-    public void setMiddleware(List<MiddlewareMapper> middleware) {
+    public void setMiddleware(List<MiddlewareExecutor> middleware) {
         Objects.requireNonNull(middleware);
         this.middleware = middleware.iterator();
     }
 
-    public void setTarget(Route target) {
+    public void setTarget(RouteExecutor target) {
         this.target = target;
     }
 
@@ -32,14 +31,16 @@ public class MiddlewareChain {
         this.response = response;
 
         if(middleware.hasNext()) {
-            MiddlewareMapper mapper = middleware.next();
-            mapper.run(c, request, response, this);
+            MiddlewareExecutor mapper = middleware.next();
+            try {
+                mapper.execute(request, response, container, this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         } else {
             try {
-                this.container.invoke(request, response, target.getMethod(), null);
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+                target.execute(request, response, container);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -54,20 +55,17 @@ public class MiddlewareChain {
         this.response = response;
 
         if(middleware.hasNext()) {
-            MiddlewareMapper mapper = middleware.next();
+            MiddlewareExecutor mapper = middleware.next();
             try {
-               mapper.run(container, request, response, this);
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+               mapper.execute(request, response, container, this);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
+
         } else {
             try {
-                this.container.invoke(request, response, target.getMethod(), null);
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+                target.execute(request, response, container);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

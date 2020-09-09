@@ -27,57 +27,60 @@ public class AppProvider extends ServiceProvider{
 
     @Override
     public void register() {
-        c.bind(new DefaultMustacheFactory());
-        c.bind(new ErrorHandler(c));
-        c.bind(new ServletContextHandler(ServletContextHandler.SESSIONS));
+        c.singleton(DefaultMustacheFactory.class, new DefaultMustacheFactory());
+        c.singleton(ErrorHandler.class, new ErrorHandler(c));
+        c.singleton(ServletContextHandler.class, new ServletContextHandler(ServletContextHandler.SESSIONS));
     }
 
     @Override
     public void boot() throws IOException {
         Server server = c.make(Server.class);
+        if(server != null) {
+            ServletContextHandler context = c.make(ServletContextHandler.class);
+            context.setContextPath("/");
 
-        ServletContextHandler context = c.make(ServletContextHandler.class);
-        context.setContextPath("/");
+            SessionHandler sessionHandler = new SessionHandler();
+            context.setSessionHandler(sessionHandler);
 
-        SessionHandler sessionHandler = new SessionHandler();
-        context.setSessionHandler(sessionHandler);
+            ContextHandlerCollection contexts = new ContextHandlerCollection();
 
-        ContextHandlerCollection contexts = new ContextHandlerCollection();
+            ResourceHandler rh0 = new ResourceHandler();
+            rh0.setDirectoriesListed(false);
 
-        ResourceHandler rh0 = new ResourceHandler();
-        rh0.setDirectoriesListed(false);
+            ContextHandler context0 = new ContextHandler();
+            context0.setContextPath("/static");
 
-        ContextHandler context0 = new ContextHandler();
-        context0.setContextPath("/static");
+            URL baseUrl  = AppProvider.class.getResource( "/compiled" );
+            if(baseUrl != null) {
+                String basePath = baseUrl.toExternalForm();
+                context0.setBaseResource(Resource.newResource(basePath));
+                context0.setHandler(rh0);
+                contexts.addHandler(context0);
+            }
 
-        URL baseUrl  = AppProvider.class.getResource( "/compiled" );
-        if(baseUrl != null) {
-            String basePath = baseUrl.toExternalForm();
-            context0.setBaseResource(Resource.newResource(basePath));
-            context0.setHandler(rh0);
-            contexts.addHandler(context0);
+            contexts.addHandler(context);
+
+            DataSourceConfig dataSourceConfig = new DataSourceConfig();
+
+            dataSourceConfig.setUsername(Config.get("DB_USERNAME"));
+            dataSourceConfig.setPassword(Config.get("DB_PASSWORD"));
+            dataSourceConfig.setDriver(Config.get("DB_DRIVER"));
+            dataSourceConfig.setUrl(Config.get("DB_CONNSTRING"));
+            DatabaseConfig config = new DatabaseConfig();
+
+            if(Config.get("MODELPACKAGE") != null) {
+                config.addPackage(Config.get("MODELPACKAGE"));
+            }
+
+            config.setDataSourceConfig(dataSourceConfig);
+
+            Database database = createDatabse(config);
+
+            c.singleton(Database.class, database);
+
+
+            server.setHandler(contexts);
         }
-
-        contexts.addHandler(context);
-        DataSourceConfig dataSourceConfig = new DataSourceConfig();
-
-        dataSourceConfig.setUsername(Config.get("DB_USERNAME"));
-        dataSourceConfig.setPassword(Config.get("DB_PASSWORD"));
-        dataSourceConfig.setDriver(Config.get("DB_DRIVER"));
-        dataSourceConfig.setUrl(Config.get("DB_CONNSTRING"));
-        DatabaseConfig config = new DatabaseConfig();
-
-        if(Config.get("MODELPACKAGE") != null) {
-            config.addPackage(Config.get("MODELPACKAGE"));
-        }
-
-        config.setDataSourceConfig(dataSourceConfig);
-
-        Database database = createDatabse(config);
-
-        c.bind(database);
-
-        server.setHandler(contexts);
 
 
     }

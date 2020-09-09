@@ -5,15 +5,16 @@ import com.mitchdennett.framework.http.MiddlewareChain;
 import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
 
-import javax.inject.Inject;
 import java.util.UUID;
 import java.util.function.Function;
 
 public class CsrfMiddleware implements Middleware{
 
-    @Inject
     private Session session;
 
+    public CsrfMiddleware(Session session) {
+        this.session = session;
+    }
 
     @Override
     public void handle(Request request, Response response, MiddlewareChain chain) throws Exception {
@@ -22,7 +23,6 @@ public class CsrfMiddleware implements Middleware{
         response.share("csrf", func);
         chain.next();
     }
-
 
     private String verifyToken(Request r, Session session) throws Exception {
         String token;

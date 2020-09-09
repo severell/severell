@@ -15,13 +15,13 @@ public class MailProvider extends ServiceProvider{
 
     @Override
     public void register() {
-        this.c.bind("MailSMTPDriver", new MailSMTPDriver());
-        this.c.bind("MailLogDriver", new MailLogDriver());
-        this.c.bind(new MailManager(this.c));
+        this.c.bind("MailSMTPDriver", (container) -> new MailSMTPDriver());
+        this.c.bind("MailLogDriver", (container) -> new MailLogDriver());
+        this.c.singleton(MailManager.class, new MailManager(this.c));
     }
 
     @Override
     public void boot() {
-        this.c.bind(Mail.class, this.c.make(MailManager.class).create_driver(Config.get("MAIL_DRIVER")));
+        this.c.bind(Mail.class, (container) -> container.make(MailManager.class).create_driver(Config.get("MAIL_DRIVER")));
     }
 }

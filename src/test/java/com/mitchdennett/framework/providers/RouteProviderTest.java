@@ -20,8 +20,9 @@ public class RouteProviderTest {
         RouteProvider p = new RouteProvider(c);
         p.register();
 
+        ArgumentCaptor<Class> classCapt = ArgumentCaptor.forClass(Class.class);
         ArgumentCaptor<Router> objCaptor = ArgumentCaptor.forClass(Router.class);
-        verify(c).bind(objCaptor.capture());
+        verify(c).singleton(classCapt.capture(), objCaptor.capture());
         assertNotNull(objCaptor.getValue());
         Router r = mock(Router.class);
 

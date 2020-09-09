@@ -6,5 +6,6 @@ import com.mitchdennett.framework.http.Response;
 
 public interface Middleware {
 
-    public void handle(Request request, Response response, MiddlewareChain chain) throws Exception;
+    void handle(Request request, Response response, MiddlewareChain chain) throws Exception;
+
 }

@@ -12,6 +12,7 @@ public class Router {
 
     private HashMap<String, RouteNode> trees;
     private static ArrayList<Route> routes = new ArrayList<Route>();
+    private static ArrayList<RouteExecutor> compiledRoutes = new ArrayList<RouteExecutor>();
 
     public static Route Get(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, "GET");
@@ -53,9 +54,10 @@ public class Router {
 
     protected static void clearRoutes() {
         routes = new ArrayList<>();
+        compiledRoutes = new ArrayList<>();
     }
 
-    public Route lookup(String path, String httpMethod, Request req)
+    public RouteExecutor lookup(String path, String httpMethod, Request req)
     {
         RouteNode traverseNode = trees.get(httpMethod);
 
@@ -120,6 +122,10 @@ public class Router {
         }
     }
 
+    public static void setCompiledRoutes(ArrayList<RouteExecutor> routes) {
+        compiledRoutes = routes;
+    }
+
     public ArrayList<Route> getRoutes() {
         return Router.routes;
     }
@@ -128,7 +134,7 @@ public class Router {
         trees = new HashMap<>();
 
 
-        for(Route r : getRoutes()) {
+        for(RouteExecutor r : Router.compiledRoutes) {
             if(trees.containsKey(r.getHttpMethod())) {
                 RouteNode tree = trees.get(r.getHttpMethod());
                 tree.insert(r.getPath(), r);

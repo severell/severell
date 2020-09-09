@@ -4,12 +4,11 @@ import com.mitchdennett.framework.http.NeedsRequest;
 import com.mitchdennett.framework.http.Request;
 import com.mitchdennett.framework.http.Response;
 
-import javax.inject.Inject;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Function;
 
 public class Container {
 
@@ -20,44 +19,33 @@ public class Container {
     }
 
     public <T> T make(Class<T> c) {
-        T obj =(T) ioc.get(c.getName());
-        return obj;
+        return make(c.getName(), c);
     }
 
     public <T> T make(String s, Class<T> c) {
         T obj =(T) ioc.get(s);
+
+        if(obj instanceof Function) {
+            return ((Function<Container, T>) obj).apply(this);
+        }
+
         return obj;
     }
 
-    public void bind(String c, Object obj) {
-        ioc.put(c, obj);
+    public void bind(Class key, Function<Container,Object> closure) {
+        bind(key.getName(), closure);
     }
 
-    public void bind(Object c) {
-        ioc.put(c.getClass().getName(), c);
+    public void bind(String key, Function<Container,Object> closure) {
+        ioc.put(key, closure);
     }
 
-    public void bind(Class c, Object obj) {
-        ioc.put(c.getName(), obj);
+    public void singleton(String key, Object obj) {
+        ioc.put(key, obj);
     }
 
-    public void hydrate(Object obj, Request request) throws IllegalAccessException {
-        Field[] fields = obj.getClass().getDeclaredFields();
-
-        for (Field p : fields) {
-
-            boolean injectable = p.isAnnotationPresent(Inject.class);
-            if(injectable) {
-                p.setAccessible(true);
-                Object fieldObj = make(p.getType());
-
-                if(fieldObj instanceof NeedsRequest) {
-                    ((NeedsRequest) fieldObj).setRequest(request);
-                }
-
-                p.set(obj, fieldObj);
-            }
-        }
+    public void singleton(Class key, Object obj) {
+        singleton(key.getName(), obj);
     }
 
     public Object[] resolve(Request req, Response resp, Method meth) {

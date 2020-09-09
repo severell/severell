@@ -1,7 +1,6 @@
 package com.mitchdennett.framework.managers;
 
 import com.mitchdennett.framework.container.Container;
-import com.mitchdennett.framework.drivers.Session;
 
 public class Manager {
 

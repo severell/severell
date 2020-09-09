@@ -35,15 +35,16 @@ public class AppProviderTest {
 
         provSpy.boot();
 
-        ArgumentCaptor<Object> classCaptor = ArgumentCaptor.forClass(Object.class);
+        ArgumentCaptor<Class> classCaptor = ArgumentCaptor.forClass(Class.class);
+        ArgumentCaptor<Object> objCapture = ArgumentCaptor.forClass(Object.class);
         ArgumentCaptor<Handler> handlerCaptor = ArgumentCaptor.forClass(Handler.class);
 
-        verify(c, times(4)).bind(classCaptor.capture());
+        verify(c, times(4)).singleton(classCaptor.capture(),objCapture.capture());
 
-        assertTrue(classCaptor.getAllValues().get(0) instanceof DefaultMustacheFactory);
-        assertTrue(classCaptor.getAllValues().get(1) instanceof ErrorHandler);
-        assertTrue(classCaptor.getAllValues().get(2) instanceof ServletContextHandler);
-        assertTrue(classCaptor.getAllValues().get(3) instanceof Database);
+        assertTrue(objCapture.getAllValues().get(0) instanceof DefaultMustacheFactory);
+        assertTrue(objCapture.getAllValues().get(1) instanceof ErrorHandler);
+        assertTrue(objCapture.getAllValues().get(2) instanceof ServletContextHandler);
+        assertTrue(objCapture.getAllValues().get(3) instanceof Database);
 
         verify(server).setHandler(handlerCaptor.capture());
 

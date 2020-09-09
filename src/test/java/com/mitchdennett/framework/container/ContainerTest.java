@@ -28,11 +28,18 @@ public class ContainerTest {
     @Test
     public void containerTest() {
         Container c = new Container();
-        ArrayList<String> testList = new ArrayList<String>();
-        testList.add("Hello");
-        c.bind(2);
-        c.bind("DefaultList", testList);
-        c.bind(ArrayList.class, testList);
+
+        c.singleton(Integer.class, 2);
+        c.bind("DefaultList", (container) -> {
+            ArrayList<String> testList = new ArrayList<String>();
+            testList.add("Hello");
+            return testList;
+        });
+        c.bind(ArrayList.class, (container) -> {
+            ArrayList<String> testList = new ArrayList<String>();
+            testList.add("Hello");
+            return testList;
+        });
 
         assertEquals(2, c.make(Integer.class));
         assertEquals("Hello", c.make("DefaultList", ArrayList.class).get(0));
@@ -49,8 +56,8 @@ public class ContainerTest {
         Session sess = mock(SessionMemoryDriver.class);
         Container c = new Container();
 
-        c.bind(Session.class, sess);
-        c.bind(2);
+        c.singleton(Session.class, sess);
+        c.singleton(Integer.class, 2);
 
 
         c.invoke(req, resp, meth, null);

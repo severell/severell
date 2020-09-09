@@ -1,6 +1,5 @@
 package com.mitchdennett.framework.drivers;
 
-import com.mitchdennett.framework.drivers.BaseMailDriver;
 import org.apache.maven.shared.utils.StringUtils;
 
 public class MailLogDriver extends BaseMailDriver {

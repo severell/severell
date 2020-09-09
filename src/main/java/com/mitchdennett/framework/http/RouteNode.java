@@ -39,7 +39,7 @@ public class RouteNode {
 
     private String path;
     private ArrayList<RouteNode> children;
-    private Route handle;
+    private RouteExecutor handle;
     private boolean isWildCard;
     private NodeType type;
 
@@ -55,7 +55,7 @@ public class RouteNode {
         return this.path;
     }
 
-    protected Route getHandle() {
+    protected RouteExecutor getHandle() {
         return this.handle;
     }
 
@@ -67,7 +67,7 @@ public class RouteNode {
         return this.type;
     }
 
-    protected void insert(String path, Route handle) throws Exception {
+    protected void insert(String path, RouteExecutor handle) throws Exception {
         String fullPath = path;
         RouteNode traverseNode = this;
 
@@ -187,7 +187,7 @@ public class RouteNode {
         return new WildCardReturn("", -1, false);
     }
 
-    private void insertChild(String path, String fullPath, Route handle, RouteNode traverseNode) throws Exception {
+    private void insertChild(String path, String fullPath, RouteExecutor handle, RouteNode traverseNode) throws Exception {
         for(;;) {
             WildCardReturn ret = findWildcard(path);
             if (ret.getIndex() < 0) { // No wildcard found

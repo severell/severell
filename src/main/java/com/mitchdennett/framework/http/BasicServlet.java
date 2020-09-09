@@ -81,7 +81,7 @@ public class BasicServlet extends HttpServlet {
     }
 
     private void doRequest(Request request, Response response) throws InvocationTargetException, IllegalAccessException {
-        Route ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
+        RouteExecutor ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
 
         if(ref != null) {
             MiddlewareManager manager = new MiddlewareManager(ref, c);

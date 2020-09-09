@@ -7,7 +7,6 @@ import com.mitchdennett.framework.http.Response;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.lang.reflect.Field;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -30,10 +29,8 @@ public class CsrfMiddlewareTest {
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Object> val = ArgumentCaptor.forClass(Object.class);
 
-        CsrfMiddleware middleware = new CsrfMiddleware();
-        Field f = middleware.getClass().getDeclaredField("session");
-        f.setAccessible(true);
-        f.set(middleware, session);
+        CsrfMiddleware middleware = new CsrfMiddleware(session);
+
         middleware.handle(request, resp, chain);
 
         verify(session).put(key.capture(), val.capture());
@@ -56,10 +53,8 @@ public class CsrfMiddlewareTest {
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
 
-        CsrfMiddleware middleware = new CsrfMiddleware();
-        Field f = middleware.getClass().getDeclaredField("session");
-        f.setAccessible(true);
-        f.set(middleware, session);
+        CsrfMiddleware middleware = new CsrfMiddleware(session);
+
         middleware.handle(request, resp, chain);
 
         verify(resp).share(key.capture(), val.capture());
@@ -83,10 +78,8 @@ public class CsrfMiddlewareTest {
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
 
-        CsrfMiddleware middleware = new CsrfMiddleware();
-        Field f = middleware.getClass().getDeclaredField("session");
-        f.setAccessible(true);
-        f.set(middleware, session);
+        CsrfMiddleware middleware = new CsrfMiddleware(session);
+
 
         middleware.handle(request, resp, chain);
 
@@ -108,10 +101,7 @@ public class CsrfMiddlewareTest {
         given(session.getString("csrfToken")).willReturn(token);
         given(request.input("__token")).willReturn("");
 
-        CsrfMiddleware middleware = new CsrfMiddleware();
-        Field f = middleware.getClass().getDeclaredField("session");
-        f.setAccessible(true);
-        f.set(middleware, session);
+        CsrfMiddleware middleware = new CsrfMiddleware(session);
 
         assertThrows(Exception.class, () -> {
             middleware.handle(request, resp, chain);
@@ -131,10 +121,7 @@ public class CsrfMiddlewareTest {
         given(session.getString("csrfToken")).willReturn(null);
         given(request.input("__token")).willReturn(null);
 
-        CsrfMiddleware middleware = new CsrfMiddleware();
-        Field f = middleware.getClass().getDeclaredField("session");
-        f.setAccessible(true);
-        f.set(middleware, session);
+        CsrfMiddleware middleware = new CsrfMiddleware(session);
 
         assertThrows(Exception.class, () -> {
             middleware.handle(request, resp,  chain);
@@ -152,10 +139,7 @@ public class CsrfMiddlewareTest {
         given(session.getString("csrfToken")).willReturn("");
         given(request.input("__token")).willReturn(null);
 
-        CsrfMiddleware middleware = new CsrfMiddleware();
-        Field f = middleware.getClass().getDeclaredField("session");
-        f.setAccessible(true);
-        f.set(middleware, session);
+        CsrfMiddleware middleware = new CsrfMiddleware(session);
 
         assertThrows(Exception.class, () -> {
             middleware.handle(request,resp, chain);
