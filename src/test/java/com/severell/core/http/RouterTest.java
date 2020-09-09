@@ -452,7 +452,7 @@ public class RouterTest {
     public void testRouterThrowsErrorWhenMethodNotFound() throws Exception {
         assertThrows(RuntimeException.class, () -> {
             Router.clearRoutes();
-            Router.Get("/", "com.mitchdennett.framework.http.RouterTest::notFound");
+            Router.Get("/", "com.severell.core.http.RouterTest::notFound");
         });
     }
 }
