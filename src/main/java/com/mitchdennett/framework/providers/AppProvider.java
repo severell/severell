@@ -5,7 +5,6 @@ import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.error.ErrorHandler;
 import com.mitchdennett.framework.http.Dispatcher;
 import com.mitchdennett.framework.http.Router;
-import org.eclipse.jetty.server.Server;
 
 import java.io.IOException;
 

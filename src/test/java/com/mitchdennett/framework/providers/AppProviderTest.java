@@ -3,19 +3,13 @@ package com.mitchdennett.framework.providers;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.mitchdennett.framework.container.Container;
 import com.mitchdennett.framework.error.ErrorHandler;
-import io.ebean.Database;
-import io.ebean.config.DatabaseConfig;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
