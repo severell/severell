@@ -14,46 +14,68 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A wrapper around {@link HttpServletResponse} with simpler syntax.
+ */
 public class Response extends HttpServletResponseWrapper {
 
-//    @FunctionalInterface
-//    interface Function<One, Two, Three> {
-//        public Three apply(One one, Two two);
-//    }
-
+    /**
+     * The {@link Container} to be used to resolve any dependencies.
+     */
     private final Container c;
+
+    /**
+     * This holds any data that is to be passed to every mustache template.
+     */
+    private HashMap<String, Object> shared;
 
     /**
      * Constructs a response adaptor wrapping the given response.
      *
      * @param response the {@link HttpServletResponse} to be wrapped.
-     * @throws IllegalArgumentException if the response is null
      */
-
-    private HashMap<String, Object> shared;
-
     public Response(HttpServletResponse response) {
         super(response);
         c = null;
         shared = new HashMap<>();
     }
 
+    /**
+     * Constructs a response adaptor wrapping the given response.
+     * @param response the {@link HttpServletResponse} to be wrapped.
+     * @param c the {@link Container} object to be used
+     */
     public Response(HttpServletResponse response, Container c) {
         super(response);
         this.c = c;
         shared = new HashMap<>();
     }
 
+    /**
+     * Renders a mustache template.
+     *
+     * @param template The path to the template. This is relative to your templates folder. Eg. auth/login.mustache
+     * @param data This contains the data to be used in the template.
+     * @throws IOException
+     */
     public void render(String template, HashMap<String, Object> data) throws IOException {
         this.render(template, data, "templates/");
     }
 
+    /**
+     * Renders a mustache template. Use this method if template is not located in default "template" directory
+     * @param template The path to the template. Relative to the baseDir param.
+     * @param data This contains the data to be used in the template.
+     * @param baseDir Base directory of the template
+     * @throws IOException
+     */
     protected void render(String template, HashMap<String, Object> data, String baseDir) throws IOException {
         this.setContentType("text/html");
         MustacheFactory mf;
         mf = c.make(DefaultMustacheFactory.class);
 
         if(mf == null || Config.equals("ENV", "TEST")) {
+            System.out.println("Making New Default Factory");
             mf = new DefaultMustacheFactory();
         }
 
@@ -63,14 +85,32 @@ public class Response extends HttpServletResponseWrapper {
         m.execute(writer, data).flush();
     }
 
+    /**
+     * Use this to share an object with any mustache template. You can then use this object in any template
+     * and don't have to explicitly pass it into the render call.
+     *
+     * @param key The key to be used when using this in a template
+     * @param obj Object to share.
+     */
     public void share(String key, Object obj) {
         shared.put(key, obj);
     }
 
+    /**
+     * Send a redirect
+     *
+     * @param url URL to redirect to
+     * @throws IOException
+     */
     public void redirect(String url) throws IOException {
         this.sendRedirect(url);
     }
 
+    /**
+     * Set headers on the response object
+     *
+     * @param headers Headers to set on the response object
+     */
     public void headers(Map<String, String> headers) {
         if(headers != null) {
             for(String key : headers.keySet()) {
@@ -80,7 +120,14 @@ public class Response extends HttpServletResponseWrapper {
         }
     }
 
-    public void renderTemplateLiteral(String templateFile, HashMap<String, Object> data) throws IOException {
+    /**
+     * Renders a mustache template string.
+     *
+     * @param templateString A string containing a mustache template
+     * @param data The data to be used in the template string
+     * @throws IOException
+     */
+    public void renderTemplateLiteral(String templateString, HashMap<String, Object> data) throws IOException {
         this.setContentType("text/html");
         MustacheFactory mf;
         mf = c.make(DefaultMustacheFactory.class);
@@ -89,7 +136,7 @@ public class Response extends HttpServletResponseWrapper {
             mf = new DefaultMustacheFactory();
         }
 
-        Mustache m = mf.compile(new StringReader(templateFile), "error.mustache");
+        Mustache m = mf.compile(new StringReader(templateString), "error.mustache");
         PrintWriter writer = this.getWriter();
         data.putAll(shared);
         m.execute(writer, data).flush();
