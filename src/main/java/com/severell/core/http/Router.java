@@ -3,12 +3,25 @@ package com.severell.core.http;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * The router holds all the routes and is responsible for returning the route
+ * for a given path.
+ */
 public class Router {
 
     private HashMap<String, RouteNode> trees;
     private static ArrayList<Route> routes = new ArrayList<Route>();
     private static ArrayList<RouteExecutor> compiledRoutes = new ArrayList<RouteExecutor>();
 
+    /**
+     * Register a GET route for the given path
+     *
+     * @param path
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
     public static Route Get(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, "GET");
         Route headRoute = new Route(path, method, "HEAD");
@@ -17,41 +30,97 @@ public class Router {
         return route;
     }
 
+    /**
+     * Register a POST route for the given path
+     *
+     * @param path
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
     public static Route Post(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, "POST");
         routes.add(route);
         return route;
     }
 
+    /**
+     * Register a PUT route for the given path
+     *
+     * @param path
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
     public static Route Put(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, "PUT");
         routes.add(route);
         return route;
     }
 
+    /**
+     * Register a Patch route for the given path
+     *
+     * @param path
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
     public static Route Patch(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, "PATCH");
         routes.add(route);
         return route;
     }
 
+    /**
+     * Register a DELETE route for the given path
+     *
+     * @param path
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
     public static Route Delete(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, "DELETE");
         routes.add(route);
         return route;
     }
 
+    /**
+     * Register an OPTIONS route for the given path
+     *
+     * @param path
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
     public static Route Options(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, method, "OPTIONS");
         routes.add(route);
         return route;
     }
 
+    /**
+     * Clear all routes.
+     */
     protected static void clearRoutes() {
         routes = new ArrayList<>();
         compiledRoutes = new ArrayList<>();
     }
 
+    /**
+     * This is used to retrieve a route for a given path
+     *
+     * @param path The path
+     * @param httpMethod HTTP method (i.e GET)
+     * @param req The request object
+     * @return
+     */
     public RouteExecutor lookup(String path, String httpMethod, Request req)
     {
         RouteNode traverseNode = trees.get(httpMethod);
@@ -117,14 +186,27 @@ public class Router {
         }
     }
 
+    /**
+     * After the RouteBuilder as compiled the routes we set them on the router
+     * here.
+     * @param routes Compiled Routes.
+     */
     public static void setCompiledRoutes(ArrayList<RouteExecutor> routes) {
         compiledRoutes = routes;
     }
 
+    /**
+     * Get a list of all Routes.
+     * @return
+     */
     public ArrayList<Route> getRoutes() {
         return Router.routes;
     }
 
+    /**
+     * Create the Trie and finalize the router.
+     * @throws Exception
+     */
     public void compileRoutes() throws Exception {
         trees = new HashMap<>();
 
