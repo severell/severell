@@ -75,7 +75,6 @@ public class Response extends HttpServletResponseWrapper {
         mf = c.make(DefaultMustacheFactory.class);
 
         if(mf == null || Config.equals("ENV", "TEST")) {
-            System.out.println("Making New Default Factory");
             mf = new DefaultMustacheFactory();
         }
 
