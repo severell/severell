@@ -5,6 +5,10 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheNotFoundException;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
+import com.severell.core.exceptions.ViewException;
+import com.severell.core.view.View;
+import com.severell.core.view.ViewMustacheDriver;
+import com.severell.core.view.ViewProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -23,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class ResponseTest {
 
     @Test
-    public void testView() throws IOException {
+    public void testView() throws Exception {
         HttpServletResponse r = mock(HttpServletResponse.class);
         Container c = mock(Container.class);
         DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
@@ -34,6 +38,11 @@ public class ResponseTest {
         PrintWriter printWriter = mock(PrintWriter.class);
         given(r.getWriter()).willReturn(printWriter);
         given(m.execute(any(Writer.class), any(HashMap.class))).willReturn(w);
+
+        View view = mock(ViewMustacheDriver.class);
+        given(c.make(View.class)).willReturn(view);
+
+
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("something", "else");
 
@@ -44,20 +53,19 @@ public class ResponseTest {
         resp.render("sometemplate", data);
 
         ArgumentCaptor<String> templateCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<HashMap<String, Object>> dataCapt = ArgumentCaptor.forClass(HashMap.class);
+        ArgumentCaptor<String> baseDirCapt = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Writer> writerArgumentCaptor = ArgumentCaptor.forClass(Writer.class);
 
-        verify(mf).compile(templateCaptor.capture());
+        verify(view).render(templateCaptor.capture(), dataCapt.capture(),baseDirCapt.capture(), writerArgumentCaptor.capture());
 
-        assertEquals("templates/sometemplate", templateCaptor.getValue());
+        assertEquals("sometemplate", templateCaptor.getValue());
 
-        ArgumentCaptor<Writer> writerCaptor = ArgumentCaptor.forClass(Writer.class);
-        ArgumentCaptor<HashMap<String, Object>> dataCaptor = ArgumentCaptor.forClass(HashMap.class);
-        verify(m).execute(writerCaptor.capture(), dataCaptor.capture());
-
-        assertEquals(expectedData, dataCaptor.getValue());
+        assertEquals(expectedData, dataCapt.getValue());
     }
 
     @Test
-    public void testViewWithShareData() throws IOException {
+    public void testViewWithShareData() throws Exception {
         HttpServletResponse r = mock(HttpServletResponse.class);
         Container c = mock(Container.class);
         DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
@@ -74,23 +82,24 @@ public class ResponseTest {
         HashMap<String, Object> expectedData = new HashMap<String, Object>();
         expectedData.put("otherdata", "moredata");
 
+        View view = mock(ViewMustacheDriver.class);
+        given(c.make(View.class)).willReturn(view);
+
+        ArgumentCaptor<String> templateCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<HashMap<String, Object>> dataCapt = ArgumentCaptor.forClass(HashMap.class);
+        ArgumentCaptor<String> baseDirCapt = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<Writer> writerArgumentCaptor = ArgumentCaptor.forClass(Writer.class);
+
 
         Response resp = new Response(r, c);
         resp.share("otherdata", "moredata");
         resp.render("sometemplate", data);
 
+        verify(view).render(templateCaptor.capture(), dataCapt.capture(),baseDirCapt.capture(), writerArgumentCaptor.capture());
 
-        ArgumentCaptor<String> templateCaptor = ArgumentCaptor.forClass(String.class);
+        assertEquals("sometemplate", templateCaptor.getValue());
 
-        verify(mf).compile(templateCaptor.capture());
-
-        assertEquals("templates/sometemplate", templateCaptor.getValue());
-
-        ArgumentCaptor<Writer> writerCaptor = ArgumentCaptor.forClass(Writer.class);
-        ArgumentCaptor<HashMap<String, Object>> dataCaptor = ArgumentCaptor.forClass(HashMap.class);
-        verify(m).execute(writerCaptor.capture(), dataCaptor.capture());
-
-        assertEquals(expectedData, dataCaptor.getValue());
+        assertEquals(expectedData, dataCapt.getValue());
     }
 
     @Test
@@ -104,10 +113,12 @@ public class ResponseTest {
         DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
         given(c.make(DefaultMustacheFactory.class)).willReturn(mock(DefaultMustacheFactory.class));
 
+        View view = new ViewMustacheDriver();
+        given(c.make(View.class)).willReturn(view);
 
         Response resp = new Response(r, c);
         assertThrows(MustacheNotFoundException.class, () -> {
-            resp.render("sometemplate", null);
+            resp.render("sometemplate", new HashMap<>());
         });
 
         Config.unload();
@@ -135,7 +146,6 @@ public class ResponseTest {
 
         assertEquals("Value1", valCap.getAllValues().get(0));
         assertEquals("Value2", valCap.getAllValues().get(1));
-
     }
 
     @Test

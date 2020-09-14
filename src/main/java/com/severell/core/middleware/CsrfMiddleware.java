@@ -1,6 +1,8 @@
 package com.severell.core.middleware;
 
 import com.severell.core.drivers.Session;
+import com.severell.core.exceptions.ControllerException;
+import com.severell.core.exceptions.MiddlewareException;
 import com.severell.core.http.MiddlewareChain;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
@@ -17,20 +19,20 @@ public class CsrfMiddleware implements Middleware{
     }
 
     @Override
-    public void handle(Request request, Response response, MiddlewareChain chain) throws Exception {
+    public void handle(Request request, Response response, MiddlewareChain chain) throws MiddlewareException, ControllerException {
         String finalToken = verifyToken(request, session);
         Function<String, String> func = (obj) -> String.format("<input type='hidden' name='__token' value='%s' />", finalToken);
         response.share("csrf", func);
         chain.next();
     }
 
-    private String verifyToken(Request r, Session session) throws Exception {
+    private String verifyToken(Request r, Session session) throws MiddlewareException {
         String token;
         String storedToken = session.getString("csrfToken");
         if("POST".equalsIgnoreCase(r.getMethod())) {
             token = r.input("__token");
             if(!compareTokens(token,storedToken)){
-                throw new Exception("Invalid CSRFToken");
+                throw new MiddlewareException("Invalid CSRFToken");
             }
             return token;
         } else {

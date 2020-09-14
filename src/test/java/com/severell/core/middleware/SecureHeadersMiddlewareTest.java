@@ -1,5 +1,7 @@
 package com.severell.core.middleware;
 
+import com.severell.core.exceptions.ControllerException;
+import com.severell.core.exceptions.MiddlewareException;
 import com.severell.core.http.MiddlewareChain;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
@@ -15,7 +17,7 @@ import static org.mockito.Mockito.verify;
 public class SecureHeadersMiddlewareTest {
 
     @Test
-    public void headersShouldBeSet() {
+    public void headersShouldBeSet() throws MiddlewareException, ControllerException {
         Response resp = mock(Response.class);
         Request req = mock(Request.class);
         MiddlewareChain chain = mock(MiddlewareChain.class);

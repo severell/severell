@@ -12,11 +12,11 @@ public abstract class BaseMiddleware implements Middleware {
         this.chain = chain;
     }
 
-    protected void next(){
+    protected void next() throws Exception {
         chain.next();
     }
 
-    protected void next(Request request, Response response){
+    protected void next(Request request, Response response) throws Exception {
         chain.next(request, response);
     }
 }

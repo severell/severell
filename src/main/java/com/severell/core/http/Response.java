@@ -5,6 +5,8 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
+import com.severell.core.exceptions.ViewException;
+import com.severell.core.view.View;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -58,7 +60,7 @@ public class Response extends HttpServletResponseWrapper {
      * @param data This contains the data to be used in the template.
      * @throws IOException
      */
-    public void render(String template, HashMap<String, Object> data) throws IOException {
+    public void render(String template, HashMap<String, Object> data) throws IOException, ViewException {
         this.render(template, data, "templates/");
     }
 
@@ -69,19 +71,11 @@ public class Response extends HttpServletResponseWrapper {
      * @param baseDir Base directory of the template
      * @throws IOException
      */
-    protected void render(String template, HashMap<String, Object> data, String baseDir) throws IOException {
+    protected void render(String template, HashMap<String, Object> data, String baseDir) throws ViewException, IOException {
         this.setContentType("text/html");
-        MustacheFactory mf;
-        mf = c.make(DefaultMustacheFactory.class);
-
-        if(mf == null || Config.equals("ENV", "TEST")) {
-            mf = new DefaultMustacheFactory();
-        }
-
-        Mustache m = mf.compile(baseDir + template);
-        PrintWriter writer = this.getWriter();
         data.putAll(shared);
-        m.execute(writer, data).flush();
+        View view = c.make(View.class);
+        view.render(template, data, baseDir, this.getWriter());
     }
 
     /**

@@ -1,11 +1,16 @@
 package com.severell.core.middleware;
 
+import com.severell.core.exceptions.ControllerException;
+import com.severell.core.exceptions.MiddlewareException;
 import com.severell.core.http.MiddlewareChain;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
 
 import java.util.HashMap;
 
+/**
+ * Set secure headers on the response. As
+ */
 public class SecureHeadersMiddleware implements Middleware{
 
     private final HashMap<String, String> headers;
@@ -22,7 +27,7 @@ public class SecureHeadersMiddleware implements Middleware{
     }
 
     @Override
-    public void handle(Request request, Response response, MiddlewareChain chain) {
+    public void handle(Request request, Response response, MiddlewareChain chain) throws MiddlewareException, ControllerException {
         response.headers(this.headers);
         chain.next();
     }

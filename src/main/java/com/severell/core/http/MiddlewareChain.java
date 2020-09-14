@@ -1,8 +1,9 @@
 package com.severell.core.http;
 
 import com.severell.core.container.Container;
+import com.severell.core.exceptions.ControllerException;
+import com.severell.core.exceptions.MiddlewareException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -25,49 +26,36 @@ public class MiddlewareChain {
         this.target = target;
     }
 
-    public void execute(Container c, Request request, Response response) throws InvocationTargetException, IllegalAccessException {
+    public void execute(Container c, Request request, Response response) throws MiddlewareException, ControllerException {
         this.container = c;
         this.request = request;
         this.response = response;
 
         if(middleware.hasNext()) {
             MiddlewareExecutor mapper = middleware.next();
-            try {
-                mapper.execute(request, response, container, this);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mapper.execute(request, response, container, this);
         } else {
-            try {
-                target.execute(request, response, container);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            target.execute(request, response, container);
         }
     }
 
-    public void next() {
+    public void next() throws MiddlewareException, ControllerException {
         this.next(this.request, this.response);
     }
 
-    public void next(Request request, Response response) {
+    public void next(Request request, Response response) throws MiddlewareException, ControllerException {
         this.request = request;
         this.response = response;
 
         if(middleware.hasNext()) {
+            try{
             MiddlewareExecutor mapper = middleware.next();
-            try {
-               mapper.execute(request, response, container, this);
-            } catch (Exception e) {
-                e.printStackTrace();
+            mapper.execute(request, response, container, this);
+            }catch (Exception e) {
+                throw new MiddlewareException(e);
             }
-
         } else {
-            try {
-                target.execute(request, response, container);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            target.execute(request, response, container);
         }
     }
 

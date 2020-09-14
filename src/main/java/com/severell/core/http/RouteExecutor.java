@@ -1,6 +1,7 @@
 package com.severell.core.http;
 
 import com.severell.core.container.Container;
+import com.severell.core.exceptions.ControllerException;
 
 import java.util.ArrayList;
 
@@ -8,7 +9,7 @@ public class RouteExecutor {
 
     @FunctionalInterface
     public interface RouteFunction {
-        void apply(Request request, Response response, Container container) throws Exception;
+        void apply(Request request, Response response, Container container) throws ControllerException;
     }
 
     private final RouteFunction func;
@@ -30,7 +31,7 @@ public class RouteExecutor {
         this.middleware = middleware;
     }
 
-    public void execute(Request request, Response response, Container cont) throws Exception {
+    public void execute(Request request, Response response, Container cont) throws ControllerException {
         func.apply(request, response, cont);
     }
 

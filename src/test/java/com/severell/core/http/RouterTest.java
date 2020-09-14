@@ -15,11 +15,11 @@ import static org.mockito.Mockito.*;
 
 public class RouterTest {
 
-    public static void index() throws IOException {
+    public static void index() {
 
     }
 
-    public static void post() throws IOException {
+    public static void post() {
 
     }
 

@@ -2,9 +2,10 @@ package com.severell.core.http;
 
 import com.severell.core.container.Container;
 import com.severell.core.error.ErrorHandler;
+import com.severell.core.exceptions.ControllerException;
+import com.severell.core.exceptions.MiddlewareException;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * The Dispatcher handles all incoming request and dispatches them to the correct handlers.
@@ -53,10 +54,10 @@ public class Dispatcher {
      *
      * @param request Request object
      * @param response Response object
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
+     * @throws MiddlewareException
+     * @throws ControllerException
      */
-    private void doRequest(Request request, Response response) throws InvocationTargetException, IllegalAccessException {
+    private void doRequest(Request request, Response response) throws MiddlewareException, ControllerException {
         RouteExecutor ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
 
         if(ref != null) {
