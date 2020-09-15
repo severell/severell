@@ -1,14 +1,9 @@
 package com.severell.core.jetty;
 
-import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.http.AppServer;
 import com.severell.core.providers.AppProvider;
 import com.severell.core.providers.ServiceProvider;
-import io.ebean.Database;
-import io.ebean.DatabaseFactory;
-import io.ebean.config.DatabaseConfig;
-import io.ebean.datasource.DataSourceConfig;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -31,7 +26,6 @@ public class JettyProvider extends ServiceProvider {
     public void register() {
         this.c.singleton(BasicServlet.class, new BasicServlet(this.c));
         this.c.singleton(ServletContextHandler.class, new ServletContextHandler(ServletContextHandler.SESSIONS));
-
     }
 
     @Override
@@ -74,35 +68,14 @@ public class JettyProvider extends ServiceProvider {
 
             contexts.addHandler(context);
 
-            DataSourceConfig dataSourceConfig = new DataSourceConfig();
-
-            dataSourceConfig.setUsername(Config.get("DB_USERNAME"));
-            dataSourceConfig.setPassword(Config.get("DB_PASSWORD"));
-            dataSourceConfig.setDriver(Config.get("DB_DRIVER"));
-            dataSourceConfig.setUrl(Config.get("DB_CONNSTRING"));
-            DatabaseConfig config = new DatabaseConfig();
-
-            if(Config.get("MODELPACKAGE") != null) {
-                config.addPackage(Config.get("MODELPACKAGE"));
-            }
-
-            config.setDataSourceConfig(dataSourceConfig);
-
-            Database database = createDatabse(config);
-
-            c.singleton(Database.class, database);
-
-
             server.setHandler(contexts);
 
             BasicServlet defaultServlet = c.make(BasicServlet.class);
             ServletHolder holderPwd = new ServletHolder("default", defaultServlet);
+            System.out.println(holderPwd.getServlet());
+            System.out.println(holderPwd.getServletInstance());
             holderPwd.getRegistration().setMultipartConfig(new MultipartConfigElement("/tmp"));
             context.addServlet(holderPwd, "/*");
         }
-    }
-
-    protected Database createDatabse(DatabaseConfig config) {
-        return DatabaseFactory.create(config);
     }
 }

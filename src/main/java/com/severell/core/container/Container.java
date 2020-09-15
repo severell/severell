@@ -23,13 +23,13 @@ public class Container {
     }
 
     public <T> T make(String s, Class<T> c) {
-        T obj =(T) ioc.get(s);
+        Object obj = ioc.get(s);
 
         if(obj instanceof Function) {
-            return ((Function<Container, T>) obj).apply(this);
+            return (T) ((Function<Container, T>) obj).apply(this);
         }
 
-        return obj;
+        return (T) obj;
     }
 
     public void bind(Class key, Function<Container,Object> closure) {

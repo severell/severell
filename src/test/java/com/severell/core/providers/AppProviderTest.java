@@ -3,6 +3,7 @@ package com.severell.core.providers;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.severell.core.container.Container;
 import com.severell.core.error.ErrorHandler;
+import io.ebean.Database;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.jupiter.api.Test;
@@ -18,9 +19,7 @@ public class AppProviderTest {
     @Test
     public void appProviderTest() throws Exception {
         Container c = mock(Container.class);
-        Server server = mock(Server.class);
-        given(c.make(Server.class)).willReturn(server);
-        given(c.make(ServletContextHandler.class)).willReturn(new ServletContextHandler());
+        given(c.make("_databaseFactory", Database.class)).willReturn(mock(Database.class));
         AppProvider prov = new AppProvider(c);
         AppProvider provSpy = Mockito.spy(prov);
 
@@ -30,19 +29,12 @@ public class AppProviderTest {
 
         ArgumentCaptor<Class> classCaptor = ArgumentCaptor.forClass(Class.class);
         ArgumentCaptor<Object> objCapture = ArgumentCaptor.forClass(Object.class);
-//        ArgumentCaptor<Handler> handlerCaptor = ArgumentCaptor.forClass(Handler.class);
 
-        verify(c, times(4)).singleton(classCaptor.capture(),objCapture.capture());
+        verify(c, times(6)).singleton(classCaptor.capture(),objCapture.capture());
 
         assertTrue(objCapture.getAllValues().get(0) instanceof DefaultMustacheFactory);
         assertTrue(objCapture.getAllValues().get(1) instanceof ErrorHandler);
-//        assertTrue(objCapture.getAllValues().get(2) instanceof ServletContextHandler);
-//        assertTrue(objCapture.getAllValues().get(3) instanceof Database);
+        assertTrue(objCapture.getAllValues().get(5) instanceof Database);
 
-//        verify(server).setHandler(handlerCaptor.capture());
-
-//        ContextHandlerCollection collect = (ContextHandlerCollection) handlerCaptor.getValue();
-//        Handler[] handlers = collect.getHandlers();
-//        assertEquals(1, handlers.length);
     }
 }
