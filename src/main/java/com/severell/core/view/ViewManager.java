@@ -1,7 +1,6 @@
 package com.severell.core.view;
 
 import com.severell.core.container.Container;
-import com.severell.core.drivers.Mail;
 import com.severell.core.managers.Manager;
 
 public class ViewManager extends Manager {

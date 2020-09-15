@@ -1,7 +1,7 @@
 package com.severell.core.managers;
 
 import com.severell.core.container.Container;
-import com.severell.core.drivers.Mail;
+import com.severell.core.mail.Mail;
 
 public class MailManager extends Manager {
 

@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verify;
 public class SecureHeadersMiddlewareTest {
 
     @Test
-    public void headersShouldBeSet() throws MiddlewareException, ControllerException {
+    public void headersShouldBeSet() throws Exception {
         Response resp = mock(Response.class);
         Request req = mock(Request.class);
         MiddlewareChain chain = mock(MiddlewareChain.class);

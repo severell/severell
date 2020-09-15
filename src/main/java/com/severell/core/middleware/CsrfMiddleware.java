@@ -19,7 +19,7 @@ public class CsrfMiddleware implements Middleware{
     }
 
     @Override
-    public void handle(Request request, Response response, MiddlewareChain chain) throws MiddlewareException, ControllerException {
+    public void handle(Request request, Response response, MiddlewareChain chain) throws Exception {
         String finalToken = verifyToken(request, session);
         Function<String, String> func = (obj) -> String.format("<input type='hidden' name='__token' value='%s' />", finalToken);
         response.share("csrf", func);

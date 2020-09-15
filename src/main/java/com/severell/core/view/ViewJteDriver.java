@@ -7,9 +7,12 @@ import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.TemplateOutput;
 import gg.jte.output.PrintWriterOutput;
+import gg.jte.output.StringOutput;
 import gg.jte.resolve.DirectoryCodeResolver;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Path;
 
@@ -36,6 +39,14 @@ public class ViewJteDriver extends BaseView{
         if(writer instanceof PrintWriter) {
             TemplateOutput output = new PrintWriterOutput((PrintWriter) writer);
             templateEngine.render(template, object, output);
+        } else if(writer instanceof StringWriter) {
+            StringOutput output = new StringOutput();
+            templateEngine.render(template, object, output);
+            try {
+                writer.write(output.toString());
+            } catch (IOException e) {
+                throw new ViewException(e);
+            }
         } else {
             throw new ViewException("Invalid writer. Needs to be instance of PrintWriter");
         }

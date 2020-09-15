@@ -9,7 +9,7 @@ public class RouteExecutor {
 
     @FunctionalInterface
     public interface RouteFunction {
-        void apply(Request request, Response response, Container container) throws ControllerException;
+        void apply(Request request, Response response, Container container) throws Exception;
     }
 
     private final RouteFunction func;
@@ -31,7 +31,7 @@ public class RouteExecutor {
         this.middleware = middleware;
     }
 
-    public void execute(Request request, Response response, Container cont) throws ControllerException {
+    public void execute(Request request, Response response, Container cont) throws Exception {
         func.apply(request, response, cont);
     }
 

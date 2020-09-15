@@ -20,7 +20,7 @@ public class MiddlewareManager {
         this.container = container;
     }
 
-    public void filterRequest(Request request, Response response) throws MiddlewareException, ControllerException {
+    public void filterRequest(Request request, Response response) throws Exception {
         List<MiddlewareExecutor> middleware = getMiddleware();
         this.chain.setMiddleware(middleware);
         this.chain.setTarget(this.ref);

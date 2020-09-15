@@ -1,13 +1,12 @@
 package com.severell.core.http;
 
 import com.severell.core.container.Container;
-import com.severell.core.exceptions.MiddlewareException;
 
 public class MiddlewareExecutor {
 
     @FunctionalInterface
     public interface MiddlewareFunction {
-        void apply(Request request, Response response, Container container, MiddlewareChain chain) throws MiddlewareException;
+        void apply(Request request, Response response, Container container, MiddlewareChain chain) throws Exception;
     }
 
     private final MiddlewareFunction func;
@@ -16,7 +15,7 @@ public class MiddlewareExecutor {
         this.func = func;
     }
 
-    public void execute(Request request, Response response, Container c, MiddlewareChain chain) throws MiddlewareException {
+    public void execute(Request request, Response response, Container c, MiddlewareChain chain) throws Exception {
         func.apply(request, response, c, chain);
     }
 }

@@ -27,7 +27,7 @@ public class SecureHeadersMiddleware implements Middleware{
     }
 
     @Override
-    public void handle(Request request, Response response, MiddlewareChain chain) throws MiddlewareException, ControllerException {
+    public void handle(Request request, Response response, MiddlewareChain chain) throws Exception {
         response.headers(this.headers);
         chain.next();
     }

@@ -8,6 +8,6 @@ import com.severell.core.http.Response;
 
 public interface Middleware {
 
-    void handle(Request request, Response response, MiddlewareChain chain) throws MiddlewareException, ControllerException;
+    void handle(Request request, Response response, MiddlewareChain chain) throws Exception;
 
 }

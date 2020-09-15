@@ -57,7 +57,7 @@ public class Dispatcher {
      * @throws MiddlewareException
      * @throws ControllerException
      */
-    private void doRequest(Request request, Response response) throws MiddlewareException, ControllerException {
+    private void doRequest(Request request, Response response) throws Exception {
         RouteExecutor ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
 
         if(ref != null) {

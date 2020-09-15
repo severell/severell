@@ -26,7 +26,7 @@ public class MiddlewareChain {
         this.target = target;
     }
 
-    public void execute(Container c, Request request, Response response) throws MiddlewareException, ControllerException {
+    public void execute(Container c, Request request, Response response) throws Exception {
         this.container = c;
         this.request = request;
         this.response = response;
@@ -39,11 +39,11 @@ public class MiddlewareChain {
         }
     }
 
-    public void next() throws MiddlewareException, ControllerException {
+    public void next() throws Exception {
         this.next(this.request, this.response);
     }
 
-    public void next(Request request, Response response) throws MiddlewareException, ControllerException {
+    public void next(Request request, Response response) throws Exception {
         this.request = request;
         this.response = response;
 
