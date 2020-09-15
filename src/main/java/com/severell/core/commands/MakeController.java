@@ -19,7 +19,7 @@ public class MakeController extends Command {
     @Override
     public void execute(String[] args) {
         MethodSpec index = MethodSpec.methodBuilder("index")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addModifiers(Modifier.PUBLIC)
                 .addException(IOException.class)
                 .addParameter(Response.class, "response")
                 .returns(void.class).build();
