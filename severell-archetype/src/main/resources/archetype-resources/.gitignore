@@ -1,0 +1,10 @@
+target/**
+.vscode
+
+.idea
+.DS_Store
+**/.env
+.classpath
+.project
+.settings
+node_modules/
