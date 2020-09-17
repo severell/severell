@@ -1,0 +1,46 @@
+<archetype-descriptor name="maven-archetype">
+    <requiredProperties>
+        <requiredProperty key="gitignore">
+            <defaultValue>.gitignore</defaultValue>
+        </requiredProperty>
+    </requiredProperties>
+
+    <fileSets>
+        <fileSet filtered="true" packaged="true">
+            <directory>src/main/java</directory>
+            <includes>
+                <include>**/*.java</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="true">
+            <directory>src/assembly</directory>
+            <includes>
+                <include>**/assembler.xml</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="true">
+            <directory>src/db</directory>
+            <includes>
+                <include>**/*.java</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*</include>
+            </includes>
+        </fileSet>
+        <fileSet filtered="false" encoding="UTF-8">
+            <directory></directory>
+            <includes>
+                <include>__gitignore__</include>
+                <include>**/*</include>
+            </includes>
+            <excludes>
+                <exclude>src</exclude>
+                <exclude>src/**/*</exclude>
+                <exclude>pom.xml</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+</archetype-descriptor>
