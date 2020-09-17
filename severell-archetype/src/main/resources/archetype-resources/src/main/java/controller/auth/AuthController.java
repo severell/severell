@@ -3,6 +3,7 @@ package ${package}.controller.auth;
 import ${package}.auth.Auth;
 import com.severell.core.crypto.PasswordUtils;
 import com.severell.core.drivers.Session;
+import com.severell.core.exceptions.ViewException;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
 import ${package}.models.User;
@@ -13,11 +14,11 @@ import java.util.HashMap;
 
 public class AuthController {
 
-	public void register(Request request, Response resp) throws IOException {
+	public void register(Request request, Response resp) throws IOException, ViewException {
         resp.render("auth/register.mustache", new HashMap<String, Object>());
     }
 
-    public void login(Request request, Response resp, Session session, Auth auth) throws IOException {
+    public void login(Request request, Response resp, Session session, Auth auth) throws IOException, ViewException {
         resp.render("auth/login.mustache", new HashMap<String, Object>());
     }
 
