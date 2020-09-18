@@ -1,10 +1,10 @@
 package com.severell.core.database.migrations;
 
-public class ColumnParams {
+public class Params {
     private String name;
     private Object value;
 
-    public ColumnParams(String name, Object value) {
+    public Params(String name, Object value) {
         this.name = name;
         this.value = value;
     }

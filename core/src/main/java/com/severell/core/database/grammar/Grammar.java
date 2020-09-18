@@ -2,6 +2,8 @@ package com.severell.core.database.grammar;
 
 import com.severell.core.database.migrations.Blueprint;
 import com.severell.core.database.migrations.ColumnDefinition;
+import com.severell.core.database.migrations.Command;
+import com.severell.core.database.migrations.ForeignKeyDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,4 +73,21 @@ public abstract class Grammar {
     public abstract String typeDate(ColumnDefinition c);
 
     public abstract String add(Blueprint table);
+
+    public abstract String primary(Blueprint table, Command command);
+
+    public String foreign(Blueprint table, Command command) {
+        String sql = String.format("alter table %s add constraint %s ",
+                table.getTableName(),
+                command.param("index")
+        );
+
+        sql = sql + String.format("foreign key (%s) references %s (%s)",
+                String.join(", ", (String[])command.param("columns")),
+                command.param("on"),
+                String.join(", ", (String[])command.param("references"))
+        );
+
+        return sql;
+    }
 }

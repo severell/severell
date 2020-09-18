@@ -2,6 +2,7 @@ package com.severell.core.database.grammar;
 
 import com.severell.core.database.migrations.Blueprint;
 import com.severell.core.database.migrations.ColumnDefinition;
+import com.severell.core.database.migrations.Command;
 import org.codehaus.plexus.util.StringUtils;
 
 
@@ -27,6 +28,14 @@ public class PostgresGrammar extends Grammar {
                 table.getTableName(),
                 StringUtils.join(prefixArray(getColumns(table), "add column"), ", ")
         );
+    }
+
+    @Override
+    public String primary(Blueprint table, Command command) {
+        return String.format("%s table %s add primary key (%s)",
+                "alter",
+                table.getTableName(),
+                String.join(", ", (String[])command.param("columns")));
     }
 
     @Override

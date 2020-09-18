@@ -74,14 +74,14 @@ public class ColumnDefinition {
 
     private ColumnType type;
     private String name;
-    private ArrayList<ColumnParams> params;
+    private ArrayList<Params> params;
 
-    public ColumnDefinition(ColumnType type, String name, ColumnParams[] params) {
+    public ColumnDefinition(ColumnType type, String name, Params[] params) {
         this.type = type;
         this.name = name;
 
         if(params != null) {
-            this.params = new ArrayList<ColumnParams>(Arrays.asList(params));
+            this.params = new ArrayList<Params>(Arrays.asList(params));
         } else {
             this.params = new ArrayList<>();
         }
@@ -96,7 +96,7 @@ public class ColumnDefinition {
     }
 
     public Object get(String key) {
-        for(ColumnParams p : params) {
+        for(Params p : params) {
             if(key.equals(p.getKey())) {
                 return p.getValue();
             }
@@ -123,11 +123,11 @@ public class ColumnDefinition {
         return type.compile(grammar, this);
     }
 
-    public ArrayList<ColumnParams> getParams() {
+    public ArrayList<Params> getParams() {
         return params;
     }
 
     public void nullable() {
-        params.add(new ColumnParams("nullable",true));
+        params.add(new Params("nullable",true));
     }
 }

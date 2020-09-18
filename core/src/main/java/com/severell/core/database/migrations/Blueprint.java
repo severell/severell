@@ -2,6 +2,7 @@ package com.severell.core.database.migrations;
 
 import com.severell.core.database.grammar.Grammar;
 import com.severell.core.database.grammar.PostgresGrammar;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,22 @@ public class Blueprint {
     }
 
     /**
+     * Create a primary key
+     * @param columns The columns to be used for the primary key
+     * @return Command
+     */
+    public Command primary(String... columns) {
+        return this.indexCommand(Command.CommandType.PRIMARY, columns);
+    }
+
+    public ForeignKeyDefinition foreign(String... columns) {
+        Command c = indexCommand(Command.CommandType.FOREIGN, columns);
+        c = new ForeignKeyDefinition(c.getParams());
+        commands.set(commands.size() - 1, c);
+        return (ForeignKeyDefinition) c;
+    }
+
+    /**
      * Create a new BigInteger column
      *
      * @param columnName Name of the column
@@ -49,7 +66,7 @@ public class Blueprint {
      * @return
      */
     private ColumnDefinition bigInteger(String columnName, boolean autoincrement, boolean unsigned) {
-        return this.addColumn(ColumnDefinition.ColumnType.BIGINTEGER, columnName, new ColumnParams("autoIncrement", autoincrement), new ColumnParams("unsigned", unsigned));
+        return this.addColumn(ColumnDefinition.ColumnType.BIGINTEGER, columnName, new Params("autoIncrement", autoincrement), new Params("unsigned", unsigned));
     }
 
     /**
@@ -59,7 +76,7 @@ public class Blueprint {
      * @return
      */
     public ColumnDefinition string(String columnName) {
-        return this.addColumn(ColumnDefinition.ColumnType.STRING, columnName, new ColumnParams("length", 255));
+        return this.addColumn(ColumnDefinition.ColumnType.STRING, columnName, new Params("length", 255));
     }
 
     /**
@@ -69,7 +86,7 @@ public class Blueprint {
      * @return
      */
     public ColumnDefinition timestamp(String columnName) {
-        return this.addColumn(ColumnDefinition.ColumnType.TIMESTAMP, columnName, new ColumnParams("precision", 0));
+        return this.addColumn(ColumnDefinition.ColumnType.TIMESTAMP, columnName, new Params("precision", 0));
     }
 
     /**
@@ -129,7 +146,7 @@ public class Blueprint {
      * @return
      */
     public ColumnDefinition decimal(String columnName, int precision, int scale) {
-        return this.addColumn(ColumnDefinition.ColumnType.DECIMAL,columnName, new ColumnParams("precision", precision), new ColumnParams("scale", scale));
+        return this.addColumn(ColumnDefinition.ColumnType.DECIMAL,columnName, new Params("precision", precision), new Params("scale", scale));
     }
 
     /**
@@ -151,7 +168,7 @@ public class Blueprint {
      * @return
      */
     public ColumnDefinition dbl(String columnName, Integer precision, Integer scale) {
-        return this.addColumn(ColumnDefinition.ColumnType.DOUBLE,columnName, new ColumnParams("precision", precision), new ColumnParams("scale", scale));
+        return this.addColumn(ColumnDefinition.ColumnType.DOUBLE,columnName, new Params("precision", precision), new Params("scale", scale));
     }
 
     /**
@@ -172,7 +189,7 @@ public class Blueprint {
      * @param params Additional column parameters (i.e unique, nullable)
      * @return
      */
-    private ColumnDefinition addColumn(ColumnDefinition.ColumnType type, String name, ColumnParams... params) {
+    private ColumnDefinition addColumn(ColumnDefinition.ColumnType type, String name, Params... params) {
         ColumnDefinition column = new ColumnDefinition(type, name, params);
         columns.add(column);
         return column;
@@ -186,6 +203,15 @@ public class Blueprint {
      * @throws MigrationException
      */
     public void build(Connection connection, Grammar grammar) throws MigrationException {
+        ArrayList<String> statements = compileCommands(grammar);
+
+        for(String statement : statements) {
+            connection.statement(statement);
+        }
+    }
+
+    @NotNull
+    protected ArrayList<String> compileCommands(Grammar grammar) {
         getImpliedCommands();
         ArrayList<String> statements = new ArrayList<String>();
 
@@ -195,10 +221,7 @@ public class Blueprint {
                 statements.add(sql);
             }
         }
-
-        for(String statement : statements) {
-            connection.statement(statement);
-        }
+        return statements;
     }
 
     /**
@@ -236,6 +259,16 @@ public class Blueprint {
                 .collect(Collectors.toList());
     }
 
+    private Command indexCommand(Command.CommandType type, String... columns) {
+        String name = createIndexName(type, columns);
+        return this.addCommand(type, new Params("index", name), new Params("columns", columns));
+    }
+
+    private String createIndexName(Command.CommandType type, String... columns) {
+        String index = this.table + "_" + String.join("_", columns) + "_" + type;
+        return index.replaceAll("-|\\.", "_").toLowerCase();
+    }
+
     /**
      * Indicates that this blueprint is to create a new table
      */
@@ -248,8 +281,8 @@ public class Blueprint {
      * @param type Command Type (i.e Create or Update)
      * @return
      */
-    private Command addCommand(Command.CommandType type) {
-        Command command = this.createCommand(type);
+    private Command addCommand(Command.CommandType type, Params... params) {
+        Command command = this.createCommand(type, params);
         this.commands.add(command);
         return command;
     }
@@ -260,7 +293,7 @@ public class Blueprint {
      * @param params Additional Params
      * @return
      */
-    private Command createCommand(Command.CommandType type, Object... params) {
+    private Command createCommand(Command.CommandType type, Params... params) {
         return new Command(type, params);
     }
 
