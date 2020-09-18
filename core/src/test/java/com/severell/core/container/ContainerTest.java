@@ -47,22 +47,22 @@ public class ContainerTest {
 
     }
 
-    @Test
-    public void containerInvokeTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Request req = mock(Request.class);
-        Response resp = mock(Response.class);
-        Method meth = getClass().getMethod("index", Request.class, Response.class, Session.class, Integer.class);
-
-        Session sess = mock(SessionMemoryDriver.class);
-        Container c = new Container();
-
-        c.singleton(Session.class, sess);
-        c.singleton(Integer.class, 2);
-
-
-        c.invoke(req, resp, meth, null);
-
-        verify(sess).getId();
-
-    }
+//    @Test
+//    public void containerInvokeTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+//        Request req = mock(Request.class);
+//        Response resp = mock(Response.class);
+//        Method meth = getClass().getMethod("index", Request.class, Response.class, Session.class, Integer.class);
+//
+//        Session sess = mock(SessionMemoryDriver.class);
+//        Container c = new Container();
+//
+//        c.singleton(Session.class, sess);
+//        c.singleton(Integer.class, 2);
+//
+//
+//        c.invoke(req, resp, meth, null);
+//
+//        verify(sess).getId();
+//
+//    }
 }
