@@ -39,6 +39,11 @@ public class Blueprint {
         return this.indexCommand(Command.CommandType.PRIMARY, columns);
     }
 
+    /**
+     * Create a foreign key
+     * @param columns The columns to be used for the foreign key
+     * @return
+     */
     public ForeignKeyDefinition foreign(String... columns) {
         Command c = indexCommand(Command.CommandType.FOREIGN, columns);
         c = new ForeignKeyDefinition(c.getParams());
