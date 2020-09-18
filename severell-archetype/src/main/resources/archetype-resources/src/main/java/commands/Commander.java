@@ -80,6 +80,7 @@ public class Commander {
                     flags.add(flagObj);
                 }
                 comObj.put("flags", flags);
+                comObj.put("numArgs", command.getNumArgs());
 
                 commands.add(comObj);
             } catch (Exception e) {

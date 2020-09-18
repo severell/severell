@@ -11,8 +11,9 @@ import java.io.IOException;
 public class MakeCommand extends Command {
 
     public MakeCommand() {
-        this.command="make:command";
+        this.command="make:command [name]";
         this.description="Make a new command class";
+        this.numArgs = 1;
     }
 
     @Override

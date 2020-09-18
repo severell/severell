@@ -5,6 +5,7 @@ public class Flag {
         this.flag = flag;
         this.description = description;
     }
+
     protected String flag;
     protected String description;
     protected String value;
@@ -31,5 +32,10 @@ public class Flag {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return this.value;
     }
 }

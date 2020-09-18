@@ -6,6 +6,7 @@ import io.ebean.Model;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.maven.shared.utils.StringUtils;
 
 import javax.lang.model.element.Modifier;
 import javax.persistence.Entity;
@@ -20,23 +21,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MakeModel extends Command {
+
+    private Flag tableFlag;
+
     public MakeModel() {
-        this.command="make:model";
+        this.command="make:model [name]";
         this.description="Generate a new model object";
-        addFlag("t", "Table Name");
+        this.numArgs = 1;
+
+        tableFlag = new Flag("t", "Table Name");
+        addFlag(tableFlag);
     }
 
     @Override
     public void execute(String[] args) {
         BasicDataSource source = setupDatabase();
-        String tableName = null;
         String modelName = args[0];
-        
-        for(Flag fl : getFlags()) {
-            if(fl.getFlag().equals("t") && fl.getValue() != null) {
-                tableName = fl.getValue();
-            }
-        }
+        String tableName = tableFlag.getValue() == null ? modelName.toLowerCase() : tableFlag.getValue();
 
         TableMetaData metaData = null;
         try(Connection conn = source.getConnection()) {
@@ -45,11 +46,7 @@ public class MakeModel extends Command {
             System.out.println(String.format("Unable to get metadata for table %s", tableName));
         }
 
-
-
         TypeSpec model = getTypeSpec(tableName, metaData, modelName);
-
-
 
         JavaFile javaFile = JavaFile.builder(this.calleePackage + ".models", model)
                 .build();

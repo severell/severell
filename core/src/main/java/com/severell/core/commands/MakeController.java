@@ -12,8 +12,9 @@ import java.io.IOException;
 public class MakeController extends Command {
 
     public MakeController() {
-        this.command="make:controller";
+        this.command="make:controller [name]";
         this.description="Generate a new controller";
+        this.numArgs = 1;
     }
 
     @Override

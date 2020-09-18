@@ -6,23 +6,30 @@ public abstract class Command {
 
     protected String description;
     protected String command;
+    protected int numArgs = -1;
     protected ArrayList<Flag> flags;
     protected String calleePackage;
 
     public abstract void execute(String[] args);
 
+    protected boolean validate(String[] args) {
+        return true;
+    }
+
     public void run(String[] args) {
         //TODO CLEAN THIS UP A LITTLE BIT. I DON'T LIKE IT A WHOLE LOT
         String[] argsToPass = new String[0];
         if(args.length > 1) {
-//            System.out.println(args[0]);
             String[] argParts = args[0].split("args=");
             if(argParts.length > 0 && argParts[1] != null) {
                 argsToPass = argParts[1].split(",");
             }
             parseFlags(args[1]);
         }
-        this.execute(argsToPass);
+
+        if(validate(argsToPass)) {
+            this.execute(argsToPass);
+        }
     }
 
     private void parseFlags(String arg1) {
@@ -54,12 +61,24 @@ public abstract class Command {
         return flags == null ? new ArrayList<>() : flags;
     }
 
+    public int getNumArgs(){
+        return numArgs;
+    }
+
     public void addFlag(String flag, String description) {
         if(flags == null) {
             this.flags = new ArrayList<>();
         }
 
         this.flags.add(new Flag(flag, description));
+    }
+
+    public void addFlag(Flag flag) {
+        if(flags == null) {
+            this.flags = new ArrayList<>();
+        }
+
+        this.flags.add(flag);
     }
 
     public void setCalleePackage(String calleePackage) {

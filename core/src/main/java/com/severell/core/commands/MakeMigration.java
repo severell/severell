@@ -15,27 +15,35 @@ import java.time.format.DateTimeFormatter;
 
 public class MakeMigration extends Command{
 
+    private Flag tableFlag;
+    private Flag createFlag;
+
     public MakeMigration() {
         description = "Create a new Migration";
-        command = "make:migration";
-        addFlag("t", "Table Name");
-        addFlag("c", "Create a new table with the following name");
+        command = "make:migration [name]";
+        numArgs= 1;
+
+        tableFlag = new Flag("t", "Table Name");
+        addFlag(tableFlag);
+
+        createFlag = new Flag("c", "Create a new table with the following name");
+        addFlag(createFlag);
     }
 
     @Override
     public void execute(String[] args) {
-        boolean create = false;
-        boolean hasTable = false;
-        String tableName = null;
+        boolean hasTable = tableFlag.value != null;
+        boolean create = createFlag.value != null;
 
-        for(Flag fl : getFlags()) {
-            if(fl.flag.equals("t") && fl.value != null) {
-                hasTable = true;
-                tableName = fl.value;
-            } else if(fl.flag.equals("c") && fl.value != null) {
-                create = true;
-                tableName = fl.value;
-            }
+        if(!hasTable && !create) {
+            hasTable = true;
+        }
+
+        String tableName = "";
+        if(hasTable) {
+            tableName = tableFlag.getValue();
+        } else if (create) {
+            tableName = createFlag.getValue();
         }
 
         MethodSpec main = getUpMethodSpec("up", tableName, create, hasTable);
