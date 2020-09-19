@@ -4,12 +4,18 @@ import com.severell.core.container.Container;
 import com.severell.core.exceptions.ViewException;
 import org.apache.maven.shared.utils.StringUtils;
 
+/**
+ * Used to write emails to a log.
+ */
 public class MailLogDriver extends BaseMailDriver {
 
     public MailLogDriver(Container c) {
         super(c);
     }
 
+    /**
+     * Write email to console
+     */
     @Override
     public void send() throws ViewException {
         System.out.println("**************************************************************");

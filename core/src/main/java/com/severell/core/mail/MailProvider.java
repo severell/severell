@@ -2,12 +2,13 @@ package com.severell.core.mail;
 
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
-import com.severell.core.mail.Mail;
-import com.severell.core.mail.MailLogDriver;
-import com.severell.core.mail.MailSMTPDriver;
 import com.severell.core.managers.MailManager;
 import com.severell.core.providers.ServiceProvider;
 
+/**
+ * The MailProvider is used to setup the email functionality and put it into
+ * the Container.
+ */
 public class MailProvider extends ServiceProvider {
 
     public MailProvider(Container c) {

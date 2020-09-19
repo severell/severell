@@ -11,6 +11,9 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.util.Properties;
 
+/**
+ * MailSMTPDriver - Send emails using SMTP
+ */
 public class MailSMTPDriver extends BaseMailDriver {
 
     private final TransportFacade transport;
@@ -22,6 +25,9 @@ public class MailSMTPDriver extends BaseMailDriver {
         isSSL = Boolean.valueOf(Config.get("MAIL_SMTP_SSL"));
     }
 
+    /**
+     * Send email using SMTP
+     */
     @Override
     public void send() {
         try {
