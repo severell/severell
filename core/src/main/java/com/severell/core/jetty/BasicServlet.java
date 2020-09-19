@@ -21,6 +21,7 @@ public class BasicServlet extends HttpServlet {
         this.dispatcher = c.make(Dispatcher.class);
     }
 
+    //I needed to override this method in order to get the HTTP Patch verb
     @Override
     public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (request.getMethod().equalsIgnoreCase("PATCH")){
@@ -59,11 +60,13 @@ public class BasicServlet extends HttpServlet {
         doRequest(request, response);
     }
 
+    /**
+     * This function wraps the {@link HttpServletRequest} and {@link HttpServletResponse} and passes
+     * it on to the dispatcher to route the request to the correct controller.
+     * @param request
+     * @param response
+     */
     private void doRequest(HttpServletRequest request, HttpServletResponse response) {
-        this.processRequest(request, response);
-    }
-
-    public void processRequest(HttpServletRequest request, HttpServletResponse response){
         Request req = new Request(request);
         Response resp = new Response(response, c);
         dispatcher.dispatch(req, resp);
