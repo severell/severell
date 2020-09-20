@@ -10,8 +10,14 @@ import com.severell.core.http.Response;
 import java.util.UUID;
 import java.util.function.Function;
 
+/**
+ * Verifies the CSRFToken
+ */
 public class CsrfMiddleware implements Middleware{
 
+    /**
+     * The Request session
+     */
     private Session session;
 
     public CsrfMiddleware(Session session) {
@@ -26,6 +32,14 @@ public class CsrfMiddleware implements Middleware{
         chain.next();
     }
 
+    /**
+     * Verifies the CSRF Token on Post requests. For other requests it returns the stored
+     * one or generates a new one.
+     * @param r
+     * @param session
+     * @return CSRF Token String
+     * @throws MiddlewareException
+     */
     private String verifyToken(Request r, Session session) throws MiddlewareException {
         String token;
         String storedToken = session.getString("csrfToken");
@@ -40,6 +54,12 @@ public class CsrfMiddleware implements Middleware{
         }
     }
 
+    /**
+     * Compare the CSRF Token in the request to the store one.
+     * @param token
+     * @param storedToken
+     * @return Returns true if the CSRF Tokens match. Otherwise false.
+     */
     private boolean compareTokens(String token, String storedToken) {
         if(storedToken != null && token != null) {
             return storedToken.equals(token);
@@ -47,6 +67,11 @@ public class CsrfMiddleware implements Middleware{
         return false;
     }
 
+    /**
+     * Generate a new CSRF Token
+     * @param session
+     * @return CSRF Token
+     */
     private String generateToken(Session session) {
         String token = UUID.randomUUID().toString();
         session.put("csrfToken", token);

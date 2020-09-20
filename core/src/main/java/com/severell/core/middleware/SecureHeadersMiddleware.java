@@ -9,7 +9,8 @@ import com.severell.core.http.Response;
 import java.util.HashMap;
 
 /**
- * Set secure headers on the response. As
+ * Set secure headers on the response. As per OWASP Secure Headers Project
+ * https://owasp.org/www-project-secure-headers/
  */
 public class SecureHeadersMiddleware implements Middleware{
 

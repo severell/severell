@@ -11,6 +11,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * The main servlet for the Jetty Package. This takes in all requests
+ * and simply sends them on to the {@link Dispatcher} class.
+ */
 public class BasicServlet extends HttpServlet {
 
     private final Container c;
