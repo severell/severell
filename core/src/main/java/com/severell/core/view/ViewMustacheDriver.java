@@ -6,6 +6,9 @@ import com.severell.core.config.Config;
 
 import java.io.Writer;
 
+/**
+ * This class uses Mustache to render templates.
+ */
 public class ViewMustacheDriver extends BaseView {
 
     private DefaultMustacheFactory mf;

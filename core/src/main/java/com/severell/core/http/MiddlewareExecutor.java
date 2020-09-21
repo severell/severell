@@ -2,6 +2,9 @@ package com.severell.core.http;
 
 import com.severell.core.container.Container;
 
+/**
+ * This class holds the reference to the {@link MiddlewareFunction}.
+ */
 public class MiddlewareExecutor {
 
     @FunctionalInterface

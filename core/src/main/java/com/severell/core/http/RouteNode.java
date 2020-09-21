@@ -3,6 +3,9 @@ package com.severell.core.http;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * The RouteNode class represents a node on the Route Trie.
+ */
 public class RouteNode {
 
     public enum NodeType {

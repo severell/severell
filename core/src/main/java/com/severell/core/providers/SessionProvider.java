@@ -6,6 +6,11 @@ import com.severell.core.drivers.Session;
 import com.severell.core.drivers.SessionMemoryDriver;
 import com.severell.core.managers.SessionManager;
 
+/**
+ * The SessionProvider is used to register and setup all functionality
+ * around Sessions. It adds all the SessionDrivers into the Container
+ * and creates the {@link SessionManager}
+ */
 public class SessionProvider extends ServiceProvider {
 
     public SessionProvider(Container c) {

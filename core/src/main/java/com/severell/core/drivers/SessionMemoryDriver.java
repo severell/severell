@@ -1,5 +1,8 @@
 package com.severell.core.drivers;
 
+/**
+ * This uses the default JSESSION sessions
+ */
 public class SessionMemoryDriver extends BaseSessionDriver implements Session {
 
     @Override

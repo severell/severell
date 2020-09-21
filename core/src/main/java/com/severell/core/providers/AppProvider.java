@@ -14,6 +14,9 @@ import io.ebean.datasource.DataSourceConfig;
 import javax.xml.crypto.Data;
 import java.io.IOException;
 
+/**
+ * The AppProvider provides necessary dependencies to the Container.
+ */
 public class AppProvider extends ServiceProvider{
 
     public AppProvider(Container c) {
@@ -24,7 +27,6 @@ public class AppProvider extends ServiceProvider{
     public void register() {
         c.singleton(DefaultMustacheFactory.class, new DefaultMustacheFactory());
         c.singleton(ErrorHandler.class, new ErrorHandler(c));
-        c.singleton(Router.class, new Router());
         c.singleton(Dispatcher.class, new Dispatcher(c));
         c.bind("_databaseFactory",(c) ->  DatabaseFactory.create(c.make(DatabaseConfig.class)));
     }

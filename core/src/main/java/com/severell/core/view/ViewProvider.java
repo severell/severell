@@ -4,6 +4,10 @@ import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.providers.ServiceProvider;
 
+/**
+ * The ViewProvider is used to setup the templating functionality and put it into
+ * the Container.
+ */
 public class ViewProvider extends ServiceProvider {
 
     public ViewProvider(Container c) {

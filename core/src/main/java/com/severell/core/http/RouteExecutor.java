@@ -5,8 +5,15 @@ import com.severell.core.exceptions.ControllerException;
 
 import java.util.ArrayList;
 
+/**
+ * This class holds a reference to a {@link RouteFunction}.
+ */
 public class RouteExecutor {
 
+    /**
+     * The RouteFunction is a wrapper function around a Controller function. When executed it
+     * calls the Controller function.
+     */
     @FunctionalInterface
     public interface RouteFunction {
         void apply(Request request, Response response, Container container) throws Exception;
@@ -31,6 +38,13 @@ public class RouteExecutor {
         this.middleware = middleware;
     }
 
+    /**
+     * Execute the associated Controller function.
+     * @param request
+     * @param response
+     * @param cont
+     * @throws Exception
+     */
     public void execute(Request request, Response response, Container cont) throws Exception {
         func.apply(request, response, cont);
     }
@@ -39,14 +53,26 @@ public class RouteExecutor {
         return func;
     }
 
+    /**
+     * Get path from the associated route. I.E. /users
+     * @return
+     */
     public String getPath() {
         return path;
     }
 
+    /**
+     * Get the HTTP method. I.E. POST
+     * @return
+     */
     public String getHttpMethod() {
         return httpMethod;
     }
 
+    /**
+     * Get middleware associated with this route.
+     * @return
+     */
     public ArrayList<MiddlewareExecutor> getMiddleware() {
         return this.middleware;
     }

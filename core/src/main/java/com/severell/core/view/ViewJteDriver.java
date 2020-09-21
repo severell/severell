@@ -16,6 +16,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.file.Path;
 
+/**
+ * This class uses the JTE templating engine to render templates
+ */
 public class ViewJteDriver extends BaseView{
 
     private TemplateEngine templateEngine;
