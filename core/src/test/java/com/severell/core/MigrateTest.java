@@ -33,6 +33,17 @@ public class MigrateTest {
         errContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));
+
+        connection = mock(PostgresConnection.class);
+        PostgresQueryBuilder builder = new PostgresQueryBuilder();
+        given(connection.getDefaultGrammar()).willReturn(new PostgresGrammar());
+        given(connection.getDefaultQueryBuilder()).willReturn(builder);
+
+        //Mocking Has Table Call
+        List<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
+        list.add(new HashMap<>());
+        given(connection.select("select * from information_schema.tables where table_schema = ? and table_name = ? and table_type = 'BASE TABLE'", "public", "migrations")).willReturn(list);
+
     }
 
     @AfterEach
@@ -52,17 +63,6 @@ public class MigrateTest {
             Config.setDir("src/test/resources");
             Config.loadConfig();
         }
-
-        connection = mock(PostgresConnection.class);
-        PostgresQueryBuilder builder = new PostgresQueryBuilder();
-        given(connection.getDefaultGrammar()).willReturn(new PostgresGrammar());
-        given(connection.getDefaultQueryBuilder()).willReturn(builder);
-
-        //Mocking Has Table Call
-        List<HashMap<String, Object>> list = new ArrayList<HashMap<String, Object>>();
-        list.add(new HashMap<>());
-        given(connection.select("select * from information_schema.tables where table_schema = ? and table_name = ? and table_type = 'BASE TABLE'", "public", "migrations")).willReturn(list);
-
     }
 
     @Test
@@ -84,6 +84,6 @@ public class MigrateTest {
         Migrate migrate = new Migrate(connection);
         migrate.runUp(null);
 
-        assertTrue(outContent.toString().contains("Nothing to Migrate"));
+        assertTrue(outContent.toString().contains("Nothing to Migrate"), String.format("Got %s", outContent.toString()));
     }
 }
