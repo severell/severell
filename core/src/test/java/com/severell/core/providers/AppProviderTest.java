@@ -30,7 +30,7 @@ public class AppProviderTest {
         ArgumentCaptor<Class> classCaptor = ArgumentCaptor.forClass(Class.class);
         ArgumentCaptor<Object> objCapture = ArgumentCaptor.forClass(Object.class);
 
-        verify(c, times(6)).singleton(classCaptor.capture(),objCapture.capture());
+        verify(c, times(5)).singleton(classCaptor.capture(),objCapture.capture());
 
         assertTrue(objCapture.getAllValues().get(0) instanceof DefaultMustacheFactory);
         assertTrue(objCapture.getAllValues().get(1) instanceof ErrorHandler);
