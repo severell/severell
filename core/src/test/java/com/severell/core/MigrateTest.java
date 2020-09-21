@@ -6,10 +6,7 @@ import com.severell.core.database.grammar.PostgresGrammar;
 import com.severell.core.database.migrations.Connection;
 import com.severell.core.database.migrations.PostgresConnection;
 import com.severell.core.database.migrations.PostgresQueryBuilder;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -42,6 +39,11 @@ public class MigrateTest {
     public void restoreStreams() {
         System.setOut(originalOut);
         System.setErr(originalErr);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        Config.unload();
     }
 
     @BeforeAll
@@ -80,9 +82,7 @@ public class MigrateTest {
         list.add(m);
         given(connection.select("select * from migrations order by batch asc, migration asc")).willReturn(list);
         Migrate migrate = new Migrate(connection);
-        Migrate spyMigrate = spy(migrate);
-
-        spyMigrate.runUp(null);
+        migrate.runUp(null);
 
         assertTrue(outContent.toString().contains("Nothing to Migrate"));
     }
