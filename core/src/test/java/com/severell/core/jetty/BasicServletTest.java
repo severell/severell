@@ -3,6 +3,7 @@ package com.severell.core.jetty;
 import com.severell.core.container.Container;
 import com.severell.core.http.*;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -21,19 +22,29 @@ import static org.mockito.Mockito.verify;
 
 public class BasicServletTest {
 
+    private Container c;
+    private Router r;
+    private Dispatcher dispatcher;
+    private HttpServletRequest req;
+    private HttpServletResponse resp;
+    private RouteExecutor executor;
+
+    @BeforeEach
+    public void setup() throws IOException {
+        c = mock(Container.class);
+        r = mock(Router.class);
+
+        req = mock(HttpServletRequest.class);
+        resp = mock(HttpServletResponse.class);
+        given(resp.getWriter()).willReturn(mock(PrintWriter.class));
+        executor = mock(RouteExecutor.class);
+        given(c.make(Router.class)).willReturn(r);
+        dispatcher = new Dispatcher(c);
+        given(c.make(Dispatcher.class)).willReturn(dispatcher);
+    }
+
     @Test
     public void testDoGet() throws Exception {
-        Container c = mock(Container.class);
-        Router r = mock(Router.class);
-        RouteExecutor executor = mock(RouteExecutor.class);
-        given(c.make(Router.class)).willReturn(r);
-
-        Dispatcher dispatcher = new Dispatcher(c);
-        given(c.make(Dispatcher.class)).willReturn(dispatcher);
-
-        HttpServletRequest req = mock(HttpServletRequest.class);
-        HttpServletResponse resp = mock(HttpServletResponse.class);
-        given(resp.getWriter()).willReturn(mock(PrintWriter.class));
         setUpRequest(c, r, req, "GET", new ArrayList<>(), executor);
 
         BasicServlet servlet = new BasicServlet(c);
@@ -49,18 +60,6 @@ public class BasicServletTest {
 
     @Test
     public void testDoPost() throws Exception {
-        Container c = mock(Container.class);
-        Router r = mock(Router.class);
-        HttpServletRequest req = mock(HttpServletRequest.class);
-        HttpServletResponse resp = mock(HttpServletResponse.class);
-        given(resp.getWriter()).willReturn(mock(PrintWriter.class));
-        RouteExecutor executor = mock(RouteExecutor.class);
-
-        given(c.make(Router.class)).willReturn(r);
-
-        Dispatcher dispatcher = new Dispatcher(c);
-        given(c.make(Dispatcher.class)).willReturn(dispatcher);
-
         setUpRequest(c, r, req, "POST",new ArrayList<>(), executor);
 
         BasicServlet servlet = new BasicServlet(c);
@@ -73,60 +72,71 @@ public class BasicServletTest {
         verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
 
         assertEquals("POST", reqCapt.getValue().getMethod());
-
     }
 
-//    @Test
-//    public void testDoGetWithBeforeMiddleware() throws InvocationTargetException, IllegalAccessException, IOException {
-//        Container c = mock(Container.class);
-//        Router r = mock(Router.class);
-//        HttpServletRequest req = mock(HttpServletRequest.class);
-//        HttpServletResponse resp = mock(HttpServletResponse.class);
-//        given(resp.getWriter()).willReturn(mock(PrintWriter.class));
-//
-//        doMiddlewareTest(c, r, req, resp, "DefaultMiddleware");
-//    }
+    @Test
+    public void testDoPut() throws Exception {
+        setUpRequest(c, r, req, "PUT",new ArrayList<>(), executor);
 
-//    private void doMiddlewareTest(Container c, Router r, HttpServletRequest req, HttpServletResponse resp, String middlewareType) throws IOException, InvocationTargetException, IllegalAccessException {
-//        MiddlewareMapper mapper = mock(MiddlewareMapper.class);
-//        doAnswer(invocation -> {
-//            MiddlewareChain chain = invocation.getArgument(3);
-//            chain.next();
-//            return null;
-//        }).when(mapper).run(any(Container.class), any(Request.class), any(Response.class), any(MiddlewareChain.class));
-//        ArrayList<MiddlewareMapper> beforeList = new ArrayList<>();
-//        beforeList.add(mapper);
-//
-//        MiddlewareMapper mapperTwo = mock(MiddlewareMapper.class);
-//        doAnswer(invocation -> {
-//            MiddlewareChain chain = invocation.getArgument(3);
-//            chain.next();
-//            return null;
-//        }).when(mapperTwo).run(any(Container.class), any(Request.class), any(Response.class), any(MiddlewareChain.class));
-//
-//        ArrayList<MiddlewareMapper> defaultList = new ArrayList<>();
-//        defaultList.add(mapperTwo);
-//        given(c.make(middlewareType, ArrayList.class)).willReturn(defaultList);
-//
-//        setUpRequest(c, r, req, "GET", beforeList);
-//
-//        BasicServlet servlet = new BasicServlet(c, r);
-//        servlet.doPost(req, resp);
-//
-//        ArgumentCaptor<Container> contCaptor = ArgumentCaptor.forClass(Container.class);
-//        ArgumentCaptor<Request> reqCaptor = ArgumentCaptor.forClass(Request.class);
-//        ArgumentCaptor<Response> respCaptor = ArgumentCaptor.forClass(Response.class);
-//        ArgumentCaptor<MiddlewareChain> chainCaptor = ArgumentCaptor.forClass(MiddlewareChain.class);
-//
-//        verify(mapper).run(contCaptor.capture(), reqCaptor.capture(), respCaptor.capture(), chainCaptor.capture());
-//
-//        ArgumentCaptor<Container> contCaptor2 = ArgumentCaptor.forClass(Container.class);
-//        ArgumentCaptor<Request> reqCaptor2 = ArgumentCaptor.forClass(Request.class);
-//        ArgumentCaptor<Response> respCaptor2 = ArgumentCaptor.forClass(Response.class);
-//        ArgumentCaptor<MiddlewareChain> chainCaptor2 = ArgumentCaptor.forClass(MiddlewareChain.class);
-//
-//        verify(mapperTwo).run(contCaptor2.capture(), reqCaptor2.capture(), respCaptor2.capture(), chainCaptor2.capture());
-//    }
+        BasicServlet servlet = new BasicServlet(c);
+        servlet.doPut(req, resp);
+
+        ArgumentCaptor<Request> reqCapt = ArgumentCaptor.forClass(Request.class);
+        ArgumentCaptor<Response> resCapt = ArgumentCaptor.forClass(Response.class);
+        ArgumentCaptor<Container> containerArgumentCaptor = ArgumentCaptor.forClass(Container.class);
+
+        verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
+
+        assertEquals("PUT", reqCapt.getValue().getMethod());
+    }
+
+    @Test
+    public void testDoOptions() throws Exception {
+        setUpRequest(c, r, req, "OPTIONS",new ArrayList<>(), executor);
+
+        BasicServlet servlet = new BasicServlet(c);
+        servlet.doOptions(req, resp);
+
+        ArgumentCaptor<Request> reqCapt = ArgumentCaptor.forClass(Request.class);
+        ArgumentCaptor<Response> resCapt = ArgumentCaptor.forClass(Response.class);
+        ArgumentCaptor<Container> containerArgumentCaptor = ArgumentCaptor.forClass(Container.class);
+
+        verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
+
+        assertEquals("OPTIONS", reqCapt.getValue().getMethod());
+    }
+
+    @Test
+    public void testDoDelete() throws Exception {
+        setUpRequest(c, r, req, "DELETE",new ArrayList<>(), executor);
+
+        BasicServlet servlet = new BasicServlet(c);
+        servlet.doDelete(req, resp);
+
+        ArgumentCaptor<Request> reqCapt = ArgumentCaptor.forClass(Request.class);
+        ArgumentCaptor<Response> resCapt = ArgumentCaptor.forClass(Response.class);
+        ArgumentCaptor<Container> containerArgumentCaptor = ArgumentCaptor.forClass(Container.class);
+
+        verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
+
+        assertEquals("DELETE", reqCapt.getValue().getMethod());
+    }
+
+    @Test
+    public void testDoPatch() throws Exception {
+        setUpRequest(c, r, req, "PATCH",new ArrayList<>(), executor);
+
+        BasicServlet servlet = new BasicServlet(c);
+        servlet.service(req, resp);
+
+        ArgumentCaptor<Request> reqCapt = ArgumentCaptor.forClass(Request.class);
+        ArgumentCaptor<Response> resCapt = ArgumentCaptor.forClass(Response.class);
+        ArgumentCaptor<Container> containerArgumentCaptor = ArgumentCaptor.forClass(Container.class);
+
+        verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
+
+        assertEquals("PATCH", reqCapt.getValue().getMethod());
+    }
 
     private void setUpRequest(Container c, Router r, HttpServletRequest req, String method, ArrayList middleware, RouteExecutor route) throws IOException {
         BasicDataSource ds = mock(BasicDataSource.class);

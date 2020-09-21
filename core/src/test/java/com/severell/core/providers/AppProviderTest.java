@@ -34,7 +34,7 @@ public class AppProviderTest {
 
         assertTrue(objCapture.getAllValues().get(0) instanceof DefaultMustacheFactory);
         assertTrue(objCapture.getAllValues().get(1) instanceof ErrorHandler);
-        assertTrue(objCapture.getAllValues().get(5) instanceof Database);
+        assertTrue(objCapture.getAllValues().get(4) instanceof Database);
 
     }
 }

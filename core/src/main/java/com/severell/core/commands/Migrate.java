@@ -35,8 +35,14 @@ public class Migrate {
     private static Connection connection;
     private static DatabaseMigrationRepository repository;
     private static URLClassLoader loader;
+    private String migrationPath;
 
-    public static void runUp(String[] args) throws Exception {
+    public Migrate(Connection connection) {
+        this.connection = connection;
+        this.migrationPath = Config.get("MIGRATION_PATH", "src/db/migrations");
+    }
+
+    public void runUp(String[] args) throws Exception {
         List<Class> pendingList = getPendingMigrations(prepareMigrations());
 
         if(pendingList.size() == 0) {
@@ -67,7 +73,7 @@ public class Migrate {
         }
     }
 
-    private static ArrayList<Class> prepareMigrations() throws Exception {
+    private ArrayList<Class> prepareMigrations() throws Exception {
         loader = setupClassLoader();
         System.out.println(String.format("%s Starting Migrator... %s", ANSI_GREEN, ANSI_RESET));
         createConnection();
@@ -78,7 +84,7 @@ public class Migrate {
         return getMigrations("migrations");
     }
 
-    public static void reset(String[] args) throws Exception {
+    public void reset(String[] args) throws Exception {
         List<Class> resetList = getMigrationsToReset(prepareMigrations());
 
         if(resetList.size() == 0){
@@ -89,7 +95,7 @@ public class Migrate {
         runDown(resetList);
     }
 
-    public static void rollback(String[] args) throws Exception {
+    public void rollback(String[] args) throws Exception {
         List<Class> resetList = getMigrationsToRollback(prepareMigrations());
 
         if(resetList.size() == 0){
@@ -100,7 +106,7 @@ public class Migrate {
         runDown(resetList);
     }
 
-    private static URLClassLoader setupClassLoader() throws Exception {
+    private URLClassLoader setupClassLoader() throws Exception {
         Path p = Paths.get("target/classes");
         File f = p.toFile();
         URL[] urls = new URL[]{f.toURI().toURL()};
@@ -108,7 +114,7 @@ public class Migrate {
         return loader;
     }
 
-    private static void runDown(List<Class> resetList) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    private void runDown(List<Class> resetList) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         for(Class cl : resetList) {
             Method method = cl.getDeclaredMethod("down");
             LocalDateTime start = LocalDateTime.now();
@@ -123,7 +129,7 @@ public class Migrate {
         }
     }
 
-    private static List<Class> getPendingMigrations(Iterable<Class> list) {
+    private List<Class> getPendingMigrations(Iterable<Class> list) {
         List<Class> pendingMigrations = new ArrayList<Class>();
         List<HashMap<String, Object>> ranMigrations = repository.getRan();
         for(Class cl : list) {
@@ -143,7 +149,7 @@ public class Migrate {
 
     }
 
-    private static List<Class> getMigrationsToReset(Iterable<Class> list) {
+    private List<Class> getMigrationsToReset(Iterable<Class> list) {
         List<Class> resetMigrations = new ArrayList<Class>();
         List<HashMap<String, Object>> ranMigrations = repository.getRan();
         for(HashMap<String, Object> mig : ranMigrations) {
@@ -157,7 +163,7 @@ public class Migrate {
         return resetMigrations;
     }
 
-    private static List<Class> getMigrationsToRollback(Iterable<Class> list) {
+    private List<Class> getMigrationsToRollback(Iterable<Class> list) {
         List<Class> resetMigrations = new ArrayList<Class>();
         List<HashMap<String, Object>> ranMigrations = repository.getLast();
         for(HashMap<String, Object> mig : ranMigrations) {
@@ -171,7 +177,7 @@ public class Migrate {
         return resetMigrations;
     }
 
-    private static void prepareDatabase() throws SQLException {
+    private void prepareDatabase() throws SQLException {
         repository = new DatabaseMigrationRepository(connection);
         if( !repository.repositoryExists()) {
             try {
@@ -182,28 +188,21 @@ public class Migrate {
         }
     }
 
-    private static void createConnection() {
-        BasicDataSource connectionPool = new BasicDataSource();
-        connectionPool.setUsername(Config.get("DB_USERNAME"));
-        connectionPool.setPassword(Config.get("DB_PASSWORD"));
-        connectionPool.setDriverClassName(Config.get("DB_DRIVER"));
-        connectionPool.setUrl(Config.get("DB_CONNSTRING"));
-        connectionPool.setInitialSize(1);
-        connectionPool.setMinIdle(1);
-        connectionPool.setMaxIdle(1);
-        connection = new PostgresConnection();
-        connection.setDataSource(connectionPool);
+    private void createConnection() {
+
     }
 
-    private static ArrayList<Class> getMigrations(String packageName) throws ClassNotFoundException, IOException, URISyntaxException {
+    private ArrayList<Class> getMigrations(String packageName) throws ClassNotFoundException, IOException, URISyntaxException {
         ArrayList<Class> classList = new ArrayList<>();
 
-        Path p = Paths.get("src/db/migrations");
+        Path p = Paths.get(migrationPath);
         File f = p.toFile();
         String[] migrationFiles = f.getAbsoluteFile().list();
 
-        for(String file : migrationFiles) {
-            classList.add(loader.loadClass("migrations" + "." + file.substring(0, file.length() - 5)));
+        if(migrationFiles != null) {
+            for (String file : migrationFiles) {
+                classList.add(loader.loadClass("migrations" + "." + file.substring(0, file.length() - 5)));
+            }
         }
 
         return classList;
