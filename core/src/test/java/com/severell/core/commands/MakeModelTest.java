@@ -18,7 +18,6 @@ public class MakeModelTest {
 
     @NotNull
     protected StringWriter setUpMakeModel(MakeModel model, TableMetaData metd) {
-        model.getFlags().get(0).value="users";
         Connection connection = mock(Connection.class);
         given(connection.metaData("users")).willReturn(metd);
         model.setConnection(connection);
@@ -33,7 +32,7 @@ public class MakeModelTest {
         MakeModel model = new MakeModel();
         TableMetaData metd = new TableMetaData("users");
         StringWriter writer = setUpMakeModel(model, metd);
-        model.execute(new String[]{"Users"});
+        model.run(new String[]{"args=Users", "flags=-t=users"});
 
         /* TODO Change this. I don't like comparing the strings like this
         * If this smallest formatting changes it will break this test
@@ -79,9 +78,19 @@ public class MakeModelTest {
         col.setDataType(93);
         columnMetaData.add(col);
 
+        col = new ColumnMetaData();
+        col.setColumnName("clobTest");
+        col.setDataType(2005);
+        columnMetaData.add(col);
+
+        col = new ColumnMetaData();
+        col.setColumnName("objTest");
+        col.setDataType(2006);
+        columnMetaData.add(col);
+
         metd.setColumns(columnMetaData);
         StringWriter writer = setUpMakeModel(model, metd);
-        model.execute(new String[]{"Users"});
+        model.run(new String[]{"args=Users", "flags=-t=users"});
 
         /* TODO Change this. I don't like comparing the strings like this
          * If this smallest formatting changes it will break this test
@@ -92,6 +101,7 @@ public class MakeModelTest {
                 "import io.ebean.Model;\n" +
                 "import io.ebean.annotation.WhenCreated;\n" +
                 "import io.ebean.annotation.WhenModified;\n" +
+                "import java.lang.Object;\n" +
                 "import java.lang.String;\n" +
                 "import java.sql.Timestamp;\n" +
                 "import javax.persistence.Entity;\n" +
@@ -113,6 +123,10 @@ public class MakeModelTest {
                 "\n" +
                 "  @WhenModified\n" +
                 "  Timestamp updatedAt;\n" +
+                "\n" +
+                "  String clobTest;\n" +
+                "\n" +
+                "  Object objTest;\n" +
                 "\n" +
                 "  public long getId() {\n" +
                 "    return this.id;\n" +
@@ -144,6 +158,22 @@ public class MakeModelTest {
                 "\n" +
                 "  public void setUpdatedAt(Timestamp updatedAt) {\n" +
                 "    this.updatedAt = updatedAt;\n" +
+                "  }\n" +
+                "\n" +
+                "  public String getClobTest() {\n" +
+                "    return this.clobTest;\n" +
+                "  }\n" +
+                "\n" +
+                "  public void setClobTest(String clobTest) {\n" +
+                "    this.clobTest = clobTest;\n" +
+                "  }\n" +
+                "\n" +
+                "  public Object getObjTest() {\n" +
+                "    return this.objTest;\n" +
+                "  }\n" +
+                "\n" +
+                "  public void setObjTest(Object objTest) {\n" +
+                "    this.objTest = objTest;\n" +
                 "  }\n" +
                 "}\n", writer.toString());
     }

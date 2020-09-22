@@ -1,5 +1,7 @@
 package com.severell.core.database.migrations;
 
+import com.severell.core.database.Connection;
+
 import java.sql.SQLException;
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.severell.core.commands;
 
 import com.severell.core.config.Config;
-import com.severell.core.database.migrations.Connection;
-import com.severell.core.database.migrations.PostgresConnection;
+import com.severell.core.database.Connection;
+import com.severell.core.database.PostgresConnection;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 public class MigrateCommand extends Command {
@@ -16,11 +16,13 @@ public class MigrateCommand extends Command {
     @Override
     public void execute(String[] args) {
         try {
-            new Migrate(getConnection()).runUp(args);
+            Connection con = connection == null ? getConnection() : connection;
+            new Migrate(con).runUp(args);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     private Connection getConnection () {
         BasicDataSource connectionPool = new BasicDataSource();

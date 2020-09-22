@@ -1,5 +1,6 @@
 package com.severell.core.database.migrations;
 
+import com.severell.core.database.Connection;
 import com.severell.core.database.grammar.Grammar;
 import com.severell.core.database.grammar.PostgresGrammar;
 import org.jetbrains.annotations.NotNull;

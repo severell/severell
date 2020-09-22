@@ -1,10 +1,9 @@
 package com.severell.core.commands;
 
-import com.severell.core.commands.Migrate;
 import com.severell.core.config.Config;
 import com.severell.core.database.grammar.PostgresGrammar;
-import com.severell.core.database.migrations.Connection;
-import com.severell.core.database.migrations.PostgresConnection;
+import com.severell.core.database.Connection;
+import com.severell.core.database.PostgresConnection;
 import com.severell.core.database.migrations.PostgresQueryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
@@ -87,6 +86,16 @@ public class MigrateTest {
      */
 
     @Test
+    public void runUpTestThroughCommand() throws Exception {
+        MigrateCommand command = new MigrateCommand();
+        command.setConnection(connection);
+        command.run(new String[]{"args=", "flags="});
+
+        assertTrue(outContent.toString().contains("Migrated - TestMigration"));
+        assertTrue(outContent.toString().contains("Failed to Migrate - ErrorMigration"));
+    }
+
+    @Test
     public void runUpTest() throws Exception {
         Migrate migrate = new Migrate(connection);
         Migrate spyMigrate = spy(migrate);
@@ -127,6 +136,20 @@ public class MigrateTest {
         assertTrue(outContent.toString().contains("Nothing to reset"), String.format("Got %s", outContent.toString()));
     }
 
+    @Test
+    public void runRollbackTestThroughCommand() throws Exception {
+        MigrateRollbackCommand command = new MigrateRollbackCommand();
+
+        ArrayList<HashMap<String, Object>> list = getRan();
+        //Mocking getLast()
+        given(connection.select("select * from migrations where batch = 0 order by batch desc, migration desc limit 1")).willReturn(list);
+
+        command.setConnection(connection);
+        command.run(new String[]{"args=", "flags="});
+
+        assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
+        assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
+    }
     @Test
     public void runRollbackTest() throws Exception {
         ArrayList<HashMap<String, Object>> list = getRan();

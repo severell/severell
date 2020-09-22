@@ -6,9 +6,10 @@ import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
-public class MakeCommand extends Command {
+public class MakeCommand extends MakeableCommand {
 
     public MakeCommand() {
         this.command="make:command [name]";
@@ -17,7 +18,7 @@ public class MakeCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
+    public void execute(String[] args) throws IOException {
         MethodSpec index = MethodSpec.methodBuilder("execute")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
@@ -41,11 +42,7 @@ public class MakeCommand extends Command {
         JavaFile javaFile = JavaFile.builder(this.calleePackage + ".commands", helloWorld)
                 .build();
 
-        try {
-            javaFile.writeTo(new File("src/main/java"));
-        } catch (IOException e) {
-            System.out.println("Failed to create migration");
-        }
-
+        writer = writer == null ? new FileWriter(new File("src/main/java")) : writer;
+        make(javaFile);
     }
 }

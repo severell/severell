@@ -1,5 +1,6 @@
 package com.severell.core.database.migrations;
 
+import com.severell.core.database.Connection;
 import com.severell.core.database.grammar.Grammar;
 
 import java.sql.SQLException;

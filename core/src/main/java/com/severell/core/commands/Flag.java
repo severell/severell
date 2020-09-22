@@ -27,7 +27,7 @@ public class Flag {
     }
 
     public String getValue() {
-        return value;
+        return value ;
     }
 
     public void setValue(String value) {

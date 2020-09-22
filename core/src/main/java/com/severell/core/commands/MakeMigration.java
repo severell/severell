@@ -3,17 +3,20 @@ package com.severell.core.commands;
 import com.severell.core.database.migrations.Blueprint;
 import com.severell.core.database.migrations.MigrationException;
 import com.severell.core.database.migrations.Schema;
+import com.severell.core.time.Time;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 
 import javax.lang.model.element.Modifier;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class MakeMigration extends Command{
+public class MakeMigration extends MakeableCommand{
 
     private Flag tableFlag;
     private Flag createFlag;
@@ -31,7 +34,7 @@ public class MakeMigration extends Command{
     }
 
     @Override
-    public void execute(String[] args) {
+    public void execute(String[] args) throws IOException {
         boolean hasTable = tableFlag.value != null;
         boolean create = createFlag.value != null;
 
@@ -41,10 +44,11 @@ public class MakeMigration extends Command{
 
         String tableName = "";
         if(hasTable) {
-            tableName = tableFlag.getValue();
+            tableName = tableFlag.getValue() == null ? "" : tableFlag.getValue();
         } else if (create) {
             tableName = createFlag.getValue();
         }
+
 
         MethodSpec main = getUpMethodSpec("up", tableName, create, hasTable);
 
@@ -52,7 +56,7 @@ public class MakeMigration extends Command{
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HHmmss");
 
-        TypeSpec helloWorld = TypeSpec.classBuilder(String.format("m_%s_%s", formatter.format(LocalDateTime.now()), args[0]))
+        TypeSpec helloWorld = TypeSpec.classBuilder(String.format("m_%s_%s", formatter.format(Time.now()), args[0]))
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(main)
                 .addMethod(down)
@@ -61,11 +65,8 @@ public class MakeMigration extends Command{
         JavaFile javaFile = JavaFile.builder("migrations", helloWorld)
                 .build();
 
-        try {
-            javaFile.writeTo(new File("src/db"));
-        } catch (IOException e) {
-            System.out.println("Failed to create migration");
-        }
+        writer = writer == null ? new FileWriter(new File("src/db")) : writer;
+        make(javaFile);
 
     }
 

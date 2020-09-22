@@ -1,9 +1,12 @@
-package com.severell.core.database.migrations;
+package com.severell.core.database;
 
+import com.severell.core.database.Connection;
 import com.severell.core.database.grammar.Grammar;
 import com.severell.core.database.grammar.PostgresGrammar;
+import com.severell.core.database.migrations.PostgresQueryBuilder;
+import com.severell.core.database.migrations.QueryBuilder;
 
-public class PostgresConnection extends Connection{
+public class PostgresConnection extends Connection {
 
     @Override
     public Grammar getDefaultGrammar() {
