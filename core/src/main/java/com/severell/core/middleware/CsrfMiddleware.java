@@ -1,7 +1,6 @@
 package com.severell.core.middleware;
 
 import com.severell.core.drivers.Session;
-import com.severell.core.exceptions.ControllerException;
 import com.severell.core.exceptions.MiddlewareException;
 import com.severell.core.http.MiddlewareChain;
 import com.severell.core.http.Request;

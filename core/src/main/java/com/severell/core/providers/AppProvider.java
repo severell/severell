@@ -5,14 +5,10 @@ import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.error.ErrorHandler;
 import com.severell.core.http.Dispatcher;
-import com.severell.core.http.Router;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.datasource.DataSourceConfig;
-
-import javax.xml.crypto.Data;
-import java.io.IOException;
 
 /**
  * The AppProvider provides necessary dependencies to the Container.

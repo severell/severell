@@ -4,7 +4,10 @@ import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.exceptions.ViewException;
 
-import javax.mail.*;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;

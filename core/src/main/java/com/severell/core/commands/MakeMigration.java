@@ -12,8 +12,6 @@ import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class MakeMigration extends MakeableCommand{

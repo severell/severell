@@ -1,18 +1,13 @@
 package com.severell.core.jetty;
 
-import com.github.mustachejava.DefaultMustacheFactory;
 import com.severell.core.container.Container;
-import com.severell.core.error.ErrorHandler;
 import com.severell.core.http.AppServer;
-import io.ebean.Database;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import javax.persistence.Basic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

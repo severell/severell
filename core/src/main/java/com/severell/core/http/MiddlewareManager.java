@@ -1,10 +1,7 @@
 package com.severell.core.http;
 
 import com.severell.core.container.Container;
-import com.severell.core.exceptions.ControllerException;
-import com.severell.core.exceptions.MiddlewareException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 

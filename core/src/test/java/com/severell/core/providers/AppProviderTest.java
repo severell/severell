@@ -4,8 +4,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.severell.core.container.Container;
 import com.severell.core.error.ErrorHandler;
 import io.ebean.Database;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;

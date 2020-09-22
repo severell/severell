@@ -2,7 +2,6 @@ package com.severell.core.mail;
 
 import com.severell.core.container.Container;
 import com.severell.core.exceptions.ViewException;
-import com.severell.core.mail.Mail;
 import com.severell.core.view.View;
 
 import java.io.StringWriter;

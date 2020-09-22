@@ -3,7 +3,6 @@ package com.severell.core.database.grammar;
 import com.severell.core.database.migrations.Blueprint;
 import com.severell.core.database.migrations.ColumnDefinition;
 import com.severell.core.database.migrations.Command;
-import com.severell.core.database.migrations.ForeignKeyDefinition;
 
 import java.util.ArrayList;
 import java.util.Arrays;

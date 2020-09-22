@@ -2,11 +2,11 @@ package com.severell.core.mail;
 
 import com.severell.core.container.Container;
 import com.severell.core.exceptions.ViewException;
-import com.severell.core.mail.Mail;
-import com.severell.core.mail.MailLogDriver;
 import com.severell.core.view.View;
 import com.severell.core.view.ViewMustacheDriver;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

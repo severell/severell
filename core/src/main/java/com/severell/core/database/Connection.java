@@ -1,7 +1,6 @@
 package com.severell.core.database;
 
 import com.severell.core.commands.ColumnMetaData;
-import com.severell.core.database.TableMetaData;
 import com.severell.core.database.grammar.Grammar;
 import com.severell.core.database.migrations.MigrationException;
 import com.severell.core.database.migrations.QueryBuilder;

@@ -1,7 +1,6 @@
 package com.severell.core.http;
 
 import com.severell.core.container.Container;
-import com.severell.core.exceptions.ControllerException;
 
 import java.util.ArrayList;
 

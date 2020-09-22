@@ -1,7 +1,5 @@
 package com.severell.core.testutils;
 
-import static org.mockito.Mockito.*;
-
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -10,6 +8,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Mocks a SQL ResultSet.

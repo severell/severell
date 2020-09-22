@@ -5,10 +5,8 @@ import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheNotFoundException;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
-import com.severell.core.exceptions.ViewException;
 import com.severell.core.view.View;
 import com.severell.core.view.ViewMustacheDriver;
-import com.severell.core.view.ViewProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

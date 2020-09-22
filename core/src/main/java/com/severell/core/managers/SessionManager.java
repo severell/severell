@@ -2,7 +2,6 @@ package com.severell.core.managers;
 
 import com.severell.core.container.Container;
 import com.severell.core.drivers.Session;
-import com.severell.core.mail.Mail;
 
 /**
  * The SessionManager is responsible for managing the different Session drivers.

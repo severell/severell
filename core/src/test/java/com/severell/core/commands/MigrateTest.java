@@ -1,9 +1,9 @@
 package com.severell.core.commands;
 
 import com.severell.core.config.Config;
-import com.severell.core.database.grammar.PostgresGrammar;
 import com.severell.core.database.Connection;
 import com.severell.core.database.PostgresConnection;
+import com.severell.core.database.grammar.PostgresGrammar;
 import com.severell.core.database.migrations.PostgresQueryBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;

@@ -1,20 +1,13 @@
 package com.severell.core.mail;
 
-import com.github.mustachejava.DefaultMustacheFactory;
 import com.severell.core.container.Container;
-import com.severell.core.error.ErrorHandler;
-import com.severell.core.mail.MailProvider;
-import com.severell.core.mail.MailSMTPDriver;
 import com.severell.core.managers.MailManager;
-import io.ebean.Database;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 

@@ -2,13 +2,8 @@ package com.severell.core.database.migrations;
 
 import com.severell.core.database.Connection;
 import com.severell.core.database.grammar.PostgresGrammar;
-import com.severell.core.database.migrations.Blueprint;
-import org.codehaus.plexus.util.cli.Arg;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;

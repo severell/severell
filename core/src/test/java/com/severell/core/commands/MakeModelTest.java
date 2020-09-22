@@ -5,7 +5,6 @@ import com.severell.core.database.TableMetaData;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
-import javax.persistence.Table;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;

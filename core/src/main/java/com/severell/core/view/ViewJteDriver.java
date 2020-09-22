@@ -2,7 +2,6 @@ package com.severell.core.view;
 
 import com.severell.core.config.Config;
 import com.severell.core.exceptions.ViewException;
-import gg.jte.CodeResolver;
 import gg.jte.ContentType;
 import gg.jte.TemplateEngine;
 import gg.jte.TemplateOutput;

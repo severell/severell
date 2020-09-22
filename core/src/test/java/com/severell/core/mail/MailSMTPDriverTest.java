@@ -14,7 +14,6 @@ import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
