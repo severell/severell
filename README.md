@@ -1,4 +1,4 @@
-![Java CI with Maven](https://github.com/mitchdennett/severell-core/workflows/Java%20CI%20with%20Maven/badge.svg)
+[![codecov](https://codecov.io/gh/mitchdennett/severell/branch/master/graph/badge.svg)](https://codecov.io/gh/mitchdennett/severell) ![Java CI with Maven](https://github.com/mitchdennett/severell-core/workflows/Java%20CI%20with%20Maven/badge.svg)
 
 # Severell Framework (In Development)
 
