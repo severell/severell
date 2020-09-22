@@ -116,15 +116,22 @@ public class Migrate {
 
     private void runDown(List<Class> resetList) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         for(Class cl : resetList) {
-            Method method = cl.getDeclaredMethod("down");
-            LocalDateTime start = LocalDateTime.now();
-            System.out.println(String.format("%s Rolling Back - %s %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
-            method.invoke(null);
-            repository.delete(cl.getSimpleName());
-            LocalDateTime end = LocalDateTime.now();
-            long diff = ChronoUnit.MILLIS.between(start, end);
-            System.out.println(String.format("%s Rolled Back - %s (%d ms) %s", ANSI_GREEN, cl.getSimpleName(), diff, ANSI_RESET));
-            System.out.println("");
+            try {
+                Method method = cl.getDeclaredMethod("down");
+                LocalDateTime start = LocalDateTime.now();
+                System.out.println(String.format("%s Rolling Back - %s %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
+                method.invoke(null);
+                repository.delete(cl.getSimpleName());
+                LocalDateTime end = LocalDateTime.now();
+                long diff = ChronoUnit.MILLIS.between(start, end);
+                System.out.println(String.format("%s Rolled Back - %s (%d ms) %s", ANSI_GREEN, cl.getSimpleName(), diff, ANSI_RESET));
+                System.out.println("");
+            }catch (InvocationTargetException e) {
+                MigrationException me = (MigrationException) e.getCause();
+                System.out.println(String.format("%s Failed to Reset - %s  %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
+                System.out.println(String.format("%s Reason - %s  %s", ANSI_RED, me.getMessage(), ANSI_RESET));
+                System.out.println("");
+            }
 
         }
     }

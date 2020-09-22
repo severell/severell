@@ -1,5 +1,8 @@
 package com.severell.core.commands;
 
+import com.severell.core.database.Connection;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public abstract class Command {
@@ -9,8 +12,9 @@ public abstract class Command {
     protected int numArgs = -1;
     protected ArrayList<Flag> flags;
     protected String calleePackage;
+    protected Connection connection;
 
-    public abstract void execute(String[] args);
+    public abstract void execute(String[] args) throws IOException;
 
     protected boolean validate(String[] args) {
         return true;
@@ -28,7 +32,11 @@ public abstract class Command {
         }
 
         if(validate(argsToPass)) {
-            this.execute(argsToPass);
+            try {
+                this.execute(argsToPass);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -79,6 +87,10 @@ public abstract class Command {
         }
 
         this.flags.add(flag);
+    }
+
+    public void setConnection(Connection connection) {
+        this.connection = connection;
     }
 
     public void setCalleePackage(String calleePackage) {

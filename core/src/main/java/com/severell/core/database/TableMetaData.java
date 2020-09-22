@@ -1,4 +1,6 @@
-package com.severell.core.commands;
+package com.severell.core.database;
+
+import com.severell.core.commands.ColumnMetaData;
 
 import java.util.ArrayList;
 
@@ -13,7 +15,7 @@ public class TableMetaData {
     }
 
     public ArrayList<ColumnMetaData> getColumns() {
-        return columns;
+        return columns == null ? new ArrayList<>() : columns;
     }
 
     public void setColumns(ArrayList<ColumnMetaData> columns) {

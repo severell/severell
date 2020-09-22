@@ -54,6 +54,7 @@ public class Commander {
         String[] parts = Commander.class.getCanonicalName().split("\\.");
         String[] subarray = Arrays.copyOfRange(parts, 0, parts.length - 2);
         command.setCalleePackage(StringUtils.join(subarray, "."));
+        command.setDataSource(setupDatabase);
         command.run(args);
     }
 
@@ -90,5 +91,17 @@ public class Commander {
 
         obj.put("commands", commands);
         Files.write(Paths.get("severell.json"), obj.toJSONString().getBytes());
+    }
+
+    private BasicDataSource setupDatabase() {
+        BasicDataSource connectionPool = new BasicDataSource();
+        connectionPool.setUsername(Config.get("DB_USERNAME"));
+        connectionPool.setPassword(Config.get("DB_PASSWORD"));
+        connectionPool.setDriverClassName(Config.get("DB_DRIVER"));
+        connectionPool.setUrl(Config.get("DB_CONNSTRING"));
+        connectionPool.setInitialSize(1);
+        connectionPool.setMinIdle(1);
+        connectionPool.setMaxIdle(1);
+        return connectionPool;
     }
 }

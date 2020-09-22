@@ -5,7 +5,7 @@ public class MigrationException extends Throwable {
     private final MigrationExceptionType type;
     private final String additionalMessage;
 
-    enum MigrationExceptionType {
+    public enum MigrationExceptionType {
         RELATIONEXISTS("Relation Already Exists: "),
         UNKNOWN("Error: ");
 

@@ -1,26 +1,24 @@
 package com.severell.core.commands;
 
-import com.severell.core.config.Config;
+import com.severell.core.database.TableMetaData;
 import com.squareup.javapoet.*;
 import io.ebean.Model;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.maven.shared.utils.StringUtils;
 
 import javax.lang.model.element.Modifier;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MakeModel extends Command {
+public class MakeModel extends MakeableCommand {
 
     private Flag tableFlag;
 
@@ -34,29 +32,19 @@ public class MakeModel extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
-        BasicDataSource source = setupDatabase();
+    public void execute(String[] args) throws IOException {
         String modelName = args[0];
         String tableName = tableFlag.getValue() == null ? modelName.toLowerCase() : tableFlag.getValue();
 
-        TableMetaData metaData = null;
-        try(Connection conn = source.getConnection()) {
-            metaData = TableMetaDataBuilder.create(tableName, conn);
-        }catch (SQLException e) {
-            System.out.println(String.format("Unable to get metadata for table %s", tableName));
-        }
+        TableMetaData metaData = connection.metaData(tableName);
 
         TypeSpec model = getTypeSpec(tableName, metaData, modelName);
 
         JavaFile javaFile = JavaFile.builder(this.calleePackage + ".models", model)
                 .build();
 
-        try {
-            javaFile.writeTo(new File("src/main/java"));
-        } catch (IOException e) {
-            System.out.println("Failed to create migration");
-        }
-
+        writer = writer == null ? new FileWriter(new File("src/main/java")) : writer;
+        make(javaFile);
     }
 
     private TypeSpec getTypeSpec(String tableName, TableMetaData metaData, String modelName) {
@@ -126,17 +114,5 @@ public class MakeModel extends Command {
                     .build();
             fields.add(field);
         }
-    }
-
-    private BasicDataSource setupDatabase() {
-        BasicDataSource connectionPool = new BasicDataSource();
-        connectionPool.setUsername(Config.get("DB_USERNAME"));
-        connectionPool.setPassword(Config.get("DB_PASSWORD"));
-        connectionPool.setDriverClassName(Config.get("DB_DRIVER"));
-        connectionPool.setUrl(Config.get("DB_CONNSTRING"));
-        connectionPool.setInitialSize(1);
-        connectionPool.setMinIdle(1);
-        connectionPool.setMaxIdle(1);
-        return connectionPool;
     }
 }

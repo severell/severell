@@ -1,4 +1,4 @@
-package com.severell.core;
+package com.severell.core.commands;
 
 import com.severell.core.commands.Migrate;
 import com.severell.core.config.Config;
@@ -6,6 +6,7 @@ import com.severell.core.database.grammar.PostgresGrammar;
 import com.severell.core.database.migrations.Connection;
 import com.severell.core.database.migrations.PostgresConnection;
 import com.severell.core.database.migrations.PostgresQueryBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayOutputStream;
@@ -26,6 +27,10 @@ public class MigrateTest {
     private static final PrintStream originalOut = System.out;
     private static final PrintStream originalErr = System.err;
     private static Connection connection;
+
+    /*
+     * SETUP
+     */
 
     @BeforeEach
     public void setUpStreams() {
@@ -65,6 +70,22 @@ public class MigrateTest {
         }
     }
 
+    @NotNull
+    protected ArrayList<HashMap<String, Object>> getRan() {
+        ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+        HashMap<String, Object> m = new HashMap<>();
+        m.put("migration", "TestMigration");
+        HashMap<String, Object> other = new HashMap<>();
+        other.put("migration", "ErrorMigration");
+        list.add(m);
+        list.add(other);
+        return list;
+    }
+
+    /*
+     * TESTS
+     */
+
     @Test
     public void runUpTest() throws Exception {
         Migrate migrate = new Migrate(connection);
@@ -72,18 +93,60 @@ public class MigrateTest {
         spyMigrate.runUp(null);
 
         assertTrue(outContent.toString().contains("Migrated - TestMigration"));
+        assertTrue(outContent.toString().contains("Failed to Migrate - ErrorMigration"));
     }
 
     @Test
     public void runUpTestWithNothingToMigration() throws Exception {
-        ArrayList<HashMap<String, Object>> list = new ArrayList<>();
-        HashMap<String, Object> m = new HashMap<>();
-        m.put("migration", "TestMigration");
-        list.add(m);
+        ArrayList<HashMap<String, Object>> list = getRan();
         given(connection.select("select * from migrations order by batch asc, migration asc")).willReturn(list);
         Migrate migrate = new Migrate(connection);
         migrate.runUp(null);
 
         assertTrue(outContent.toString().contains("Nothing to Migrate"), String.format("Got %s", outContent.toString()));
     }
+
+    @Test
+    public void runDownTest() throws Exception {
+        ArrayList<HashMap<String, Object>> list = getRan();
+        given(connection.select("select * from migrations order by batch asc, migration asc")).willReturn(list);
+
+
+        Migrate migrate = new Migrate(connection);
+        migrate.reset(null);
+
+        assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
+        assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
+    }
+
+    @Test
+    public void runDownTestWithNothingToReset() throws Exception {
+        Migrate migrate = new Migrate(connection);
+        migrate.reset(null);
+
+        assertTrue(outContent.toString().contains("Nothing to reset"), String.format("Got %s", outContent.toString()));
+    }
+
+    @Test
+    public void runRollbackTest() throws Exception {
+        ArrayList<HashMap<String, Object>> list = getRan();
+        //Mocking getLast()
+        given(connection.select("select * from migrations where batch = 0 order by batch desc, migration desc limit 1")).willReturn(list);
+
+
+        Migrate migrate = new Migrate(connection);
+        migrate.rollback(null);
+
+        assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
+        assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
+    }
+
+    @Test
+    public void runDownTestWithNothingToRollback() throws Exception {
+        Migrate migrate = new Migrate(connection);
+        migrate.rollback(null);
+
+        assertTrue(outContent.toString().contains("Nothing to reset"), String.format("Got %s", outContent.toString()));
+    }
+
 }
