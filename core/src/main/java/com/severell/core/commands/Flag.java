@@ -10,32 +10,16 @@ public class Flag {
     protected String description;
     protected String value;
 
-    public String getFlag() {
-        return flag;
+    public String getValue() {
+        return value ;
     }
 
-    public void setFlag(String flag) {
-        this.flag = flag;
+    public String getFlag() {
+        return flag;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getValue() {
-        return value ;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return this.value;
-    }
 }
