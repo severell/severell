@@ -1,6 +1,7 @@
 package com.severell.core.database.migrations;
 
 import com.severell.core.database.grammar.PostgresGrammar;
+import com.severell.core.database.migrations.Blueprint;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
