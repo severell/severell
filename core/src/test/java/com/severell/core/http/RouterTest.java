@@ -453,4 +453,37 @@ public class RouterTest {
             Router.Get("/", "com.severell.core.http.RouterTest::notFound");
         });
     }
+
+    @Test
+    public void testRouterAddsToRouteListCorrectly() throws NoSuchMethodException, ClassNotFoundException {
+        Router.clearRoutes();
+        Router.Get("/", "com.severell.core.http.RouterTest::index");
+        Router.Post("/", "com.severell.core.http.RouterTest::index");
+        Router.Put("/", "com.severell.core.http.RouterTest::index");
+        Router.Patch("/", "com.severell.core.http.RouterTest::index");
+        Router.Delete("/", "com.severell.core.http.RouterTest::index");
+        Router.Options("/", "com.severell.core.http.RouterTest::index");
+
+        Router router = new Router();
+        ArrayList<Route> routes = router.getRoutes();
+        assertEquals("GET", routes.get(0).getHttpMethod());
+        assertEquals("/", routes.get(0).getPath());
+        assertEquals("HEAD", routes.get(1).getHttpMethod());
+        assertEquals("/", routes.get(1).getPath());
+
+        assertEquals("POST", routes.get(2).getHttpMethod());
+        assertEquals("/", routes.get(2).getPath());
+
+        assertEquals("PUT", routes.get(3).getHttpMethod());
+        assertEquals("/", routes.get(3).getPath());
+
+        assertEquals("PATCH", routes.get(4).getHttpMethod());
+        assertEquals("/", routes.get(4).getPath());
+
+        assertEquals("DELETE", routes.get(5).getHttpMethod());
+        assertEquals("/", routes.get(5).getPath());
+
+        assertEquals("OPTIONS", routes.get(6).getHttpMethod());
+        assertEquals("/", routes.get(6).getPath());
+    }
 }

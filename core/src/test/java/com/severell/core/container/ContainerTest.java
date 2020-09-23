@@ -1,14 +1,19 @@
 package com.severell.core.container;
 
 import com.severell.core.drivers.Session;
+import com.severell.core.drivers.SessionMemoryDriver;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ContainerTest {
 
@@ -42,22 +47,24 @@ public class ContainerTest {
 
     }
 
-//    @Test
-//    public void containerInvokeTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-//        Request req = mock(Request.class);
-//        Response resp = mock(Response.class);
-//        Method meth = getClass().getMethod("index", Request.class, Response.class, Session.class, Integer.class);
-//
-//        Session sess = mock(SessionMemoryDriver.class);
-//        Container c = new Container();
-//
-//        c.singleton(Session.class, sess);
-//        c.singleton(Integer.class, 2);
-//
-//
-//        c.invoke(req, resp, meth, null);
-//
-//        verify(sess).getId();
-//
-//    }
+    @Test
+    public void containerInvokeTest() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Request req = mock(Request.class);
+        Response resp = mock(Response.class);
+        Method meth = getClass().getMethod("index", Request.class, Response.class, Session.class, Integer.class);
+
+        Session sess = mock(SessionMemoryDriver.class);
+        Container c = new Container();
+
+        c.singleton(Session.class, sess);
+        c.singleton(Integer.class, 2);
+
+
+        Object[] params = c.resolve(req, resp, meth);
+        meth.invoke(null, params);
+
+
+        verify(sess).getId();
+
+    }
 }

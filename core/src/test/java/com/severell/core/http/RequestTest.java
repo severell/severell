@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 public class RequestTest {
@@ -43,5 +44,24 @@ public class RequestTest {
 
         assertNull(r.input(null));
 
+    }
+
+    @Test
+    public void testParseQueryString() {
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        given(req.getQueryString()).willReturn("key=value&key2=value1&empty=");
+        Request r = new Request(req);
+        assertEquals("value", r.query("key"));
+        assertEquals("value1", r.query("key2"));
+        assertEquals("", r.query("empty"));
+
+    }
+
+    @Test
+    public void testParseQueryStringReturnsNull() {
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        given(req.getQueryString()).willReturn(null);
+        Request r = new Request(req);
+        assertEquals(null, r.query("key"));
     }
 }

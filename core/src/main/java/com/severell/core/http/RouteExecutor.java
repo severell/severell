@@ -48,10 +48,6 @@ public class RouteExecutor {
         func.apply(request, response, cont);
     }
 
-    public RouteFunction getFunc() {
-        return func;
-    }
-
     /**
      * Get path from the associated route. I.E. /users
      * @return

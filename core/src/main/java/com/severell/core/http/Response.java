@@ -33,17 +33,6 @@ public class Response extends HttpServletResponseWrapper {
 
     /**
      * Constructs a response adaptor wrapping the given response.
-     *
-     * @param response the {@link HttpServletResponse} to be wrapped.
-     */
-    public Response(HttpServletResponse response) {
-        super(response);
-        c = null;
-        shared = new HashMap<>();
-    }
-
-    /**
-     * Constructs a response adaptor wrapping the given response.
      * @param response the {@link HttpServletResponse} to be wrapped.
      * @param c the {@link Container} object to be used
      */
