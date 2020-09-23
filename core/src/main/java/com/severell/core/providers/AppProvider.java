@@ -21,7 +21,10 @@ public class AppProvider extends ServiceProvider{
 
     @Override
     public void register() {
-        c.singleton(DefaultMustacheFactory.class, new DefaultMustacheFactory());
+        if(!Config.isLocal()) {
+            c.singleton(DefaultMustacheFactory.class, new DefaultMustacheFactory());
+        }
+
         c.singleton(ErrorHandler.class, new ErrorHandler(c));
         c.singleton(Dispatcher.class, new Dispatcher(c));
         c.bind("_databaseFactory",(c) ->  DatabaseFactory.create(c.make(DatabaseConfig.class)));

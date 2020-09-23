@@ -1,5 +1,7 @@
 package com.severell.core.mail;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
 import com.severell.core.container.Container;
 import com.severell.core.exceptions.ViewException;
 import com.severell.core.view.View;
@@ -13,6 +15,7 @@ import java.io.PrintStream;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -61,7 +64,8 @@ public class MailLogDriverTest {
     @Test
     public void logDriverHTMLTest() throws ViewException {
         Container c = mock(Container.class);
-        given(c.make(View.class)).willReturn(new ViewMustacheDriver());
+        ViewMustacheDriver driver = new ViewMustacheDriver(c);
+        given(c.make(View.class)).willReturn(driver);
         MailLogDriver mail = new MailLogDriver(c);
         mail.setBaseTemplate("internaltemplates/");
         mail.from("test@example.com")

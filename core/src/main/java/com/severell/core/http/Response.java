@@ -114,7 +114,7 @@ public class Response extends HttpServletResponseWrapper {
         MustacheFactory mf;
         mf = c.make(DefaultMustacheFactory.class);
 
-        if(mf == null || Config.equals("ENV", "TEST")) {
+        if(mf == null) {
             mf = new DefaultMustacheFactory();
         }
 

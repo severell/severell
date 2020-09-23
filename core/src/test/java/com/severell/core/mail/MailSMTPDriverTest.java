@@ -83,7 +83,8 @@ public class MailSMTPDriverTest {
         Container c = mock(Container.class);
         TransportFacade transport = mock(TransportFacade.class);
         given(c.make(TransportFacade.class)).willReturn(transport);
-        given(c.make(View.class)).willReturn(new ViewMustacheDriver());
+        ViewMustacheDriver driver = new ViewMustacheDriver(c);
+        given(c.make(View.class)).willReturn(driver);
 
         MailSMTPDriver mail = new MailSMTPDriver(c);
         mail.setBaseTemplate("internaltemplates/");
@@ -118,7 +119,8 @@ public class MailSMTPDriverTest {
         Container c = mock(Container.class);
         TransportFacade transport = mock(TransportFacade.class);
         given(c.make(TransportFacade.class)).willReturn(transport);
-        given(c.make(View.class)).willReturn(new ViewMustacheDriver());
+        ViewMustacheDriver driver = new ViewMustacheDriver(c);
+        given(c.make(View.class)).willReturn(driver);
 
         MailSMTPDriver mail = new MailSMTPDriver(c);
         mail.setBaseTemplate("internaltemplates/");
@@ -147,7 +149,8 @@ public class MailSMTPDriverTest {
         Container c = mock(Container.class);
         TransportFacade transport = mock(TransportFacade.class);
         given(c.make(TransportFacade.class)).willReturn(transport);
-        given(c.make(View.class)).willReturn(new ViewMustacheDriver());
+        ViewMustacheDriver driver = new ViewMustacheDriver(c);
+        given(c.make(View.class)).willReturn(driver);
 
         MailSMTPDriver mail = new MailSMTPDriver(c);
         mail.setBaseTemplate("internaltemplates/");

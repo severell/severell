@@ -108,10 +108,7 @@ public class ResponseTest {
         }
         HttpServletResponse r = mock(HttpServletResponse.class);
         Container c = mock(Container.class);
-        DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
-        given(c.make(DefaultMustacheFactory.class)).willReturn(mock(DefaultMustacheFactory.class));
-
-        View view = new ViewMustacheDriver();
+        View view = new ViewMustacheDriver(c);
         given(c.make(View.class)).willReturn(view);
 
         Response resp = new Response(r, c);
