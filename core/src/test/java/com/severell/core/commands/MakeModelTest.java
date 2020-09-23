@@ -100,8 +100,8 @@ public class MakeModelTest {
                 "import io.ebean.Model;\n" +
                 "import io.ebean.annotation.WhenCreated;\n" +
                 "import io.ebean.annotation.WhenModified;\n" +
-                "import java.lang.Object;\n" +
                 "import java.lang.String;\n" +
+                "import java.sql.Ref;\n" +
                 "import java.sql.Timestamp;\n" +
                 "import javax.persistence.Entity;\n" +
                 "import javax.persistence.Id;\n" +
@@ -125,7 +125,7 @@ public class MakeModelTest {
                 "\n" +
                 "  String clobTest;\n" +
                 "\n" +
-                "  Object objTest;\n" +
+                "  Ref objTest;\n" +
                 "\n" +
                 "  public long getId() {\n" +
                 "    return this.id;\n" +
@@ -167,11 +167,11 @@ public class MakeModelTest {
                 "    this.clobTest = clobTest;\n" +
                 "  }\n" +
                 "\n" +
-                "  public Object getObjTest() {\n" +
+                "  public Ref getObjTest() {\n" +
                 "    return this.objTest;\n" +
                 "  }\n" +
                 "\n" +
-                "  public void setObjTest(Object objTest) {\n" +
+                "  public void setObjTest(Ref objTest) {\n" +
                 "    this.objTest = objTest;\n" +
                 "  }\n" +
                 "}\n", writer.toString());
