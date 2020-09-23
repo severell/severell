@@ -18,13 +18,24 @@ import java.nio.file.Path;
 /**
  * This class uses the JTE templating engine to render templates
  */
-public class ViewJteDriver extends BaseView{
+public class ViewJteDriver extends BaseView {
 
     private TemplateEngine templateEngine;
+    private Path templatePath;
+
+    public ViewJteDriver(Path templatePath) {
+        this.templatePath = templatePath;
+        setupTemplateEngine();
+    }
 
     public ViewJteDriver() {
+        templatePath = Path.of("src", "main", "resources", "templates");
+        setupTemplateEngine();
+    }
+
+    private void setupTemplateEngine() {
         if (Config.isLocal()) {
-            DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(Path.of("src", "main", "resources", "templates"));
+            DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(templatePath);
             templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
         } else {
             templateEngine = TemplateEngine.createPrecompiled(ContentType.Html);
@@ -44,11 +55,7 @@ public class ViewJteDriver extends BaseView{
         } else if(writer instanceof StringWriter) {
             StringOutput output = new StringOutput();
             templateEngine.render(template, object, output);
-            try {
-                writer.write(output.toString());
-            } catch (IOException e) {
-                throw new ViewException(e);
-            }
+            ((StringWriter) writer).write(output.toString());
         } else {
             throw new ViewException("Invalid writer. Needs to be instance of PrintWriter");
         }
