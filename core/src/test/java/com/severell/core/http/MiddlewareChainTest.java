@@ -62,6 +62,7 @@ public class MiddlewareChainTest {
         chain.setTarget(ex);
         chain.execute(container, request, response);
         verify(request).getRequest();
+
         assertEquals(0, ex.getMiddleware().size());
     }
 }
