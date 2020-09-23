@@ -129,6 +129,20 @@ public class MigrateTest {
     }
 
     @Test
+    public void runRestTestThroughCommand() throws Exception {
+        MigrateResetCommand command = new MigrateResetCommand();
+
+        ArrayList<HashMap<String, Object>> list = getRan();
+        given(connection.select("select * from migrations order by batch asc, migration asc")).willReturn(list);
+
+        command.setConnection(connection);
+        command.run(new String[]{"args=", "flags="});
+
+        assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
+        assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
+    }
+
+    @Test
     public void runDownTestWithNothingToReset() throws Exception {
         Migrate migrate = new Migrate(connection);
         migrate.reset(null);
