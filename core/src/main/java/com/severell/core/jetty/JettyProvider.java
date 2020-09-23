@@ -4,7 +4,9 @@ import com.severell.core.container.Container;
 import com.severell.core.http.AppServer;
 import com.severell.core.providers.AppProvider;
 import com.severell.core.providers.ServiceProvider;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -26,13 +28,17 @@ public class JettyProvider extends ServiceProvider {
     public void register() {
         this.c.singleton(BasicServlet.class, new BasicServlet(this.c));
         this.c.singleton(ServletContextHandler.class, new ServletContextHandler(ServletContextHandler.SESSIONS));
+        this.c.singleton(Server.class, new Server());
     }
 
     @Override
     public void boot() throws Exception {
         AppServer appServer = c.make(AppServer.class);
         if(appServer != null) {
-            Server server = new Server(Integer.parseInt(appServer.getPort()));
+            Server server = c.make(Server.class);
+            ServerConnector connector = new ServerConnector(server);
+            connector.setPort(Integer.parseInt(appServer.getPort()));
+            server.setConnectors(new Connector[] {connector});
 
             appServer.registerListener((val) -> {
                 try {
@@ -42,7 +48,6 @@ public class JettyProvider extends ServiceProvider {
                     e.printStackTrace();
                 }
             });
-
 
             ServletContextHandler context = c.make(ServletContextHandler.class);
             context.setContextPath("/");
