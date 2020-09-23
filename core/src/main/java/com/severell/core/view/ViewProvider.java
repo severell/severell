@@ -17,7 +17,6 @@ public class ViewProvider extends ServiceProvider {
     @Override
     public void register() {
         this.c.bind("ViewMustacheDriver", (container) -> new ViewMustacheDriver(container));
-        this.c.bind("ViewJteDriver", (container) -> new ViewJteDriver());
         this.c.singleton(ViewManager.class, new ViewManager(this.c));
     }
 

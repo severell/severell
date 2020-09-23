@@ -35,11 +35,9 @@ public class ViewProviderTest {
 
         ArgumentCaptor<String> cCapt = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Function> fCapt = ArgumentCaptor.forClass(Function.class);
-        verify(c, times(2)).bind(cCapt.capture(), fCapt.capture());
+        verify(c, times(1)).bind(cCapt.capture(), fCapt.capture());
         assertEquals("ViewMustacheDriver", cCapt.getAllValues().get(0));
         assertTrue(fCapt.getAllValues().get(0).apply(c) instanceof ViewMustacheDriver);
-        assertEquals("ViewJteDriver", cCapt.getAllValues().get(1));
-        assertTrue(fCapt.getAllValues().get(1).apply(c) instanceof ViewJteDriver);
 
         p.boot();
 
