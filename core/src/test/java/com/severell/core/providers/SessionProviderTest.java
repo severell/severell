@@ -40,6 +40,7 @@ public class SessionProviderTest {
         p.boot();
 
         verify(c).bind(any(Class.class), sessCaptor.capture());
+        assertTrue(sessCaptor.getValue().apply(c) instanceof  SessionMemoryDriver);
 
 
     }
