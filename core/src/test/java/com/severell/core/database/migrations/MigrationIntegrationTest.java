@@ -29,6 +29,10 @@ public class MigrationIntegrationTest {
         table.decimal("acres", 5, 3);
         table.dbl("dbl");
         table.date("somedate").nullable();
+        table.increments("incrementingInt");
+        table.smallIncrements("smallIncrementing");
+        table.smallInteger("smallInteger");
+        table.bigIncrements("bigIncrements");
 
         PostgresGrammar g = new PostgresGrammar();
         Connection connection = mock(Connection.class);
@@ -38,7 +42,7 @@ public class MigrationIntegrationTest {
         ArgumentCaptor<String> statements = ArgumentCaptor.forClass(String.class);
         verify(connection, times(3)).statement(statements.capture());
 
-        assertEquals("create table users (id bigserial not null, post_id bigint not null, name varchar(255) not null, created timestamp(0) without time zone not null, created_at timestamp(0) without time zone null, updated_at timestamp(0) without time zone null, bin bytea not null, isUser boolean not null, age integer not null, html text not null, acres decimal(5,3) not null, dbl double precision not null, somedate date null)", statements.getAllValues().get(0));
+        assertEquals("create table users (id bigserial not null, post_id bigint not null, name varchar(255) not null, created timestamp(0) without time zone not null, created_at timestamp(0) without time zone null, updated_at timestamp(0) without time zone null, bin bytea not null, isUser boolean not null, age integer not null, html text not null, acres decimal(5,3) not null, dbl double precision not null, somedate date null, incrementingInt serial not null, smallIncrementing smallserial not null, smallInteger smallint not null, bigIncrements bigserial not null)", statements.getAllValues().get(0));
         assertEquals("alter table users add primary key (id)", statements.getAllValues().get(1));
         assertEquals("alter table users add constraint users_post_id_foreign foreign key (post_id) references post (id)", statements.getAllValues().get(2));
 //        System.out.println(statements);

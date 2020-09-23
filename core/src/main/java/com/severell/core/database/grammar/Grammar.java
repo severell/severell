@@ -89,4 +89,6 @@ public abstract class Grammar {
 
         return sql;
     }
+
+    public abstract String typeSmallInteger(ColumnDefinition c);
 }

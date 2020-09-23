@@ -53,6 +53,16 @@ public class Blueprint {
     }
 
     /**
+     * Create a new Auto Incrementing, Unsigned BigInteger column
+     *
+     * @param columnName Name of the column
+     * @return
+     */
+    public ColumnDefinition bigIncrements(String columnName) {
+        return this.bigInteger(columnName, true, true);
+    }
+
+    /**
      * Create a new BigInteger column
      *
      * @param columnName Name of the column
@@ -71,9 +81,10 @@ public class Blueprint {
      * @param unsigned Make it an unsigned integer
      * @return
      */
-    private ColumnDefinition bigInteger(String columnName, boolean autoincrement, boolean unsigned) {
+    public ColumnDefinition bigInteger(String columnName, boolean autoincrement, boolean unsigned) {
         return this.addColumn(ColumnDefinition.ColumnType.BIGINTEGER, columnName, new Params("autoIncrement", autoincrement), new Params("unsigned", unsigned));
     }
+
 
     /**
      * Create a new VARCHAR(255) or equivalent column
@@ -131,7 +142,58 @@ public class Blueprint {
      * @return
      */
     public ColumnDefinition integer(String columnName) {
-        return this.addColumn(ColumnDefinition.ColumnType.INTEGER, columnName);
+        return this.integer(columnName, false, false);
+    }
+
+    /**
+     * Create a new Auto Incrementing, Unsigned Integer column
+     * @param columnName
+     * @return
+     */
+    public ColumnDefinition increments(String columnName) {
+        return this.integer(columnName, true, true);
+    }
+
+    /**
+     * Create a new Integer column
+     *
+     * @param columnName Name of the column
+     * @param autoincrement Set column to auto increment
+     * @param unsigned Make it an unsigned integer
+     * @return
+     */
+    private ColumnDefinition integer(String columnName, boolean autoincrement, boolean unsigned) {
+        return this.addColumn(ColumnDefinition.ColumnType.INTEGER, columnName, new Params("autoIncrement", autoincrement), new Params("unsigned", unsigned));
+    }
+
+    /**
+     * Create a new Small Integer column
+     * @param columnName
+     * @return
+     */
+    public ColumnDefinition smallInteger(String columnName) {
+        return this.smallInteger(columnName, false,false);
+    }
+
+    /**
+     * Create a new Auto Incrementing, Unsigned Small Integer column
+     * @param columnName
+     * @return
+     */
+    public ColumnDefinition smallIncrements(String columnName) {
+        return this.smallInteger(columnName, true,true);
+    }
+
+    /**
+     * Create a new Small Integer column
+     *
+     * @param columnName Name of the column
+     * @param autoincrement Set column to auto increment
+     * @param unsigned Make it an unsigned integer
+     * @return
+     */
+    private ColumnDefinition smallInteger(String columnName, boolean autoincrement, boolean unsigned) {
+        return this.addColumn(ColumnDefinition.ColumnType.SMALLINTEGER, columnName, new Params("autoIncrement", autoincrement), new Params("unsigned", unsigned));
     }
 
     /**

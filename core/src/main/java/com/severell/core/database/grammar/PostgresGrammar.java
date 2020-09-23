@@ -39,6 +39,11 @@ public class PostgresGrammar extends Grammar {
     }
 
     @Override
+    public String typeSmallInteger(ColumnDefinition col) {
+        return generatableColumn("smallint", col);
+    }
+
+    @Override
     public String drop(Blueprint table) {
         return String.format("drop table %s", table.getTableName());
     }

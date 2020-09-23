@@ -66,8 +66,13 @@ public class ColumnDefinition {
             public String compile(Grammar grammar, ColumnDefinition c) {
                 return grammar.typeDate(c);
             }
+        },
+        SMALLINTEGER {
+            @Override
+            public String compile(Grammar grammar, ColumnDefinition c) {
+                return grammar.typeSmallInteger(c);
+            }
         };
-
 
         public abstract String compile(Grammar grammar, ColumnDefinition c);
     }
