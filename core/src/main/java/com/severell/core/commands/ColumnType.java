@@ -162,12 +162,7 @@ public enum ColumnType {
     ROWID(-8),
     NCHAR(-15),
     NVARCHAR(-9),
-    LONGNVARCHAR(-16){
-        @Override
-        public Class getJavaType() {
-            return String.class;
-        }
-    },
+    LONGNVARCHAR(-16),
     NCLOB(2011),
     SQLXML(2009),
     REF_CURSOR(2012),
