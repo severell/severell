@@ -1,4 +1,11 @@
-[![codecov](https://img.shields.io/codecov/c/gh/mitchdennett/severell?label=codecov&logo=codecov)](https://codecov.io/gh/mitchdennett/severell) ![Java CI with Maven](https://github.com/mitchdennett/severell-core/workflows/Java%20CI%20with%20Maven/badge.svg)
+<p align="center">
+<img src="https://www.severell.com/static/images/logo.png" width="400"> 
+</p>
+
+<p align="center">
+<a href="https://codecov.io/gh/mitchdennett/severell"><img src="https://img.shields.io/codecov/c/gh/mitchdennett/severell?label=codecov&logo=codecov"></a>
+<img src="https://github.com/mitchdennett/severell-core/workflows/Java%20CI%20with%20Maven/badge.svg"> 
+</p>
 
 # Severell Framework
 
