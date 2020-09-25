@@ -40,6 +40,7 @@ public class BasicServletTest {
         executor = mock(RouteExecutor.class);
         given(c.make(Router.class)).willReturn(r);
         dispatcher = new Dispatcher(c);
+        dispatcher.initRouter();
         given(c.make(Dispatcher.class)).willReturn(dispatcher);
     }
 

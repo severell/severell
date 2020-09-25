@@ -3,6 +3,7 @@ package com.severell.core.providers;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.severell.core.container.Container;
 import com.severell.core.error.ErrorHandler;
+import com.severell.core.http.Dispatcher;
 import io.ebean.Database;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -17,6 +18,9 @@ public class AppProviderTest {
     @Test
     public void appProviderTest() throws Exception {
         Container c = mock(Container.class);
+        Dispatcher dispatcher = mock(Dispatcher.class);
+        given(c.make(Dispatcher.class)).willReturn(dispatcher);
+
         given(c.make("_databaseFactory", Database.class)).willReturn(mock(Database.class));
         AppProvider prov = new AppProvider(c);
         AppProvider provSpy = Mockito.spy(prov);

@@ -36,9 +36,8 @@ public class Route {
     /**
      * Add Middleware to this route
      * @param middleware
-     * @throws MiddlewareException
      */
-    public void middleware(Class... middleware) throws MiddlewareException{
+    public void middleware(Class... middleware) {
         middlewareClassList = new ArrayList<>();
         middlewareClassList.addAll(Arrays.asList(middleware));
     }

@@ -13,7 +13,7 @@ import java.io.IOException;
 public class Dispatcher {
 
     private final Container c;
-    private final Router router;
+    private Router router;
     private final ErrorHandler errorHandler;
 
     /**
@@ -23,8 +23,15 @@ public class Dispatcher {
      */
     public Dispatcher(Container c) {
         this.c =c;
-        this.router = c.make(Router.class);
+
         this.errorHandler = c.make(ErrorHandler.class);
+    }
+
+    /**
+     * Used to retrieve the router from the Container and set it.
+     */
+    public void initRouter(){
+        this.router = c.make(Router.class);
     }
 
     /**

@@ -32,6 +32,8 @@ public class AppProvider extends ServiceProvider{
 
     @Override
     public void boot() {
+        c.make(Dispatcher.class).initRouter();
+
         DataSourceConfig dataSourceConfig = new DataSourceConfig();
         dataSourceConfig.setUsername(Config.get("DB_USERNAME"));
         dataSourceConfig.setPassword(Config.get("DB_PASSWORD"));

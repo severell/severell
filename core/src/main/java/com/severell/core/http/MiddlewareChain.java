@@ -68,12 +68,8 @@ public class MiddlewareChain {
         this.response = response;
 
         if(middleware.hasNext()) {
-            try{
             MiddlewareExecutor mapper = middleware.next();
             mapper.execute(request, response, container, this);
-            }catch (Exception e) {
-                throw new MiddlewareException(e);
-            }
         } else {
             target.execute(request, response, container);
         }
