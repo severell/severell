@@ -17,14 +17,15 @@ public class Router {
      * Register a GET route for the given path
      *
      * @param path
+     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Get(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, method, "GET");
-        Route headRoute = new Route(path, method, "HEAD");
+    public static Route Get(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, cl, method, "GET");
+        Route headRoute = new Route(path, cl, method, "HEAD");
         routes.add(route);
         routes.add(headRoute);
         return route;
@@ -34,13 +35,14 @@ public class Router {
      * Register a POST route for the given path
      *
      * @param path
+     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Post(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, method, "POST");
+    public static Route Post(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, cl, method, "POST");
         routes.add(route);
         return route;
     }
@@ -49,13 +51,14 @@ public class Router {
      * Register a PUT route for the given path
      *
      * @param path
+     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Put(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, method, "PUT");
+    public static Route Put(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, cl, method, "PUT");
         routes.add(route);
         return route;
     }
@@ -64,13 +67,14 @@ public class Router {
      * Register a Patch route for the given path
      *
      * @param path
+     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Patch(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, method, "PATCH");
+    public static Route Patch(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, cl, method, "PATCH");
         routes.add(route);
         return route;
     }
@@ -79,13 +83,14 @@ public class Router {
      * Register a DELETE route for the given path
      *
      * @param path
+     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Delete(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, method, "DELETE");
+    public static Route Delete(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path, cl, method, "DELETE");
         routes.add(route);
         return route;
     }
@@ -94,13 +99,14 @@ public class Router {
      * Register an OPTIONS route for the given path
      *
      * @param path
+     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Options(String path, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, method, "OPTIONS");
+    public static Route Options(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        Route route = new Route(path,cl, method, "OPTIONS");
         routes.add(route);
         return route;
     }

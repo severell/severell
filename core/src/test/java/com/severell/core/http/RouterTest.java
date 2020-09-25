@@ -450,19 +450,19 @@ public class RouterTest {
     public void testRouterThrowsErrorWhenMethodNotFound() throws Exception {
         assertThrows(RuntimeException.class, () -> {
             Router.clearRoutes();
-            Router.Get("/", "com.severell.core.http.RouterTest::notFound");
+            Router.Get("/", RouterTest.class, "notFound");
         });
     }
 
     @Test
     public void testRouterAddsToRouteListCorrectly() throws NoSuchMethodException, ClassNotFoundException {
         Router.clearRoutes();
-        Router.Get("/", "com.severell.core.http.RouterTest::index");
-        Router.Post("/", "com.severell.core.http.RouterTest::index");
-        Router.Put("/", "com.severell.core.http.RouterTest::index");
-        Router.Patch("/", "com.severell.core.http.RouterTest::index");
-        Router.Delete("/", "com.severell.core.http.RouterTest::index");
-        Router.Options("/", "com.severell.core.http.RouterTest::index");
+        Router.Get("/", RouterTest.class, "index");
+        Router.Post("/", RouterTest.class, "index");
+        Router.Put("/", RouterTest.class, "index");
+        Router.Patch("/", RouterTest.class, "index");
+        Router.Delete("/", RouterTest.class, "index");
+        Router.Options("/", RouterTest.class, "index");
 
         Router router = new Router();
         ArrayList<Route> routes = router.getRoutes();

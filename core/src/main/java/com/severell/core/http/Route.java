@@ -20,16 +20,15 @@ public class Route {
     /**
      * Create a new route
      * @param path Route path I.E. /users
+     * @param cl Controller Class
      * @param method Fully qualified name of the associated controller method.
      * @param httpMethod HTTP Method I.E. POST
      * @throws ClassNotFoundException
      * @throws NoSuchMethodException
      */
-    protected Route(String path, String method, String httpMethod) throws ClassNotFoundException, NoSuchMethodException {
+    protected Route(String path, Class cl, String method, String httpMethod) throws ClassNotFoundException, NoSuchMethodException {
         this.path = path;
-        String clazz = method.split("::")[0];
-        String meth = method.split("::")[1];
-        this.method = getMethodLike(Thread.currentThread().getContextClassLoader().loadClass(clazz), meth);
+        this.method = getMethodLike(cl, method);
         this.httpMethod = httpMethod;
     }
 
