@@ -5,6 +5,7 @@ import com.github.mustachejava.Mustache;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 
+import java.io.File;
 import java.io.Writer;
 
 /**
@@ -26,11 +27,18 @@ public class ViewMustacheDriver extends BaseView {
 
     @Override
     public void render(String template, Object data, String baseDir, Writer writer) {
-        if(mf == null) {
-            mf = new DefaultMustacheFactory();
+        String templatePath;
+        if(Config.isLocal()) {
+            mf = new DefaultMustacheFactory(new File(Config.get("TEMPLATE_PATH", "src/main/resources/") + baseDir));
+            templatePath = template;
+        } else {
+            if(mf == null) {
+                mf = new DefaultMustacheFactory();
+            }
+            templatePath = baseDir + template;
         }
 
-        Mustache m = mf.compile(baseDir + template);
+        Mustache m = mf.compile(templatePath);
         m.execute(writer, data);
     }
 }

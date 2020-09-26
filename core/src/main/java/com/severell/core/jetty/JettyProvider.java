@@ -1,5 +1,6 @@
 package com.severell.core.jetty;
 
+import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.http.AppServer;
 import com.severell.core.providers.AppProvider;
@@ -16,6 +17,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 
 import javax.servlet.MultipartConfigElement;
+import java.io.File;
 import java.net.URL;
 
 public class JettyProvider extends ServiceProvider {
@@ -60,13 +62,18 @@ public class JettyProvider extends ServiceProvider {
             ResourceHandler rh0 = new ResourceHandler();
             rh0.setDirectoriesListed(false);
 
+
             ContextHandler context0 = new ContextHandler();
             context0.setContextPath("/static");
 
             URL baseUrl  = AppProvider.class.getResource( "/compiled" );
             if(baseUrl != null) {
                 String basePath = baseUrl.toExternalForm();
-                context0.setBaseResource(Resource.newResource(basePath));
+                if(Config.isLocal()) {
+                    context0.setBaseResource(Resource.newResource(new File("src/main/resources/compiled")));
+                } else {
+                    context0.setBaseResource(Resource.newResource(basePath));
+                }
                 context0.setHandler(rh0);
                 contexts.addHandler(context0);
             }
@@ -77,8 +84,7 @@ public class JettyProvider extends ServiceProvider {
 
             BasicServlet defaultServlet = c.make(BasicServlet.class);
             ServletHolder holderPwd = new ServletHolder("default", defaultServlet);
-            System.out.println(holderPwd.getServlet());
-            System.out.println(holderPwd.getServletInstance());
+
             holderPwd.getRegistration().setMultipartConfig(new MultipartConfigElement("/tmp"));
             context.addServlet(holderPwd, "/*");
         }
