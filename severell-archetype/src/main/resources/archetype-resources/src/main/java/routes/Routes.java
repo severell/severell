@@ -2,7 +2,7 @@ package ${package}.routes;
 
 import com.severell.core.http.Router;
 import ${package}.controller.MainController;
-import ${package}.controller.AuthController;
+import ${package}.controller.auth.AuthController;
 
 public class Routes {
 

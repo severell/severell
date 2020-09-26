@@ -19,6 +19,7 @@ mix.js(
 	"src/main/resources/compiled/css/main.css",
 	[require("tailwindcss")]
 );
+mix.copyDirectory('src/main/resources/static/images', 'src/main/resources/compiled/images');
 
 // Full API
 // mix.js(src, output);
