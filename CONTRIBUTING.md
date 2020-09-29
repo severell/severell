@@ -39,4 +39,4 @@ mvn -B archetype:generate
 ```
 
 #### Windows
-I do not have a windows machine. If someone if able to write this part for me that would be an AMAZING contribution.
+I do not have a windows machine however it should be very similar to the MacOS version. If someone if able to write this part for me that would be an AMAZING contribution.
