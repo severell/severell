@@ -2,6 +2,7 @@ package com.severell.core.http;
 
 import com.severell.core.container.Container;
 import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +27,7 @@ public class RouterTest {
     private static Container c;
     private static ServletContextHandler context;
     private static ArrayList<RouteExecutor> routes = new ArrayList<>();
+
 
     @BeforeEach
     public void setUp() throws NoSuchMethodException, ClassNotFoundException {
@@ -486,4 +488,32 @@ public class RouterTest {
         assertEquals("OPTIONS", routes.get(6).getHttpMethod());
         assertEquals("/", routes.get(6).getPath());
     }
+
+    @Test
+    public void routerReturnsNullForEmptyRoute() throws Exception {
+        Router.clearRoutes();
+        req = mock(Request.class);
+        context = mock(ServletContextHandler.class);
+        c = mock(Container.class);
+        routes =  new ArrayList<>();
+
+        String path = "/";
+
+        Router router = new Router();
+        router.compileRoutes();
+        RouteExecutor route = null;
+        route = router.lookup(path, "GET", req);
+        assertNull(route);
+        route = router.lookup(path, "POST", req);
+        assertNull(route);
+        route = router.lookup(path, "PUT", req);
+        assertNull(route);
+        route = router.lookup(path, "PATCH", req);
+        assertNull(route);
+        route = router.lookup(path, "DELETE", req);
+        assertNull(route);
+        route = router.lookup(path, "OPTION", req);
+        assertNull(route);
+    }
+
 }
