@@ -50,14 +50,14 @@ public class MailLogDriverTest {
                 .bcc("bcc@example.com")
                 .subject("subject")
                 .text("hello").send();
-        String expectedString = "**************************************************************\n" +
-                "To: to@example.com\n" +
-                "From: test@example.com\n" +
-                "Subject: subject\n" +
-                "CC: cc@example.com\n" +
-                "BCC: bcc@example.com\n" +
-                "Plain Text Message: hello\n" +
-                "**************************************************************\n";
+        String expectedString = "**************************************************************" + System.lineSeparator() +
+                "To: to@example.com" + System.lineSeparator() +
+                "From: test@example.com" + System.lineSeparator() +
+                "Subject: subject" + System.lineSeparator() +
+                "CC: cc@example.com" + System.lineSeparator() +
+                "BCC: bcc@example.com" + System.lineSeparator() +
+                "Plain Text Message: hello" + System.lineSeparator() +
+                "**************************************************************" + System.lineSeparator();
         assertEquals(expectedString, outContent.toString());
     }
 
@@ -74,14 +74,14 @@ public class MailLogDriverTest {
                 .cc("cc@example.com")
                 .bcc("bcc@example.com")
                 .template("test.mustache", new HashMap<>()).send();
-        String expectedString = "**************************************************************\n" +
-                "To: to@example.com\n" +
-                "From: test@example.com\n" +
-                "Subject: subject\n" +
-                "CC: cc@example.com\n" +
-                "BCC: bcc@example.com\n" +
-                "HTML Message: <html><head></head><body><h1>test</h1></body></html>\n" +
-                "**************************************************************\n";
+        String expectedString = "**************************************************************" + System.lineSeparator() +
+                "To: to@example.com" + System.lineSeparator() +
+                "From: test@example.com" + System.lineSeparator() +
+                "Subject: subject" + System.lineSeparator() +
+                "CC: cc@example.com" + System.lineSeparator() +
+                "BCC: bcc@example.com" + System.lineSeparator() +
+                "HTML Message: <html><head></head><body><h1>test</h1></body></html>" + System.lineSeparator() +
+                "**************************************************************" + System.lineSeparator();
         assertEquals(expectedString, outContent.toString());
     }
 }
