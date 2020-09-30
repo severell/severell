@@ -180,9 +180,9 @@
 
 
     <scm>
-        <connection>scm:git:git://github.com/mitchdennett/severell-core.git</connection>
-        <developerConnection>scm:git:git@github.com:mitchdennett/severell-core.git</developerConnection>
-        <url>https://github.com/mitchdennett/severell-core</url>
+        <connection>scm:git:git://github.com/severell/severell.git</connection>
+        <developerConnection>scm:git:git@github.com:severell/severell.git</developerConnection>
+        <url>https://github.com/severell/severell</url>
         <tag>HEAD</tag>
     </scm>
 </project>
