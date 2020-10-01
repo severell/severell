@@ -131,6 +131,10 @@ public class Router {
     {
         RouteNode traverseNode = trees.get(httpMethod);
 
+        if(traverseNode == null){
+            return null;
+        }
+
         walk:
         for(;;) {
             String prefix = traverseNode.getPath();
