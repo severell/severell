@@ -2,12 +2,15 @@ package com.severell.core.error;
 
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
+import com.severell.core.exceptions.NotFoundException;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+
+import org.apache.commons.io.FilenameUtils;
 
 
 public class ErrorHandler {
@@ -36,22 +39,35 @@ public class ErrorHandler {
 
     private void displayErrorScreen(Exception e, Response response, Request request) {
         try {
-            Template template = Template.fromPath("/internaltemplates/error.mustache");
-            StackTraceElement stackTraceElement = e.getStackTrace()[0];
-            String filepath = basePath + stackTraceElement.getClassName().replaceAll("\\.", "/") + ".java";
-
-            int lineNumber= stackTraceElement.getLineNumber();
-            FileSnippet fileSnippet = new FileSnippet(JavaFile.fromPath(filepath), lineNumber);
-
             HashMap<String, Object> here = new HashMap<>();
-            here.put("fileSnippet", fileSnippet);
-            here.put("fileName", stackTraceElement.getFileName());
+            Template template;
+            String templateName;
+
+            if(e instanceof NotFoundException){
+                String path = "/internaltemplates/404.mustache";
+                template = Template.fromPath(path);
+                templateName = FilenameUtils.getName(path);
+            }else {
+                String path = "/internaltemplates/error.mustache";
+                template = Template.fromPath(path);
+                templateName = FilenameUtils.getName(path);
+
+                StackTraceElement stackTraceElement = e.getStackTrace()[0];
+                String filepath = basePath + stackTraceElement.getClassName().replaceAll("\\.", "/") + ".java";
+
+                int lineNumber= stackTraceElement.getLineNumber();
+                FileSnippet fileSnippet = new FileSnippet(JavaFile.fromPath(filepath), lineNumber);
+
+                here.put("stacktrace", stackTraceElement.toString());
+                here.put("fileSnippet", fileSnippet);
+                here.put("fileName", stackTraceElement.getFileName());
+            }
+
             here.put("exception", e.getClass().getName());
             here.put("exceptionTitle", e.getMessage());
-            here.put("stacktrace", stackTraceElement.toString());
             here.put("url", request.getRequestURL());
 
-            response.renderTemplateLiteral(template.getTemplateLiteral(), here);
+            response.renderTemplateLiteral(template.getTemplateLiteral(), templateName, here);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

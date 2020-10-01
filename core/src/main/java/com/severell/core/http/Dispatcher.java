@@ -4,7 +4,9 @@ import com.severell.core.container.Container;
 import com.severell.core.error.ErrorHandler;
 import com.severell.core.exceptions.ControllerException;
 import com.severell.core.exceptions.MiddlewareException;
+import com.severell.core.exceptions.NotFoundException;
 
+import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
@@ -71,7 +73,7 @@ public class Dispatcher {
             MiddlewareManager manager = new MiddlewareManager(ref, c);
             manager.filterRequest(request, response);
         } else {
-            //throw new ServletException("Not Found");
+            errorHandler.handle(new NotFoundException("No route has been configured for the given request "), request, response);
         }
     }
 }

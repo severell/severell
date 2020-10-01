@@ -106,10 +106,11 @@ public class Response extends HttpServletResponseWrapper {
      * Renders a mustache template string.
      *
      * @param templateString A string containing a mustache template
+     * @param templateName A string containing a mustache template name
      * @param data The data to be used in the template string
      * @throws IOException
      */
-    public void renderTemplateLiteral(String templateString, HashMap<String, Object> data) throws IOException {
+    public void renderTemplateLiteral(String templateString, String templateName, HashMap<String, Object> data) throws IOException {
         this.setContentType("text/html");
         MustacheFactory mf;
         mf = c.make(DefaultMustacheFactory.class);
@@ -118,7 +119,7 @@ public class Response extends HttpServletResponseWrapper {
             mf = new DefaultMustacheFactory();
         }
 
-        Mustache m = mf.compile(new StringReader(templateString), "error.mustache");
+        Mustache m = mf.compile(new StringReader(templateString), templateName);
         PrintWriter writer = this.getWriter();
         data.putAll(shared);
         m.execute(writer, data).flush();
