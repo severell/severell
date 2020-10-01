@@ -26,7 +26,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mojo(name="generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+/**
+ * This class is responsible for building the RouteBuilder.java and compiling it.
+ * It has to be done after a compile otherwise we don't have access to the Providers and Container.
+ */
+@Mojo(name="generate", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class AOTRouteGenerator extends AbstractMojo {
 
     @Parameter(defaultValue = "${project}")
@@ -84,17 +88,17 @@ public class AOTRouteGenerator extends AbstractMojo {
             Path target = Path.of(targetDirectory);
             bootstrap(container, classLoader);
 
-            Path sourceFile = RouteFileBuilder.build(container, basePackage);
+            RouteFileBuilder.build(container, basePackage);
 
             String fileLocation = basePackage.replaceAll("\\.", "/");
-            String[] files = new String[]{sourceFile.toString() + "/" + fileLocation + "/RouteBuilder.java"};
+            String[] files = new String[]{project.getBuild().getSourceDirectory() + "/" + fileLocation + "/RouteBuilder.java"};
             boolean result = ClassFileCompiler.compile(files, project.getCompileClasspathElements(), target, project.getProperties());
 
             if(result) {
                 getLog().info("Succesfully Compiled Routes");
             }
 
-            recursiveDeleteOnExit(sourceFile);
+//            recursiveDeleteOnExit(sourceFile);
 
         } catch (DependencyResolutionRequiredException e) {
             e.printStackTrace();
