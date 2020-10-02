@@ -68,14 +68,46 @@ public class ErrorHandlerTest {
                 "    public void index() throws Exception {\n" +
                 "        throw new Exception(\"Opps\");\n" +
                 "    }\n" +
+                "\n" +
+                "    public void empty() throws Exception{\n" +
+                "        throw new NotFoundException(\"404 Opps\");\n" +
+                "    }\n" +
                 "}", snipper.fileData );
-        assertEquals(8, snipper.lineNum );
-        assertEquals(4, snipper.lineStart );
+        assertEquals(9, snipper.lineNum );
+        assertEquals(5, snipper.lineStart );
 
         assertEquals("java.lang.Exception", dataCapt.getValue().get("exception"));
         assertEquals("Opps", dataCapt.getValue().get("exceptionTitle"));
-        assertEquals("com.severell.core.controllers.WelcomeController.index(WelcomeController.java:8)", dataCapt.getValue().get("stacktrace"));
+        assertEquals("com.severell.core.controllers.WelcomeController.index(WelcomeController.java:9)", dataCapt.getValue().get("stacktrace"));
         assertNull(dataCapt.getValue().get("url"));
 
+    }
+
+    @Test
+    public void testErrorNotFoundHandler() throws IOException {
+        Container c = mock(Container.class);
+        ErrorHandler handler = new ErrorHandler(c, "src/test/java/");
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        HttpServletResponse resp = mock(HttpServletResponse.class);
+        DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
+        given(c.make(DefaultMustacheFactory.class)).willReturn(mf);
+        Mustache m = mock(Mustache.class);
+        given(mf.compile(any(), anyString())).willReturn(m);
+
+
+        try{
+            WelcomeController controller = new WelcomeController();
+            controller.empty();
+        } catch (Exception e) {
+            handler.handle(e, req, resp);
+        }
+
+        ArgumentCaptor<HashMap<String, Object>> dataCapt = ArgumentCaptor.forClass(HashMap.class);
+
+        verify(m).execute(any(), dataCapt.capture());
+
+        assertEquals("com.severell.core.exceptions.NotFoundException", dataCapt.getValue().get("exception"));
+        assertEquals("404 Opps", dataCapt.getValue().get("exceptionTitle"));
+        assertNull(dataCapt.getValue().get("url"));
     }
 }
