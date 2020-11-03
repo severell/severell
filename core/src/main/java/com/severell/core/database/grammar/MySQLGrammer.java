@@ -131,9 +131,10 @@ public class MySQLGrammer extends Grammar {
 
     @Override
     public String primary(Blueprint table, Command command) {
-        return String.format("%s table %s add primary key (%s)",
+        return String.format("%s table %s add primary key %s (%s)",
                 "alter",
                 table.getTableName(),
+                command.param("auto_increment"),
                 String.join(", ", (String[])command.param("columns")));
     }
 

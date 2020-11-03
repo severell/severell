@@ -37,7 +37,16 @@ public class Blueprint {
      * @return Command
      */
     public Command primary(String... columns) {
-        return this.indexCommand(Command.CommandType.PRIMARY, columns);
+        return this.primary(false, columns);
+    }
+    /**
+     * Create a primary key
+     * @param autoincrement The primary key should be auto incremented
+     * @param columns The columns to be used for the primary key
+     * @return Command
+     */
+    public Command primary(boolean autoincrement, String... columns) {
+        return this.indexCommand(autoincrement, Command.CommandType.PRIMARY, columns);
     }
 
     /**
@@ -46,7 +55,7 @@ public class Blueprint {
      * @return
      */
     public ForeignKeyDefinition foreign(String... columns) {
-        Command c = indexCommand(Command.CommandType.FOREIGN, columns);
+        Command c = indexCommand(false, Command.CommandType.FOREIGN, columns);
         c = new ForeignKeyDefinition(c.getParams());
         commands.set(commands.size() - 1, c);
         return (ForeignKeyDefinition) c;
@@ -327,9 +336,10 @@ public class Blueprint {
                 .collect(Collectors.toList());
     }
 
-    private Command indexCommand(Command.CommandType type, String... columns) {
+    private Command indexCommand(boolean autoincrement, Command.CommandType type, String... columns) {
+        String autoIncrement = autoincrement ? "auto_increment" : "";
         String name = createIndexName(type, columns);
-        return this.addCommand(type, new Params("index", name), new Params("columns", columns));
+        return this.addCommand(type, new Params("index", name), new Params("columns", columns), new Params("auto_increment", autoIncrement));
     }
 
     private String createIndexName(Command.CommandType type, String... columns) {
