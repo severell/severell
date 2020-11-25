@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 public class RouteFileBuilder {
 
-    public static void build(Container container, String basePackage) throws IOException {
+    public static Path build(Container container, String basePackage) throws IOException {
         Router router = new Router();
         ArrayList<Route> routes = router.getRoutes();
 
@@ -46,12 +46,16 @@ public class RouteFileBuilder {
         JavaFile javaFile = JavaFile.builder(basePackage, helloWorld)
                 .build();
 
+        Path sourceFile = Files.createTempDirectory("severell");
+
         try {
-            javaFile.writeTo(new File("src/main/java"));
+            javaFile.writeTo(sourceFile.toFile());
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Failed to create migration");
         }
+
+        return sourceFile;
 
     }
 

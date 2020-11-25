@@ -1,12 +1,16 @@
 package com.severell.core.http;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -26,6 +30,7 @@ public class Request extends HttpServletRequestWrapper {
 
     private HashMap<String, String> urlParams;
     private Map<String, String> queryData;
+    private Map<String, String> inputData;
 
     /**
      * Used internally to add the named route parameters.
@@ -61,7 +66,37 @@ public class Request extends HttpServletRequestWrapper {
      * @return The requested input data.
      */
     public String input(String name) {
-        return getParameter(name);
+        if(inputData == null) {
+            inputData = new HashMap<>();
+
+            String contentType = getContentType();
+            if(contentType != null) {
+                contentType = contentType.split(";")[0];
+            }
+            if("application/json".equals(contentType)) {
+                JSONParser jsonParser = new JSONParser();
+                JSONObject obj = null;
+                try {
+                    obj = (JSONObject) jsonParser.parse(getReader());
+                    Iterator<?> keys = obj.keySet().iterator();
+
+                    while( keys.hasNext() ){
+                        String key = (String)keys.next();
+                        String value = String.valueOf(obj.get(key));
+                        inputData.put(key, value);
+
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+
+
+        return inputData.get(name) == null ? getParameter(name) : inputData.get(name);
     }
 
     /**

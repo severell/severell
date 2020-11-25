@@ -102,7 +102,18 @@ public class Blueprint {
      * @return
      */
     public ColumnDefinition string(String columnName) {
-        return this.addColumn(ColumnDefinition.ColumnType.STRING, columnName, new Params("length", 255));
+        return this.string(columnName, 255);
+    }
+
+    /**
+     * Create a new VARCHAR with specified size
+     *
+     * @param columnName Name of the column
+     * @param size Size of column
+     * @return
+     */
+    public ColumnDefinition string(String columnName, int size) {
+        return this.addColumn(ColumnDefinition.ColumnType.STRING, columnName, new Params("length", size));
     }
 
     /**

@@ -12,6 +12,7 @@ import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.format.DateTimeFormatter;
 
 public class MakeMigration extends MakeableCommand{
@@ -54,7 +55,9 @@ public class MakeMigration extends MakeableCommand{
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HHmmss");
 
-        TypeSpec helloWorld = TypeSpec.classBuilder(String.format("m_%s_%s", formatter.format(Time.now()), args[0]))
+
+        String fileName = String.format("m_%s_%s", formatter.format(Time.now()), args[0]);
+        TypeSpec helloWorld = TypeSpec.classBuilder(fileName)
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(main)
                 .addMethod(down)
@@ -63,7 +66,7 @@ public class MakeMigration extends MakeableCommand{
         JavaFile javaFile = JavaFile.builder("migrations", helloWorld)
                 .build();
 
-        writer = writer == null ? new FileWriter(new File("src/db")) : writer;
+        writer = writer == null ? new FileWriter(new File("src/db/migrations/" + fileName + ".java")) : writer;
         make(javaFile);
 
     }

@@ -7,6 +7,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -39,6 +40,10 @@ public class ProjectClassLoader {
 
     public Class loadClass(String className) throws ClassNotFoundException {
         return classLoader.loadClass(className);
+    }
+
+    public <T> T initClass(Class<T> c) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        return (T) c.getConstructor().newInstance();
     }
 
     public ServiceProvider[] getProviders(Container container) {

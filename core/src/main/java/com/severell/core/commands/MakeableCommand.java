@@ -18,6 +18,14 @@ public abstract class MakeableCommand extends Command{
             javaFile.writeTo(writer);
         } catch (IOException e) {
             System.out.println("Failed to create migration");
+        } finally {
+            if(writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }

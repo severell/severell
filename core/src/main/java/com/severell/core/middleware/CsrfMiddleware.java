@@ -6,6 +6,7 @@ import com.severell.core.http.MiddlewareChain;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
 
+import javax.servlet.http.Cookie;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -29,6 +30,7 @@ public class CsrfMiddleware implements Middleware{
         Function<String, String> func = (obj) -> String.format("<input type='hidden' name='__token' value='%s' />", finalToken);
         response.share("csrf", func);
         chain.next();
+        response.addHeader("Set-Cookie", String.format("XSRF-TOKEN=%s; SameSite=strict", finalToken));
     }
 
     /**
@@ -43,7 +45,7 @@ public class CsrfMiddleware implements Middleware{
         String token;
         String storedToken = session.getString("csrfToken");
         if("POST".equalsIgnoreCase(r.getMethod())) {
-            token = r.input("__token");
+            token = r.input("__token") == null ? r.getHeader("X-XSRF-TOKEN") : r.input("__token");
             if(!compareTokens(token,storedToken)){
                 throw new MiddlewareException("Invalid CSRFToken");
             }

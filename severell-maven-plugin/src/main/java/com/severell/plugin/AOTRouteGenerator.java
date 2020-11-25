@@ -16,6 +16,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -52,6 +53,12 @@ public class AOTRouteGenerator extends AbstractMojo {
         }
 
         c.singleton("_MiddlewareList", classLoader.getMiddleware());
+        try {
+            c.singleton(classLoader.loadClass(basePackage + ".auth.Auth"), classLoader.initClass(classLoader.loadClass(basePackage + ".auth.Auth")));
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            e.printStackTrace();
+        }
+
         List<ServiceProvider> providers = Arrays.stream(classLoader.getProviders(c))
                 .filter(s -> {
                     return !s.getClass().getSimpleName().equals("AppProvider")
@@ -88,17 +95,17 @@ public class AOTRouteGenerator extends AbstractMojo {
             Path target = Path.of(targetDirectory);
             bootstrap(container, classLoader);
 
-            RouteFileBuilder.build(container, basePackage);
+            Path sourceFile = RouteFileBuilder.build(container, basePackage);
 
             String fileLocation = basePackage.replaceAll("\\.", "/");
-            String[] files = new String[]{project.getBuild().getSourceDirectory() + "/" + fileLocation + "/RouteBuilder.java"};
+            String[] files = new String[]{sourceFile.toString() + "/" + fileLocation + "/RouteBuilder.java"};
             boolean result = ClassFileCompiler.compile(files, project.getCompileClasspathElements(), target, project.getProperties());
 
             if(result) {
                 getLog().info("Succesfully Compiled Routes");
             }
 
-//            recursiveDeleteOnExit(sourceFile);
+            recursiveDeleteOnExit(sourceFile);
 
         } catch (DependencyResolutionRequiredException e) {
             e.printStackTrace();

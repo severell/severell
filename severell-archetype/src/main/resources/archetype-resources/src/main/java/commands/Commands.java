@@ -8,6 +8,7 @@ public class Commands {
         MakeMigration.class,
         MigrateCommand.class,
         MigrateRollbackCommand.class,
+        MigrateResetCommand.class,
         MakeCommand.class,
         MakeController.class,
         MakeModel.class

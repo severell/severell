@@ -28,6 +28,7 @@ public class AppProvider extends ServiceProvider{
         c.singleton(ErrorHandler.class, new ErrorHandler(c));
         c.singleton(Dispatcher.class, new Dispatcher(c));
         c.bind("_databaseFactory",(c) ->  DatabaseFactory.create(c.make(DatabaseConfig.class)));
+
     }
 
     @Override
