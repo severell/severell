@@ -33,10 +33,15 @@ public class MailLogDriver extends BaseMailDriver {
         if(text != null) {
             System.out.println(String.format("Plain Text Message: %s", text));
         }
-        String html = getHTML();
 
-        if(html != null) {
-            System.out.println(String.format("HTML Message: %s", getHTML()));
+        if(html != null){
+            System.out.println(String.format("HTML Message: %s", html));
+        }
+
+        String htmlTemplate = getHTMLFromTemplate();
+
+        if(htmlTemplate != null) {
+            System.out.println(String.format("HTML Message: %s", getHTMLFromTemplate()));
         }
         System.out.println("**************************************************************");
     }

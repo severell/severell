@@ -88,10 +88,16 @@ public class MailSMTPDriver extends BaseMailDriver {
                 mp.addBodyPart(textPart);
             }
 
+            if(html != null){
+                final MimeBodyPart htmlPart = new MimeBodyPart();
+                htmlPart.setContent(html, "text/html");
+                mp.addBodyPart(htmlPart);
+            }
+
             if(template != null) {
                 // HTML version
                 final MimeBodyPart htmlPart = new MimeBodyPart();
-                htmlPart.setContent(this.getHTML(), "text/html");
+                htmlPart.setContent(this.getHTMLFromTemplate(), "text/html");
                 mp.addBodyPart(htmlPart);
             }
 

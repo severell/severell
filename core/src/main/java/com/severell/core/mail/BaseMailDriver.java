@@ -21,6 +21,7 @@ public abstract class BaseMailDriver implements Mail {
     protected String from;
     protected String subject;
     protected String text;
+    protected String html;
     protected String template;
     protected HashMap data;
     protected String baseTemplate;
@@ -101,6 +102,16 @@ public abstract class BaseMailDriver implements Mail {
     }
 
     /**
+     * Set the html text for the email.
+     * @param message Plain html of the email
+     * @return {@link Mail}
+     */
+    @Override
+    public Mail html(String message){
+        this.html = message;
+        return this;
+    }
+    /**
      * Set the email subject
      * @param subject Email Subject
      * @return {@link Mail}
@@ -113,7 +124,7 @@ public abstract class BaseMailDriver implements Mail {
 
     public abstract void send() throws ViewException;
 
-    protected String getHTML() throws ViewException {
+    protected String getHTMLFromTemplate() throws ViewException {
         if(this.template != null) {
             StringWriter writer = new StringWriter();
             View view = c.make(View.class);
