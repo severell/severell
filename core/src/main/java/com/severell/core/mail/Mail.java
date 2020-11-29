@@ -52,6 +52,13 @@ public interface Mail {
     Mail text(String message);
 
     /**
+     * Set the html text for the email.
+     * @param message Plain html of the email
+     * @return {@link Mail}
+     */
+    Mail html(String message);
+
+    /**
      * Set the email subject
      * @param subject Email Subject
      * @return {@link Mail}
