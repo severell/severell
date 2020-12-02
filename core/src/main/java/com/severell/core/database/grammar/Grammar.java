@@ -27,10 +27,14 @@ public abstract class Grammar {
     }
 
     public String addModifiers(String sql, Blueprint table, ColumnDefinition col) {
+        String[] colArray = new String[getModifiers().length];
+        int i = 0;
         for(Modifier mode : getModifiers()) {
-            sql += mode.compile(this, col);
+            colArray[i] = mode.compile(this, col);
+            i++;
         }
 
+        sql += String.join(" ", colArray);
         return sql;
     }
 
@@ -48,6 +52,10 @@ public abstract class Grammar {
     public abstract String generatableColumn(String type, ColumnDefinition col);
 
     public abstract  String modifyNullable(ColumnDefinition col);
+
+    public String modifyAutoIncrement(ColumnDefinition col) {
+        return null;
+    };
 
     public Modifier[] getModifiers() {
         return new Modifier[]{};

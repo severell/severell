@@ -2,6 +2,7 @@ package com.severell.core.commands;
 
 import com.severell.core.config.Config;
 import com.severell.core.database.Connection;
+import com.severell.core.database.ConnectionBuilder;
 import com.severell.core.database.PostgresConnection;
 import org.apache.commons.dbcp2.BasicDataSource;
 
@@ -109,7 +110,7 @@ public abstract class Command {
         connectionPool.setInitialSize(1);
         connectionPool.setMinIdle(1);
         connectionPool.setMaxIdle(1);
-        Connection connection = new PostgresConnection();
+        Connection connection = ConnectionBuilder.build(Config.get("DB_DRIVER"));
         connection.setDataSource(connectionPool);
         return connection;
     }

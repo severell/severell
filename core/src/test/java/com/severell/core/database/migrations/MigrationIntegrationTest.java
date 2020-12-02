@@ -117,8 +117,8 @@ public class MigrationIntegrationTest {
         ArgumentCaptor<String> statements = ArgumentCaptor.forClass(String.class);
         verify(connection, times(3)).statement(statements.capture());
 
-        assertEquals("create table users (id bigint not null, post_id bigint not null, name varchar(255) character set utf8mb4 not null, created timestamp(0) not null, created_at timestamp(0) null, updated_at timestamp(0) null, bin blob not null, isUser boolean not null, age integer not null, html text not null, acres decimal(5,3) not null, dbl double not null, somedate date null, incrementingInt int not null, smallIncrementing smallint not null, smallInteger smallint not null, bigIncrements bigint not null)", statements.getAllValues().get(0));
-        assertEquals("alter table users add primary key auto_increment (id)", statements.getAllValues().get(1));
+        assertEquals("create table users (id bigint not null auto_increment, post_id bigint not null , name varchar(255) character set utf8mb4 not null , created timestamp(0) not null , created_at timestamp(0) null , updated_at timestamp(0) null , bin blob not null , isUser boolean not null , age integer not null , html text not null , acres decimal(5,3) not null , dbl double not null , somedate date null , incrementingInt int not null auto_increment, smallIncrementing smallint not null auto_increment, smallInteger smallint not null , bigIncrements bigint not null auto_increment)", statements.getAllValues().get(0));
+        assertEquals("alter table users add primary key (id)", statements.getAllValues().get(1));
         assertEquals("alter table users add constraint users_post_id_foreign foreign key (post_id) references post (id)", statements.getAllValues().get(2));
     }
 
@@ -152,7 +152,7 @@ public class MigrationIntegrationTest {
 
         ArgumentCaptor<String> statements = ArgumentCaptor.forClass(String.class);
         verify(connection, times(1)).statement(statements.capture());
-        assertEquals("alter table users add column addedColumn varchar(255) character set utf8mb4 not null", statements.getValue());
+        assertEquals("alter table users add column addedColumn varchar(255) character set utf8mb4 not null ", statements.getValue());
 
     }
 }

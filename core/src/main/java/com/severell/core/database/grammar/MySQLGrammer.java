@@ -67,6 +67,11 @@ public class MySQLGrammer extends Grammar {
     }
 
     @Override
+    public String modifyAutoIncrement(ColumnDefinition col) {
+        return col.get("autoIncrement", Boolean.class) ? "auto_increment" : "";
+    }
+
+    @Override
     public String drop(Blueprint table) {
         return String.format("drop table if exists %s", table.getTableName());
     }
@@ -131,10 +136,9 @@ public class MySQLGrammer extends Grammar {
 
     @Override
     public String primary(Blueprint table, Command command) {
-        return String.format("%s table %s add primary key %s (%s)",
+        return String.format("%s table %s add primary key (%s)",
                 "alter",
                 table.getTableName(),
-                command.param("auto_increment"),
                 String.join(", ", (String[])command.param("columns")));
     }
 
@@ -147,6 +151,7 @@ public class MySQLGrammer extends Grammar {
     public Modifier[] getModifiers() {
         return new Modifier[]{
                 Modifier.NULLABLE,
+                Modifier.AUTO_INCREMENT,
         };
     }
 }

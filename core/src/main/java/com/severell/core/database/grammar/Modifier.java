@@ -8,6 +8,12 @@ public enum Modifier {
         public String compile(Grammar g, ColumnDefinition col) {
             return g.modifyNullable(col);
         }
+    },
+    AUTO_INCREMENT{
+        @Override
+        public String compile(Grammar g, ColumnDefinition col) {
+            return g.modifyAutoIncrement(col);
+        }
     };
 
     public abstract String compile(Grammar g, ColumnDefinition col);
