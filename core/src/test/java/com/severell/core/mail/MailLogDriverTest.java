@@ -62,7 +62,7 @@ public class MailLogDriverTest {
     }
 
     @Test
-    public void logDriverHTMLTest() throws ViewException {
+    public void logDriverHTMLTemplateTest() throws ViewException {
         Container c = mock(Container.class);
         ViewMustacheDriver driver = new ViewMustacheDriver(c);
         given(c.make(View.class)).willReturn(driver);
@@ -81,6 +81,27 @@ public class MailLogDriverTest {
                 "CC: cc@example.com" + System.lineSeparator() +
                 "BCC: bcc@example.com" + System.lineSeparator() +
                 "HTML Message: <html><head></head><body><h1>test</h1></body></html>" + System.lineSeparator() +
+                "**************************************************************" + System.lineSeparator();
+        assertEquals(expectedString, outContent.toString());
+    }
+
+    @Test
+    public void logDriverHTMLTest() throws ViewException {
+        Container c = mock(Container.class);
+        Mail mail = new MailLogDriver(c);
+        mail.from("test@example.com")
+                .to("to@example.com")
+                .cc("cc@example.com")
+                .bcc("bcc@example.com")
+                .subject("subject")
+                .html("HTML Message: <html><head></head><body><h1>test</h1></body></html>").send();
+        String expectedString = "**************************************************************" + System.lineSeparator() +
+                "To: to@example.com" + System.lineSeparator() +
+                "From: test@example.com" + System.lineSeparator() +
+                "Subject: subject" + System.lineSeparator() +
+                "CC: cc@example.com" + System.lineSeparator() +
+                "BCC: bcc@example.com" + System.lineSeparator() +
+                "HTML Message: HTML Message: <html><head></head><body><h1>test</h1></body></html>" + System.lineSeparator() +
                 "**************************************************************" + System.lineSeparator();
         assertEquals(expectedString, outContent.toString());
     }

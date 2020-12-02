@@ -79,7 +79,7 @@ public class MailSMTPDriverTest {
     }
 
     @Test
-    public void testSMTPHTML() throws ViewException, MessagingException, IOException, NoSuchFieldException, IllegalAccessException {
+    public void testSMTPHTMLFromTemplate() throws ViewException, MessagingException, IOException, NoSuchFieldException, IllegalAccessException {
         Container c = mock(Container.class);
         TransportFacade transport = mock(TransportFacade.class);
         given(c.make(TransportFacade.class)).willReturn(transport);
@@ -115,6 +115,46 @@ public class MailSMTPDriverTest {
     }
 
     @Test
+    public void testSMTPHTML() throws ViewException, MessagingException, IOException {
+        Container c = mock(Container.class);
+        TransportFacade transport = mock(TransportFacade.class);
+        given(c.make(TransportFacade.class)).willReturn(transport);
+
+        Mail mail = new MailSMTPDriver(c);
+        mail.from("from@example.com")
+                .to("to@example.com")
+                .subject("subject")
+                .bcc("bcc@example.com")
+                .cc("cc@example.com")
+                .html("<html><head></head><body><h1>test html</h1></body></html>")
+                .send();
+
+        ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(transport).send(messageArgumentCaptor.capture());
+        Message actualMessage = messageArgumentCaptor.getValue();
+
+        Address[] to = actualMessage.getRecipients(Message.RecipientType.TO);
+        assertEquals("to@example.com", to[0].toString());
+
+        Address[] from = actualMessage.getFrom();
+        assertEquals("from@example.com", from[0].toString());
+
+        Address[] cc = actualMessage.getRecipients(Message.RecipientType.CC);
+        assertEquals("cc@example.com", cc[0].toString());
+
+        Address[] bcc = actualMessage.getRecipients(Message.RecipientType.BCC);
+        assertEquals("bcc@example.com", bcc[0].toString());
+
+        assertEquals("subject", actualMessage.getSubject());
+
+        MimeMultipart parts = (MimeMultipart) actualMessage.getContent();
+
+        assertEquals("<html><head></head><body><h1>test html</h1></body></html>", parts.getBodyPart(0).getContent());
+
+        assertNull(actualMessage.getSession().getProperties().get("mail.smtp.socketFactory.class"));
+    }
+
+    @Test
     public void testSMTPHTMLAndPlainText() throws ViewException, MessagingException, IOException {
         Container c = mock(Container.class);
         TransportFacade transport = mock(TransportFacade.class);
@@ -130,6 +170,7 @@ public class MailSMTPDriverTest {
             .bcc("bcc@example.com")
             .cc("cc@example.com")
             .text("plain text")
+            .html("<html><head></head><body><h1>test html</h1></body></html>")
             .template("test.mustache", new HashMap<>())
             .send();
 
@@ -141,7 +182,9 @@ public class MailSMTPDriverTest {
 
         assertEquals("plain text", parts.getBodyPart(0).getContent());
 
-        assertEquals("<html><head></head><body><h1>test</h1></body></html>", parts.getBodyPart(1).getContent());
+        assertEquals("<html><head></head><body><h1>test html</h1></body></html>", parts.getBodyPart(1).getContent());
+
+        assertEquals("<html><head></head><body><h1>test</h1></body></html>", parts.getBodyPart(2).getContent());
     }
 
     @Test
@@ -158,6 +201,7 @@ public class MailSMTPDriverTest {
                 .to("to@example.com")
                 .subject("subject")
                 .text("plain text")
+                .html("<html><head></head><body><h1>test html</h1></body></html>")
                 .template("test.mustache", new HashMap<>())
                 .send();
 
