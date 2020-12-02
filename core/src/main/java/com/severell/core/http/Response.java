@@ -10,9 +10,9 @@ import com.severell.core.view.View;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
+import javax.ws.rs.core.MediaType;
+import java.io.*;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,6 +65,31 @@ public class Response extends HttpServletResponseWrapper {
         data.putAll(shared);
         View view = c.make(View.class);
         view.render(template, data, baseDir, this.getWriter());
+    }
+
+    /**
+     * Writes a file to the client.
+     * @param file
+     * @param mimeType
+     * @throws IOException
+     */
+    public void file(File file, String mimeType) throws IOException {
+        file(file, mimeType, null);
+    }
+
+    /**
+     * Writes a file to the client.
+     * @param file
+     * @param mimeType
+     * @param name
+     * @throws IOException
+     */
+    public void file(File file, String mimeType, String name) throws IOException {
+        byte[] bytes = Files.readAllBytes(file.toPath());
+        setHeader("Content-Type", mimeType);
+        setHeader("Content-Length", String.valueOf(bytes.length));
+        setHeader("Content-Disposition", "attachment; filename=\"" + name == null ? "generated" : name + "\"");
+        getOutputStream().write(bytes);
     }
 
     /**
