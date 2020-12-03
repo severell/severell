@@ -35,16 +35,18 @@ public class AppProvider extends ServiceProvider{
     public void boot() {
         c.make(Dispatcher.class).initRouter();
 
-        DataSourceConfig dataSourceConfig = new DataSourceConfig();
-        dataSourceConfig.setUsername(Config.get("DB_USERNAME"));
-        dataSourceConfig.setPassword(Config.get("DB_PASSWORD"));
-        dataSourceConfig.setDriver(Config.get("DB_DRIVER"));
-        dataSourceConfig.setUrl(Config.get("DB_CONNSTRING"));
+        if(Config.isSet("DB_DRIVER") && Config.isSet("DB_CONNSTRING")) {
+            DataSourceConfig dataSourceConfig = new DataSourceConfig();
+            dataSourceConfig.setUsername(Config.get("DB_USERNAME"));
+            dataSourceConfig.setPassword(Config.get("DB_PASSWORD"));
+            dataSourceConfig.setDriver(Config.get("DB_DRIVER"));
+            dataSourceConfig.setUrl(Config.get("DB_CONNSTRING"));
 
-        DatabaseConfig config = new DatabaseConfig();
-        config.setDataSourceConfig(dataSourceConfig);
-        c.singleton(DatabaseConfig.class, config);
+            DatabaseConfig config = new DatabaseConfig();
+            config.setDataSourceConfig(dataSourceConfig);
+            c.singleton(DatabaseConfig.class, config);
 
-        c.singleton(Database.class, c.make("_databaseFactory", Database.class));
+            c.singleton(Database.class, c.make("_databaseFactory", Database.class));
+        }
     }
 }
