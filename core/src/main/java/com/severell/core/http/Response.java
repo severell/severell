@@ -1,5 +1,6 @@
 package com.severell.core.http;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -68,13 +69,23 @@ public class Response extends HttpServletResponseWrapper {
     }
 
     /**
+     * Writes the object to a JSON String and returns to client
+     * @param object Object to be converted to JSON
+     * @throws IOException
+     */
+    public void json(Object object) throws IOException {
+        ObjectMapper mapper = c.make(ObjectMapper.class);
+        getWriter().write(mapper.writeValueAsString(object));
+    }
+
+    /**
      * Writes a file to the client.
      * @param file
      * @param mimeType
      * @throws IOException
      */
-    public void file(File file, String mimeType) throws IOException {
-        file(file, mimeType, null);
+    public void download(File file, String mimeType) throws IOException {
+        download(file, mimeType, null);
     }
 
     /**
@@ -84,12 +95,13 @@ public class Response extends HttpServletResponseWrapper {
      * @param name
      * @throws IOException
      */
-    public void file(File file, String mimeType, String name) throws IOException {
+    public void download(File file, String mimeType, String name) throws IOException {
         byte[] bytes = Files.readAllBytes(file.toPath());
         setHeader("Content-Type", mimeType);
         setHeader("Content-Length", String.valueOf(bytes.length));
         setHeader("Content-Disposition", "attachment; filename=\"" + name == null ? "generated" : name + "\"");
         getOutputStream().write(bytes);
+
     }
 
     /**

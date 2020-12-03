@@ -53,6 +53,8 @@ public class Dispatcher {
                 response.getWriter().close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (IllegalStateException e) {
+                //This needs to be changed
             }
         }
     }

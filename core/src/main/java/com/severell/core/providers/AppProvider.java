@@ -1,5 +1,7 @@
 package com.severell.core.providers;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
@@ -19,6 +21,15 @@ public class AppProvider extends ServiceProvider{
         super(c);
     }
 
+    private static final ThreadLocal<ObjectMapper> om = new ThreadLocal<ObjectMapper>() {
+        @Override
+        protected ObjectMapper initialValue() {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper;
+        }
+    };
+
     @Override
     public void register() {
         if(!Config.isLocal()) {
@@ -28,7 +39,7 @@ public class AppProvider extends ServiceProvider{
         c.singleton(ErrorHandler.class, new ErrorHandler(c));
         c.singleton(Dispatcher.class, new Dispatcher(c));
         c.bind("_databaseFactory",(c) ->  DatabaseFactory.create(c.make(DatabaseConfig.class)));
-
+        c.bind(ObjectMapper.class, (c) -> om.get());
     }
 
     @Override
