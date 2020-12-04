@@ -5,6 +5,7 @@ import com.squareup.javapoet.*;
 import io.ebean.Model;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
+import org.apache.maven.shared.utils.StringUtils;
 
 import javax.lang.model.element.Modifier;
 import javax.persistence.Entity;
@@ -42,7 +43,9 @@ public class MakeModel extends MakeableCommand {
         JavaFile javaFile = JavaFile.builder(this.calleePackage + ".models", model)
                 .build();
 
-        writer = writer == null ? new FileWriter(new File("src/main/java")) : writer;
+        String[] packageArray = javaFile.packageName.split("\\.");
+        String packageName = StringUtils.join(packageArray,"/");
+        writer = writer == null ? new FileWriter(new File("src/main/java/" + packageName + "/" +javaFile.typeSpec.name + ".java")) : writer;
         make(javaFile);
     }
 

@@ -4,11 +4,13 @@ import com.severell.core.http.Response;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import org.apache.maven.shared.utils.StringUtils;
 
 import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Path;
 
 public class MakeController extends MakeableCommand {
 
@@ -34,7 +36,9 @@ public class MakeController extends MakeableCommand {
         JavaFile javaFile = JavaFile.builder(this.calleePackage + ".controller", helloWorld)
                 .build();
 
-        writer = writer == null ? new FileWriter(new File("src/main/java")) : writer;
+        String[] packageArray = javaFile.packageName.split("\\.");
+        String packageName = StringUtils.join(packageArray,"/");
+        writer = writer == null ? new FileWriter(new File("src/main/java/" + packageName + "/" +javaFile.typeSpec.name + ".java")) : writer;
         make(javaFile);
     }
 }
