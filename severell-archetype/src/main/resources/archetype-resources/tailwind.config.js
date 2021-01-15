@@ -1,7 +1,7 @@
 // tailwind.config.js
 module.exports = {
 	plugins: [
-		require('@tailwindcss/ui'),
+		require('@tailwindcss/forms')
 	],
 	purge: [
 		"src/main/resources/templates/**/*.mustache",

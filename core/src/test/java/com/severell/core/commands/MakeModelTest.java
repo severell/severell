@@ -1,8 +1,11 @@
 package com.severell.core.commands;
 
+import com.severell.core.config.Config;
 import com.severell.core.database.Connection;
 import com.severell.core.database.TableMetaData;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -11,13 +14,14 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class MakeModelTest {
 
     @NotNull
     protected StringWriter setUpMakeModel(MakeModel model, TableMetaData metd) {
         Connection connection = mock(Connection.class);
+        doReturn(connection).when(model).getConnection();
         given(connection.metaData("users")).willReturn(metd);
         model.setConnection(connection);
         model.setCalleePackage("com.example");
@@ -28,7 +32,7 @@ public class MakeModelTest {
 
     @Test
     public void testMakeModelWithNoColumns() throws IOException {
-        MakeModel model = new MakeModel();
+        MakeModel model = spy(MakeModel.class);
         TableMetaData metd = new TableMetaData("users");
         StringWriter writer = setUpMakeModel(model, metd);
         model.run(new String[]{"args=Users", "flags=-t=users"});
@@ -53,7 +57,7 @@ public class MakeModelTest {
 
     @Test
     public void testMakeModelWithColumns() throws IOException {
-        MakeModel model = new MakeModel();
+        MakeModel model = spy(MakeModel.class);
         TableMetaData metd = new TableMetaData("users");
         ArrayList<ColumnMetaData> columnMetaData = new ArrayList<>();
         ColumnMetaData col = new ColumnMetaData();

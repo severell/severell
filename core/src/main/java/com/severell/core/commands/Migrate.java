@@ -16,9 +16,7 @@ import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class Migrate {
 
@@ -206,10 +204,18 @@ public class Migrate {
         File f = p.toFile();
         String[] migrationFiles = f.getAbsoluteFile().list();
 
+
         if(migrationFiles != null) {
             for (String file : migrationFiles) {
                 classList.add(loader.loadClass("migrations" + "." + file.substring(0, file.length() - 5)));
             }
+
+            Collections.sort(classList, new Comparator<Class>() {
+                @Override
+                public int compare(Class o1, Class o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
         }
 
         return classList;

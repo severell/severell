@@ -33,6 +33,7 @@ public class MakeModel extends MakeableCommand {
 
     @Override
     public void execute(String[] args) throws IOException {
+        setConnection(getConnection());
         String modelName = args[0];
         String tableName = tableFlag.getValue() == null ? modelName.toLowerCase() : tableFlag.getValue();
 
