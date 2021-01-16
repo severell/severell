@@ -17,6 +17,12 @@ public class SessionMemoryDriver extends BaseSessionDriver implements Session {
     }
 
     @Override
+    public <T> T get(String key, Class<T> c) {
+        Object val = this.request.getSession().getAttribute(key);
+        return val == null ? null : (T) val;
+    }
+
+    @Override
     public String getId() {
         return this.request.getSession().getId();
     }

@@ -17,6 +17,15 @@ public interface Session {
     String getString(String key);
 
     /**
+     * Get the object as the passed in type
+     * @param key
+     * @param c
+     * @param <T>
+     * @return
+     */
+    <T> T get(String key, Class<T> c);
+
+    /**
      * Get the session id
      * @return
      */

@@ -7,8 +7,7 @@ import org.mockito.ArgumentCaptor;
 import javax.servlet.http.HttpSession;
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,6 +51,25 @@ public class SessionMemoryDriverTest {
         session.setRequest(req);
         String retVal = (String) session.get(testKey);
         assertEquals(retVal, testVal);
+    }
+
+    @Test
+    public void sessionGetsCorrectValueAndType() {
+        Request req = mock(Request.class);
+        HttpSession mockSession = mock(HttpSession.class);
+        given(req.getSession()).willReturn(mockSession);
+
+        String testKey = "userid";
+        int testVal = 1234;
+
+        given(mockSession.getAttribute(testKey)).willReturn(testVal);
+
+
+        SessionMemoryDriver session = new SessionMemoryDriver();
+        session.setRequest(req);
+        Integer retVal = session.get(testKey, Integer.class);
+        assertEquals(retVal, testVal);
+        assertTrue(retVal instanceof Integer);
     }
 
     @Test
