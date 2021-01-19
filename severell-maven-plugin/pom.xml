@@ -40,6 +40,11 @@
             <version>3.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.6.1</version>
+        </dependency>
     </dependencies>
 
     <build>

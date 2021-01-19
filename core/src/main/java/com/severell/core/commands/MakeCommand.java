@@ -4,22 +4,22 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
 import org.apache.maven.shared.utils.StringUtils;
+import picocli.CommandLine;
 
 import javax.lang.model.element.Modifier;
+import javax.xml.rpc.Call;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
-public class MakeCommand extends MakeableCommand {
+public class MakeCommand extends MakeableCommand implements Callable<Integer> {
 
-    public MakeCommand() {
-        this.command="make:command [name]";
-        this.description="Make a new command class";
-        this.numArgs = 1;
-    }
+    @CommandLine.Parameters(index = "0", description = "Command name")
+    private String name;
 
     @Override
-    public void execute(String[] args) throws IOException {
+    public void execute() throws IOException {
         MethodSpec index = MethodSpec.methodBuilder("execute")
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
@@ -33,7 +33,7 @@ public class MakeCommand extends MakeableCommand {
                 .build();
 
 
-        TypeSpec helloWorld = TypeSpec.classBuilder(args[0])
+        TypeSpec helloWorld = TypeSpec.classBuilder(name)
                 .superclass(Command.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(cons)
@@ -47,5 +47,11 @@ public class MakeCommand extends MakeableCommand {
         String packageName = StringUtils.join(packageArray,"/");
         writer = writer == null ? new FileWriter(new File("src/main/java/" + packageName + "/" +javaFile.typeSpec.name + ".java")) : writer;
         make(javaFile);
+    }
+
+    @Override
+    public Integer call() throws Exception {
+        execute();
+        return 0;
     }
 }

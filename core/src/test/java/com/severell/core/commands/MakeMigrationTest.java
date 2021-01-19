@@ -4,6 +4,7 @@ import com.severell.core.time.Time;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import picocli.CommandLine;
 
 import java.io.StringWriter;
 import java.time.Clock;
@@ -30,7 +31,7 @@ public class MakeMigrationTest {
         StringWriter writer = new StringWriter();
         make.setCalleePackage("com.example");
         make.setWriter(writer);
-        make.run(new String[]{"args=create_users", "flags=-c=users"});
+        new CommandLine(make).execute(new String[]{"-c", "users", "create_users"});
         assertEquals("package migrations;\n" +
                 "\n" +
                 "import com.severell.core.database.migrations.Blueprint;\n" +
@@ -54,7 +55,8 @@ public class MakeMigrationTest {
         StringWriter writer = new StringWriter();
         make.setCalleePackage("com.example");
         make.setWriter(writer);
-        make.run(new String[]{"args=create_users", "flags=-t=users"});
+        new CommandLine(make).execute(new String[]{"-t", "users", "create_users"});
+
         assertEquals("package migrations;\n" +
                 "\n" +
                 "import com.severell.core.database.migrations.Blueprint;\n" +
@@ -78,7 +80,8 @@ public class MakeMigrationTest {
         StringWriter writer = new StringWriter();
         make.setCalleePackage("com.example");
         make.setWriter(writer);
-        make.run(new String[]{"args=create_users", "flags="});
+        new CommandLine(make).execute(new String[]{"create_users"});
+
         assertEquals("package migrations;\n" +
                 "\n" +
                 "import com.severell.core.database.migrations.Blueprint;\n" +

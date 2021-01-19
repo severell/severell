@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -35,7 +36,8 @@ public class MakeModelTest {
         MakeModel model = spy(MakeModel.class);
         TableMetaData metd = new TableMetaData("users");
         StringWriter writer = setUpMakeModel(model, metd);
-        model.run(new String[]{"args=Users", "flags=-t=users"});
+
+        new CommandLine(model).execute(new String[]{"-t", "users", "Users"});
 
         /* TODO Change this. I don't like comparing the strings like this
         * If this smallest formatting changes it will break this test
@@ -205,7 +207,7 @@ public class MakeModelTest {
 
         metd.setColumns(columnMetaData);
         StringWriter writer = setUpMakeModel(model, metd);
-        model.run(new String[]{"args=Users", "flags=-t=users"});
+        new CommandLine(model).execute(new String[]{"-t", "users", "Users"});
 
         /* TODO Change this. I don't like comparing the strings like this
          * If this smallest formatting changes it will break this test

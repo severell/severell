@@ -6,6 +6,7 @@ import io.ebean.Model;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 import org.apache.maven.shared.utils.StringUtils;
+import picocli.CommandLine;
 
 import javax.lang.model.element.Modifier;
 import javax.persistence.Entity;
@@ -16,26 +17,24 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-public class MakeModel extends MakeableCommand {
+@CommandLine.Command(name="make:model", mixinStandardHelpOptions = true, version = "0.1", description = "Create a new model" )
+public class MakeModel extends MakeableCommand  implements Callable<Integer> {
 
-    private Flag tableFlag;
+    @CommandLine.Option(names = {"-t", "--table"}, description = "Table Name To Use")
+    private String table;
 
-    public MakeModel() {
-        this.command="make:model [name]";
-        this.description="Generate a new model object";
-        this.numArgs = 1;
+    @CommandLine.Parameters(index = "0", description = "Model name")
+    private String name;
 
-        tableFlag = new Flag("t", "Table Name");
-        addFlag(tableFlag);
-    }
 
     @Override
-    public void execute(String[] args) throws IOException {
+    public void execute() throws IOException {
         setConnection(getConnection());
-        String modelName = args[0];
-        String tableName = tableFlag.getValue() == null ? modelName.toLowerCase() : tableFlag.getValue();
+        String modelName = name;
+        String tableName = table == null ? modelName.toLowerCase() : table;
 
         TableMetaData metaData = connection.metaData(tableName);
 
@@ -117,5 +116,12 @@ public class MakeModel extends MakeableCommand {
                     .build();
             fields.add(field);
         }
+    }
+
+
+    @Override
+    public Integer call() throws Exception {
+        execute();
+        return 0;
     }
 }

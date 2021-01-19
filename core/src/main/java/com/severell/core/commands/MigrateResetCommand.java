@@ -1,19 +1,24 @@
 package com.severell.core.commands;
 
-public class MigrateResetCommand extends Command {
+import picocli.CommandLine;
 
+import java.util.concurrent.Callable;
 
-    public MigrateResetCommand() {
-        description = "Reset Database Migrations";
-        command = "migrate:reset";
-    }
+@CommandLine.Command(name="migrate:reset", mixinStandardHelpOptions = true, version = "0.1", description = "Reset migrations" )
+public class MigrateResetCommand extends Command implements Callable<Integer> {
 
     @Override
-    public void execute(String[] args) {
+    public void execute() {
         try {
-            new Migrate(connection == null ? getConnection() : connection).reset(args);
+            new Migrate(connection == null ? getConnection() : connection).reset();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public Integer call() throws Exception {
+        execute();
+        return 0;
     }
 }

@@ -1,6 +1,7 @@
 package com.severell.core.commands;
 
 import com.squareup.javapoet.JavaFile;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.Writer;

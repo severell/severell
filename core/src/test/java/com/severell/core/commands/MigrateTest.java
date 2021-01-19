@@ -89,7 +89,7 @@ public class MigrateTest {
     public void runUpTestThroughCommand() throws Exception {
         MigrateCommand command = new MigrateCommand();
         command.setConnection(connection);
-        command.run(new String[]{"args=", "flags="});
+        command.execute();
 
         assertTrue(outContent.toString().contains("Migrated - TestMigration"));
         assertTrue(outContent.toString().contains("Failed to Migrate - ErrorMigration"));
@@ -99,7 +99,7 @@ public class MigrateTest {
     public void runUpTest() throws Exception {
         Migrate migrate = new Migrate(connection);
         Migrate spyMigrate = spy(migrate);
-        spyMigrate.runUp(null);
+        spyMigrate.runUp();
 
         assertTrue(outContent.toString().contains("Migrated - TestMigration"));
         assertTrue(outContent.toString().contains("Failed to Migrate - ErrorMigration"));
@@ -110,7 +110,7 @@ public class MigrateTest {
         ArrayList<HashMap<String, Object>> list = getRan();
         given(connection.select("select * from migrations order by batch asc, migration asc")).willReturn(list);
         Migrate migrate = new Migrate(connection);
-        migrate.runUp(null);
+        migrate.runUp();
 
         assertTrue(outContent.toString().contains("Nothing to Migrate"), String.format("Got %s", outContent.toString()));
     }
@@ -122,7 +122,7 @@ public class MigrateTest {
 
 
         Migrate migrate = new Migrate(connection);
-        migrate.reset(null);
+        migrate.reset();
 
         assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
         assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
@@ -136,7 +136,7 @@ public class MigrateTest {
         given(connection.select("select * from migrations order by batch asc, migration asc")).willReturn(list);
 
         command.setConnection(connection);
-        command.run(new String[]{"args=", "flags="});
+        command.execute();
 
         assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
         assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
@@ -145,7 +145,7 @@ public class MigrateTest {
     @Test
     public void runDownTestWithNothingToReset() throws Exception {
         Migrate migrate = new Migrate(connection);
-        migrate.reset(null);
+        migrate.reset();
 
         assertTrue(outContent.toString().contains("Nothing to reset"), String.format("Got %s", outContent.toString()));
     }
@@ -159,7 +159,7 @@ public class MigrateTest {
         given(connection.select("select * from migrations where batch = 0 order by batch desc, migration desc limit 1")).willReturn(list);
 
         command.setConnection(connection);
-        command.run(new String[]{"args=", "flags="});
+        command.execute();
 
         assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
         assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
@@ -172,7 +172,7 @@ public class MigrateTest {
 
 
         Migrate migrate = new Migrate(connection);
-        migrate.rollback(null);
+        migrate.rollback();
 
         assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
         assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
@@ -181,7 +181,7 @@ public class MigrateTest {
     @Test
     public void runDownTestWithNothingToRollback() throws Exception {
         Migrate migrate = new Migrate(connection);
-        migrate.rollback(null);
+        migrate.rollback();
 
         assertTrue(outContent.toString().contains("Nothing to reset"), String.format("Got %s", outContent.toString()));
     }

@@ -40,7 +40,7 @@ public class Migrate {
         this.migrationPath = Config.get("MIGRATION_PATH", "src/db/migrations");
     }
 
-    public void runUp(String[] args) throws Exception {
+    public void runUp() throws Exception {
         List<Class> pendingList = getPendingMigrations(prepareMigrations());
 
         if(pendingList.size() == 0) {
@@ -82,7 +82,7 @@ public class Migrate {
         return getMigrations("migrations");
     }
 
-    public void reset(String[] args) throws Exception {
+    public void reset() throws Exception {
         List<Class> resetList = getMigrationsToReset(prepareMigrations());
 
         if(resetList.size() == 0){
@@ -93,7 +93,7 @@ public class Migrate {
         runDown(resetList);
     }
 
-    public void rollback(String[] args) throws Exception {
+    public void rollback() throws Exception {
         List<Class> resetList = getMigrationsToRollback(prepareMigrations());
 
         if(resetList.size() == 0){
