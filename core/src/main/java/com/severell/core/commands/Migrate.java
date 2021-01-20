@@ -34,6 +34,7 @@ public class Migrate {
         List<Class> pendingList = getPendingMigrations(prepareMigrations());
 
         if(pendingList.size() == 0) {
+            CommandLogger.printlnRed("Nothing to Migrate");
             return;
         }
 
