@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name="make:migration", mixinStandardHelpOptions = true, version = "0.1", description = "Create a new Migration" )
-public class MakeMigration extends MakeableCommand implements Callable<Integer>{
+public class MakeMigration extends MakeableCommand {
 
 
     @CommandLine.Parameters(index = "0", description = "Migration Name")
@@ -91,9 +91,4 @@ public class MakeMigration extends MakeableCommand implements Callable<Integer>{
         return builder.build();
     }
 
-    @Override
-    public Integer call() throws Exception {
-        execute();
-        return 0;
-    }
 }

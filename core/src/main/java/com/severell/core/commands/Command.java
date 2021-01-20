@@ -8,8 +8,9 @@ import org.apache.commons.dbcp2.BasicDataSource;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
-public abstract class Command {
+public abstract class Command implements Callable<Integer> {
 
     protected String calleePackage;
     protected Connection connection;
@@ -36,5 +37,16 @@ public abstract class Command {
         Connection connection = ConnectionBuilder.build(Config.get("DB_DRIVER"));
         connection.setDataSource(connectionPool);
         return connection;
+    }
+
+    @Override
+    public Integer call() {
+        try {
+            execute();
+        } catch (IOException e) {
+            CommandLogger.printlnRed("Failed executing command");
+            return -1;
+        }
+        return 0;
     }
 }

@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 @CommandLine.Command(name="make:model", mixinStandardHelpOptions = true, version = "0.1", description = "Create a new model" )
-public class MakeModel extends MakeableCommand  implements Callable<Integer> {
+public class MakeModel extends MakeableCommand {
 
     @CommandLine.Option(names = {"-t", "--table"}, description = "Table Name To Use")
     private String table;
@@ -120,10 +120,4 @@ public class MakeModel extends MakeableCommand  implements Callable<Integer> {
         }
     }
 
-
-    @Override
-    public Integer call() throws Exception {
-        execute();
-        return 0;
-    }
 }

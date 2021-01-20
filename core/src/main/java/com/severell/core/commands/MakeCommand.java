@@ -13,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-public class MakeCommand extends MakeableCommand implements Callable<Integer> {
+public class MakeCommand extends MakeableCommand {
 
     @CommandLine.Parameters(index = "0", description = "Command name")
     private String name;
@@ -47,11 +47,5 @@ public class MakeCommand extends MakeableCommand implements Callable<Integer> {
         String packageName = StringUtils.join(packageArray,"/");
         writer = writer == null ? new FileWriter(new File("src/main/java/" + packageName + "/" +javaFile.typeSpec.name + ".java")) : writer;
         make(javaFile);
-    }
-
-    @Override
-    public Integer call() throws Exception {
-        execute();
-        return 0;
     }
 }

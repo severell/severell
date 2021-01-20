@@ -15,7 +15,7 @@ import java.nio.file.Path;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(name="make:controller", mixinStandardHelpOptions = true, version = "0.1", description = "Create a new controller file" )
-public class MakeController extends MakeableCommand implements Callable<Integer> {
+public class MakeController extends MakeableCommand {
 
     @CommandLine.Parameters(index = "0", description = "Controller name")
     private String name;
@@ -45,9 +45,4 @@ public class MakeController extends MakeableCommand implements Callable<Integer>
 
     }
 
-    @Override
-    public Integer call() throws Exception {
-        execute();
-        return 0;
-    }
 }

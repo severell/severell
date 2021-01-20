@@ -76,6 +76,8 @@ public class Migrate {
     public void reset() throws Exception {
         List<Class> resetList = getMigrationsToReset(prepareMigrations());
 
+        reverseSort(resetList);
+
         if(resetList.size() == 0){
             CommandLogger.printlnRed(String.format("Nothing to reset"));
             return;
@@ -84,11 +86,20 @@ public class Migrate {
         runDown(resetList);
     }
 
+    private void reverseSort(List<Class> resetList) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        resetList.sort(new Comparator<Class>() {
+            @Override
+            public int compare(Class o1, Class o2) {
+                return o2.getName().compareTo(o1.getName());
+            }
+        });
+    }
+
     public void rollback() throws Exception {
         List<Class> resetList = getMigrationsToRollback(prepareMigrations());
 
         if(resetList.size() == 0){
-            CommandLogger.printlnRed(String.format("Nothing to reset"));
+            CommandLogger.printlnRed(String.format("Nothing to rollback"));
             return;
         }
 
@@ -200,14 +211,14 @@ public class Migrate {
             for (String file : migrationFiles) {
                 classList.add(loader.loadClass("migrations" + "." + file.substring(0, file.length() - 5)));
             }
-
-            Collections.sort(classList, new Comparator<Class>() {
-                @Override
-                public int compare(Class o1, Class o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            });
         }
+
+        Collections.sort(classList, new Comparator<Class>() {
+            @Override
+            public int compare(Class o1, Class o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
 
         return classList;
     }

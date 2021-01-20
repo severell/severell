@@ -32,60 +32,10 @@ import java.util.stream.Collectors;
  * It has to be done after a compile otherwise we don't have access to the Providers and Container.
  */
 @Mojo(name="generate", defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
-public class AOTRouteGenerator extends AbstractMojo {
-
-    @Parameter(defaultValue = "${project}")
-    public MavenProject project;
-
-    @Parameter
-    public String basePackage;
+public class AOTRouteGenerator extends SeverellMojo {
 
     @Parameter(readonly = true, defaultValue = "${project.build.directory}/classes")
     public String targetDirectory;
-
-    public void bootstrap(Container c, ProjectClassLoader classLoader) {
-        try {
-            Config.setDir(project.getBuild().getOutputDirectory());
-            Config.loadConfig();
-        }catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-
-        c.singleton("_MiddlewareList", classLoader.getMiddleware());
-        try {
-            c.singleton(classLoader.loadClass(basePackage + ".auth.Auth"), classLoader.initClass(classLoader.loadClass(basePackage + ".auth.Auth")));
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            e.printStackTrace();
-        }
-
-        List<ServiceProvider> providers = Arrays.stream(classLoader.getProviders(c))
-                .filter(s -> {
-                    return !s.getClass().getSimpleName().equals("AppProvider")
-                            && !s.getClass().getSimpleName().equals("JettyProvider")
-                            && !s.getClass().getSimpleName().equals("RouteProvider");
-                })
-                .collect(Collectors.toList());
-
-        for(ServiceProvider provider : providers) {
-            try {
-                provider.register();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        classLoader.initRoutes();
-
-        for(ServiceProvider provider : providers) {
-            try {
-                provider.boot();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
