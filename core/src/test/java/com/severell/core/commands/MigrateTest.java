@@ -183,7 +183,7 @@ public class MigrateTest {
         Migrate migrate = new Migrate(connection);
         migrate.rollback();
 
-        assertTrue(outContent.toString().contains("Nothing to reset"), String.format("Got %s", outContent.toString()));
+        assertTrue(outContent.toString().contains("Nothing to rollback"), String.format("Got %s", outContent.toString()));
     }
 
 }
