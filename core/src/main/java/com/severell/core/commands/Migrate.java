@@ -20,16 +20,6 @@ import java.util.*;
 
 public class Migrate {
 
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
-
     private static Connection connection;
     private static DatabaseMigrationRepository repository;
     private static URLClassLoader loader;
@@ -44,7 +34,6 @@ public class Migrate {
         List<Class> pendingList = getPendingMigrations(prepareMigrations());
 
         if(pendingList.size() == 0) {
-            System.out.println(String.format("%s Nothing to Migrate %s", ANSI_RED, ANSI_RESET));
             return;
         }
 
@@ -53,19 +42,20 @@ public class Migrate {
         for(Class cl : pendingList) {
             Method method = cl.getDeclaredMethod("up");
             LocalDateTime start = LocalDateTime.now();
-            System.out.println(String.format("%s Migrating - %s %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
+            CommandLogger.printlnRed(String.format("Migrating - %s", cl.getSimpleName()));
+
             try {
                 method.invoke(null);
                 repository.log(cl.getSimpleName(), batch);
                 LocalDateTime end = LocalDateTime.now();
                 long diff = ChronoUnit.MILLIS.between(start, end);
-                System.out.println(String.format("%s Migrated - %s (%d ms) %s", ANSI_GREEN, cl.getSimpleName(), diff, ANSI_RESET));
-                System.out.println("");
+                CommandLogger.printlnGreen(String.format("Migrated - %s (%d ms)", cl.getSimpleName(), diff));
+                CommandLogger.println("");
             }catch (InvocationTargetException e) {
                 MigrationException me = (MigrationException) e.getCause();
-                System.out.println(String.format("%s Failed to Migrate - %s  %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
-                System.out.println(String.format("%s Reason - %s  %s", ANSI_RED, me.getMessage(), ANSI_RESET));
-                System.out.println("");
+                CommandLogger.printlnRed(String.format("Failed to Migrate - %s", cl.getSimpleName()));
+                CommandLogger.printlnRed(String.format("Reason - %s", me.getMessage()));
+                CommandLogger.println("");
             }
 
         }
@@ -73,7 +63,7 @@ public class Migrate {
 
     private ArrayList<Class> prepareMigrations() throws Exception {
         loader = setupClassLoader();
-        System.out.println(String.format("%s Starting Migrator... %s", ANSI_GREEN, ANSI_RESET));
+        CommandLogger.printlnGreen("Starting Migrator...");
         createConnection();
         Builder b = new PostgresBuilder(connection);
         Schema.setBuilder(b);
@@ -86,7 +76,7 @@ public class Migrate {
         List<Class> resetList = getMigrationsToReset(prepareMigrations());
 
         if(resetList.size() == 0){
-            System.out.println(String.format("%s Nothing to reset %s", ANSI_RED, ANSI_RESET));
+            CommandLogger.printlnRed(String.format("Nothing to reset"));
             return;
         }
 
@@ -97,7 +87,7 @@ public class Migrate {
         List<Class> resetList = getMigrationsToRollback(prepareMigrations());
 
         if(resetList.size() == 0){
-            System.out.println(String.format("%s Nothing to reset %s", ANSI_RED, ANSI_RESET));
+            CommandLogger.printlnRed(String.format("Nothing to reset"));
             return;
         }
 
@@ -117,18 +107,18 @@ public class Migrate {
             try {
                 Method method = cl.getDeclaredMethod("down");
                 LocalDateTime start = LocalDateTime.now();
-                System.out.println(String.format("%s Rolling Back - %s %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
+                CommandLogger.printlnRed(String.format("Rolling Back - %s", cl.getSimpleName()));
                 method.invoke(null);
                 repository.delete(cl.getSimpleName());
                 LocalDateTime end = LocalDateTime.now();
                 long diff = ChronoUnit.MILLIS.between(start, end);
-                System.out.println(String.format("%s Rolled Back - %s (%d ms) %s", ANSI_GREEN, cl.getSimpleName(), diff, ANSI_RESET));
-                System.out.println("");
+                CommandLogger.printlnGreen(String.format("Rolled Back - %s (%d ms)", cl.getSimpleName(), diff));
+                CommandLogger.println("");
             }catch (InvocationTargetException e) {
                 MigrationException me = (MigrationException) e.getCause();
-                System.out.println(String.format("%s Failed to Reset - %s  %s", ANSI_RED, cl.getSimpleName(), ANSI_RESET));
-                System.out.println(String.format("%s Reason - %s  %s", ANSI_RED, me.getMessage(), ANSI_RESET));
-                System.out.println("");
+                CommandLogger.printlnRed(String.format("Failed to Reset - %s", cl.getSimpleName()));
+                CommandLogger.printlnRed(String.format("Reason - %s", me.getMessage()));
+                CommandLogger.println("");
             }
 
         }

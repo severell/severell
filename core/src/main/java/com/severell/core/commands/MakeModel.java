@@ -47,6 +47,8 @@ public class MakeModel extends MakeableCommand  implements Callable<Integer> {
         String packageName = StringUtils.join(packageArray,"/");
         writer = writer == null ? new FileWriter(new File("src/main/java/" + packageName + "/" +javaFile.typeSpec.name + ".java")) : writer;
         make(javaFile);
+
+        CommandLogger.printlnGreen(String.format("Created Model - %s", name));
     }
 
     private TypeSpec getTypeSpec(String tableName, TableMetaData metaData, String modelName) {

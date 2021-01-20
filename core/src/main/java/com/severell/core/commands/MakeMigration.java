@@ -68,6 +68,7 @@ public class MakeMigration extends MakeableCommand implements Callable<Integer>{
         writer = writer == null ? new FileWriter(new File("src/db/migrations/" + fileName + ".java")) : writer;
         make(javaFile);
 
+        CommandLogger.printlnGreen(String.format("Created Migration - %s", name));
     }
 
     private MethodSpec getUpMethodSpec(String up, String tableName, boolean isCreate, boolean isUpdate) {

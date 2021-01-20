@@ -41,7 +41,7 @@ public class MakeController extends MakeableCommand implements Callable<Integer>
         writer = writer == null ? new FileWriter(new File("src/main/java/" + packageName + "/" +javaFile.typeSpec.name + ".java")) : writer;
         make(javaFile);
 
-        System.out.println(String.format("%s Created Controller - %s %s", ANSI_GREEN, name, ANSI_RESET));
+        CommandLogger.printlnGreen(String.format("Created Controller - %s", name));
 
     }
 
