@@ -15,7 +15,7 @@ public class ViewException extends Exception{
 
     /**
      * Create a new ViewException.
-     * @param e
+     * @param format
      */
     public ViewException(String format) {
         super(format);

@@ -37,7 +37,7 @@ public class Dispatcher {
     }
 
     /**
-     * Takes a Request & Response object from the underlying server (i.e Jetty) and dispatches
+     * Takes a Request and Response object from the underlying server (i.e Jetty) and dispatches
      * to the correct handler.
      *
      * @param request Request object
