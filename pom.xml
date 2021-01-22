@@ -4,7 +4,7 @@
 
     <groupId>com.severell</groupId>
     <artifactId>severell-parent</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -204,6 +204,6 @@
         <connection>scm:git:git://github.com/severell/severell.git</connection>
         <developerConnection>scm:git:git@github.com:severell/severell.git</developerConnection>
         <url>https://github.com/severell/severell</url>
-        <tag>0.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
