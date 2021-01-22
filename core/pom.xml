@@ -13,6 +13,11 @@
     <name>core</name>
     <packaging>jar</packaging>
 
+    <properties>
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>false</skipNexusStagingDeployMojo>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

@@ -12,6 +12,10 @@
     <artifactId>severell-archetype</artifactId>
     <packaging>maven-archetype</packaging>
 
+    <properties>
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>false</skipNexusStagingDeployMojo>
+    </properties>
 
     <build>
         <extensions>
