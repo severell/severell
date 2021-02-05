@@ -22,15 +22,8 @@ A more detailed documentation site can be found [here](https://www.severell.com)
 ### Installation
 There are two ways to get started with Severell. 
 
-#### CLI Tool
-First you need to download the Severell CLI tool and put it in your path. You can download the binary over [here](https://github.com/mitchdennett/severell-cli/releases/download/0.0.1-alpha.1/severell-cli)
-. It only works on MacOS currently. Plans for a Windows and Linux version soon. 
-
-Run `severell-cli` to make sure you have installed it correctly. 
-
-To create your first Severell project you can use the `create` command
-
-Next you can run `severell-cli create myapp` to create a new Maven project.
+#### Initializer
+Visit [Initializer](https://initializer.severell.com/) to get your base project. Enter the required information and extract the project folder from the downloaded ZIP
 
 #### Maven
 The other way to get started is by using the Maven archetype command.
@@ -38,7 +31,7 @@ The other way to get started is by using the Maven archetype command.
 mvn -B archetype:generate
     -DarchetypeGroupId=com.severell 
     -DarchetypeArtifactId=severell-archetype 
-    -DarchetypeVersion=0.0.1-SNAPSHOT 
+    -DarchetypeVersion=0.0.1
     -DgroupId=***YOUR-GROUPID***
     -DartifactId=***YOUR-ARTIFACTID***
     -Dversion=1.0-SNAPSHOT
