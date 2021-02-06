@@ -1,6 +1,7 @@
 package com.severell.plugin.internal;
 
 import com.severell.core.container.Container;
+import com.severell.core.controller.BaseController;
 import com.severell.core.http.*;
 import com.squareup.javapoet.*;
 import org.apache.maven.shared.utils.StringUtils;
@@ -74,6 +75,11 @@ public class RouteFileBuilder {
             CodeBlock.Builder LambdaBuilder = CodeBlock.builder()
                     .add("(request, response, container) -> {\n").indent()
                     .addStatement("$T cont = new $T()", r.getMethod().getDeclaringClass(),r.getMethod().getDeclaringClass());
+
+            if(BaseController.class.isAssignableFrom(r.getMethod().getDeclaringClass())) {
+                LambdaBuilder.addStatement("cont.setContainer(container)");
+            }
+
             ArrayList<String> paramList = new ArrayList<String>();
 
             Class[] params = r.getMethod().getParameterTypes();
