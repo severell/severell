@@ -3,6 +3,7 @@ package com.severell.core.commands;
 import com.severell.core.config.Config;
 import com.severell.core.database.Connection;
 import com.severell.core.database.migrations.*;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 
 import java.io.File;
 import java.io.IOException;

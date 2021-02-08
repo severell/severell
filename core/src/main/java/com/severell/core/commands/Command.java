@@ -5,9 +5,12 @@ import com.severell.core.database.Connection;
 import com.severell.core.database.ConnectionBuilder;
 import com.severell.core.database.PostgresConnection;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.maven.shared.invoker.*;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.Callable;
 
 public abstract class Command implements Callable<Integer> {
@@ -39,6 +42,25 @@ public abstract class Command implements Callable<Integer> {
         return connection;
     }
 
+    public void runMavenGoals(String... goals) throws MavenInvocationException {
+        PrintStream originalStream = System.out;
+        System.setOut(new PrintStream(new ByteArrayOutputStream()));
+        Invoker invoker = new DefaultInvoker();
+        InvokerLogger logger = invoker.getLogger();
+        logger.setThreshold(InvokerLogger.FATAL);
+        invoker.setLogger(logger);
+
+        InvocationRequest request = new DefaultInvocationRequest();
+        request.setBatchMode(true);
+        request.setGoals(Arrays.asList(goals));
+        invoker.execute(request);
+        System.setOut(originalStream);
+    }
+
+    public void compile() throws MavenInvocationException {
+        runMavenGoals("compile");
+    }
+
     @Override
     public Integer call() {
         try {
@@ -49,4 +71,5 @@ public abstract class Command implements Callable<Integer> {
         }
         return 0;
     }
+
 }

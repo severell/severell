@@ -84,7 +84,7 @@ public abstract class BaseMailDriver implements Mail {
      * @return {@link Mail}
      */
     @Override
-    public Mail template(String template, HashMap<String, String> data) {
+    public Mail template(String template, HashMap<String, Object> data) {
         this.template = template;
         this.data = data;
         return this;

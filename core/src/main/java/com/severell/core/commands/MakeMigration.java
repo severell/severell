@@ -7,6 +7,7 @@ import com.severell.core.time.Time;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import picocli.CommandLine;
 
 import javax.lang.model.element.Modifier;
@@ -69,6 +70,7 @@ public class MakeMigration extends MakeableCommand {
         make(javaFile);
 
         CommandLogger.printlnGreen(String.format("Created Migration - %s", name));
+
     }
 
     private MethodSpec getUpMethodSpec(String up, String tableName, boolean isCreate, boolean isUpdate) {

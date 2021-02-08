@@ -42,7 +42,7 @@ public interface Mail {
      * @param data
      * @return {@link Mail}
      */
-    Mail template(String template, HashMap<String, String> data);
+    Mail template(String template, HashMap<String, Object> data);
 
     /**
      * Set the plain text for the email.
