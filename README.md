@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-<a href="https://codecov.io/gh/mitchdennett/severell"><img src="https://img.shields.io/codecov/c/gh/mitchdennett/severell?label=codecov&logo=codecov"></a>
+<a href="https://codecov.io/gh/severell/severell"><img src="https://codecov.io/gh/severell/severell/branch/master/graph/badge.svg?token=VSUOKY7HR1"/></a>
 <img src="https://github.com/mitchdennett/severell-core/workflows/Java%20CI%20with%20Maven/badge.svg"> 
 </p>
 
