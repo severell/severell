@@ -23,7 +23,7 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Get(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+    public static Route get(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, cl, method, "GET");
         Route headRoute = new Route(path, cl, method, "HEAD");
         routes.add(route);
@@ -41,7 +41,7 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Post(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+    public static Route post(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, cl, method, "POST");
         routes.add(route);
         return route;
@@ -57,7 +57,7 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Put(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+    public static Route put(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, cl, method, "PUT");
         routes.add(route);
         return route;
@@ -73,7 +73,7 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Patch(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+    public static Route patch(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, cl, method, "PATCH");
         routes.add(route);
         return route;
@@ -89,7 +89,7 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Delete(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+    public static Route delete(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path, cl, method, "DELETE");
         routes.add(route);
         return route;
@@ -105,10 +105,106 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route Options(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+    public static Route options(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
         Route route = new Route(path,cl, method, "OPTIONS");
         routes.add(route);
         return route;
+    }
+
+    /**
+     * Register a GET route for the given path
+     * @deprecated This will be removed in the next MAJOR version.
+     * Please use lowercase get instead.
+     * @param path
+     * @param cl Controller Class
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
+    @Deprecated
+    public static Route Get(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        return get(path, cl, method);
+    }
+
+    /**
+     * Register a POST route for the given path
+     * @deprecated This will be removed in the next MAJOR version.
+     * Please use lowercase post instead.
+     * @param path
+     * @param cl Controller Class
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
+    @Deprecated
+    public static Route Post(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        return post(path, cl, method);
+    }
+
+    /**
+     * Register a PUT route for the given path
+     * @deprecated This will be removed in the next MAJOR version.
+     * Please use lowercase put instead.
+     * @param path
+     * @param cl Controller Class
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
+    @Deprecated
+    public static Route Put(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        return put(path, cl, method);
+    }
+
+    /**
+     * Register a Patch route for the given path
+     * @deprecated This will be removed in the next MAJOR version.
+     * Please use lowercase patch instead.
+     * @param path
+     * @param cl Controller Class
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
+    @Deprecated
+    public static Route Patch(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        return patch(path, cl, method);
+    }
+
+    /**
+     * Register a DELETE route for the given path
+     * @deprecated This will be removed in the next MAJOR version.
+     * Please use lowercase delete instead.
+     * @param path
+     * @param cl Controller Class
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
+    @Deprecated
+    public static Route Delete(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        return delete(path, cl, method);
+    }
+
+    /**
+     * Register an OPTIONS route for the given path
+     * @deprecated This will be removed in the next MAJOR version.
+     * Please use lowercase options instead.
+     * @param path
+     * @param cl Controller Class
+     * @param method
+     * @return
+     * @throws NoSuchMethodException
+     * @throws ClassNotFoundException
+     */
+    @Deprecated
+    public static Route Options(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
+        return options(path, cl, method);
     }
 
     /**
