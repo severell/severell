@@ -57,7 +57,7 @@ public abstract class SeverellMojo extends AbstractMojo {
             }
         }
 
-        classLoader.initRoutes();
+//        classLoader.initRoutes();
 
         for(ServiceProvider provider : providers) {
             try {

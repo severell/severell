@@ -10,11 +10,12 @@ import java.util.Optional;
 /**
  * This class holds information for a distinct route.
  */
-public class Route {
+public class RouteInfo {
+
 
     private String path;
     private Method method;
-    private String httpMethod;
+    private HttpMethod httpMethod;
     private ArrayList<Class> middlewareClassList;
 
     /**
@@ -26,11 +27,26 @@ public class Route {
      * @throws ClassNotFoundException
      * @throws NoSuchMethodException
      */
-    protected Route(String path, Class cl, String method, String httpMethod) throws ClassNotFoundException, NoSuchMethodException {
+    public RouteInfo(String path, Class cl, String method, String httpMethod) throws ClassNotFoundException, NoSuchMethodException {
         this.path = path;
         this.method = getMethodLike(cl, method);
+        this.httpMethod = HttpMethod.valueOf(httpMethod);
+    }
+
+    /**
+     * Create a new route
+     * @param path Route path I.E. /users
+     * @param method Method.
+     * @param httpMethod HTTP Method I.E. POST
+     * @throws ClassNotFoundException
+     * @throws NoSuchMethodException
+     */
+    public RouteInfo(String path, Method method, HttpMethod httpMethod) throws ClassNotFoundException, NoSuchMethodException {
+        this.path = path;
+        this.method = method;
         this.httpMethod = httpMethod;
     }
+
 
     /**
      * Add Middleware to this route
@@ -62,7 +78,7 @@ public class Route {
      * Get the HTTP Request method. I.E. POST
      * @return
      */
-    public String getHttpMethod() {
+    public HttpMethod getHttpMethod() {
         return this.httpMethod;
     }
 

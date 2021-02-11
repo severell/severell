@@ -2,7 +2,6 @@ package com.severell.core.http;
 
 import com.severell.core.container.Container;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -27,6 +26,8 @@ public class RouterTest {
     private static Container c;
     private static ServletContextHandler context;
     private static ArrayList<RouteExecutor> routes = new ArrayList<>();
+    private static Method method;
+
 
 
     @BeforeEach
@@ -37,55 +38,58 @@ public class RouterTest {
         c = mock(Container.class);
         routes =  new ArrayList<>();
 
-        routes.add(new RouteExecutor("/user_:name", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/user_:name", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/", "POST", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/", HttpMethod.POST, ((request, response, container) -> {
             post();
         })));
 
-        routes.add(new RouteExecutor("/page/:id/", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/page/:id/", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/user/:id", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/user/:id", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/user/:id/:name", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/user/:id/:name", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/blog/*files", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/blog/*files", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/searching", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/searching", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/search", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/search", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/blogging", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/blogging", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/post/:id/settings", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/post/:id/settings", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
-        routes.add(new RouteExecutor("/house/:id/*homes", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/house/:id/*homes", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
 
         Router.setCompiledRoutes(routes);
+
+        method = RouterTest.class.getMethod("index");
+
     }
 
     @Test
@@ -182,7 +186,7 @@ public class RouterTest {
     @Test
     public void routerHandlesTwoCatchAllRoutes() throws Exception {
         assertThrows(Exception.class, () -> {
-            routes.add(new RouteExecutor("/blog/*file", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/blog/*file", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router router = new Router();
@@ -251,7 +255,7 @@ public class RouterTest {
     @Test
     public void testOnlyOneNamedParamPerPathSegmentAllowed() throws Exception {
         assertThrows(Exception.class, () -> {
-            routes.add(new RouteExecutor("/test/:id:name", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/test/:id:name", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router router = new Router();
@@ -262,7 +266,7 @@ public class RouterTest {
     @Test
     public void testWildCardsMustBeName() throws Exception {
         assertThrows(Exception.class, () -> {
-            routes.add(new RouteExecutor("/test/*", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/test/*", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router router = new Router();
@@ -273,10 +277,10 @@ public class RouterTest {
     @Test
     public void testWildCardCantConflictWithExistingChildren() throws Exception {
         assertThrows(Exception.class, () -> {
-            routes.add(new RouteExecutor("/test/hello", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/test/hello", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
-            routes.add(new RouteExecutor("/test/*names", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/test/*names", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router router = new Router();
@@ -287,7 +291,7 @@ public class RouterTest {
     @Test
     public void testCatchAllAreOnlyAllowedAtEndOfPath() throws Exception {
         assertThrows(Exception.class, () -> {
-            routes.add(new RouteExecutor("/test/*names/somethingelse", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/test/*names/somethingelse", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router router = new Router();
@@ -298,7 +302,7 @@ public class RouterTest {
     @Test
     public void testSlashMustBeBeforeCatchAll() throws Exception {
         assertThrows(Exception.class, () -> {
-            routes.add(new RouteExecutor("/test*names", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/test*names", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router router = new Router();
@@ -324,10 +328,10 @@ public class RouterTest {
     public void testEmptyWildCardName() throws Exception {
         assertThrows(Exception.class, () -> {
             Router.clearRoutes();
-            routes.add(new RouteExecutor("/", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
-            routes.add(new RouteExecutor("/*test", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/*test", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router.setCompiledRoutes(routes);
@@ -340,10 +344,10 @@ public class RouterTest {
     public void testTrailingSlashOnWildCard() throws Exception {
         assertThrows(Exception.class, () -> {
             Router.clearRoutes();
-            routes.add(new RouteExecutor("/*test", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/*test", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
-            routes.add(new RouteExecutor("/*test/", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/*test/", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router.setCompiledRoutes(routes);
@@ -356,10 +360,10 @@ public class RouterTest {
     public void testSameRouteWithParamAppended() throws Exception {
         Router.clearRoutes();
 
-        routes.add(new RouteExecutor("/some", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/some", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
-        routes.add(new RouteExecutor("/some:name", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/some:name", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
         Router.setCompiledRoutes(routes);
@@ -390,10 +394,10 @@ public class RouterTest {
     public void testWildCardWithLongerDupeNames() throws Exception {
         assertThrows(Exception.class, () -> {
             Router.clearRoutes();
-            routes.add(new RouteExecutor("/*test", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/*test", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
-            routes.add(new RouteExecutor("/*testing", "GET", ((request, response, container) -> {
+            routes.add(new RouteExecutor("/*testing", HttpMethod.GET, ((request, response, container) -> {
                 index();
             })));
             Router.setCompiledRoutes(routes);
@@ -427,13 +431,13 @@ public class RouterTest {
     public void testRouterReturnsNullWhenNotFindingPath() throws Exception {
         Router.clearRoutes();
         routes = new ArrayList<>();
-        routes.add(new RouteExecutor("/", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
-        routes.add(new RouteExecutor("/search", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/search", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
-        routes.add(new RouteExecutor("/blog/:id", "GET", ((request, response, container) -> {
+        routes.add(new RouteExecutor("/blog/:id", HttpMethod.GET, ((request, response, container) -> {
             index();
         })));
         Router.setCompiledRoutes(routes);
@@ -449,25 +453,17 @@ public class RouterTest {
     }
 
     @Test
-    public void testRouterThrowsErrorWhenMethodNotFound() throws Exception {
-        assertThrows(RuntimeException.class, () -> {
-            Router.clearRoutes();
-            Router.Get("/", RouterTest.class, "notFound");
-        });
-    }
-
-    @Test
     public void testRouterAddsToRouteListCorrectly() throws NoSuchMethodException, ClassNotFoundException {
         Router.clearRoutes();
-        Router.Get("/", RouterTest.class, "index");
-        Router.Post("/", RouterTest.class, "index");
-        Router.Put("/", RouterTest.class, "index");
-        Router.Patch("/", RouterTest.class, "index");
-        Router.Delete("/", RouterTest.class, "index");
-        Router.Options("/", RouterTest.class, "index");
+        Router.get("/", method);
+        Router.post("/", method);
+        Router.put("/", method);
+        Router.patch("/", method);
+        Router.delete("/", method);
+        Router.options("/", method);
 
         Router router = new Router();
-        ArrayList<Route> routes = router.getRoutes();
+        ArrayList<RouteInfo> routes = router.getRoutes();
         assertEquals("GET", routes.get(0).getHttpMethod());
         assertEquals("/", routes.get(0).getPath());
         assertEquals("HEAD", routes.get(1).getHttpMethod());

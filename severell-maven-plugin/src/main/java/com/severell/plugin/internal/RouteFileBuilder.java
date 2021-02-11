@@ -8,7 +8,6 @@ import org.apache.maven.shared.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.lang.model.element.Modifier;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Files;
@@ -18,9 +17,10 @@ import java.util.Arrays;
 
 public class RouteFileBuilder {
 
+
     public static Path build(Container container, String basePackage) throws IOException {
         Router router = new Router();
-        ArrayList<Route> routes = router.getRoutes();
+        ArrayList<RouteInfo> routes = router.getRoutes();
 
         MethodSpec.Builder builder = getBuildMethodBuilder(container, routes);
 
@@ -61,7 +61,7 @@ public class RouteFileBuilder {
     }
 
     @NotNull
-    private static MethodSpec.Builder getBuildMethodBuilder(Container c, ArrayList<Route> routes) {
+    private static MethodSpec.Builder getBuildMethodBuilder(Container c, ArrayList<RouteInfo> routes) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("build");
         builder.addModifiers(Modifier.PUBLIC);
         TypeName listOfRouteExecutor = ParameterizedTypeName.get(ArrayList.class, RouteExecutor.class);
@@ -69,7 +69,7 @@ public class RouteFileBuilder {
 
         builder.addStatement("$T<$T> list = new $T<>()", ArrayList.class, RouteExecutor.class, ArrayList.class);
         int routeIndex = 0;
-        for(Route r : routes) {
+        for(RouteInfo r : routes) {
             String middlwareListName = "middlewareList" + routeIndex;
             builder.addCode("\n // ********* ROUTE: $S - $S ********* \n", r.getHttpMethod(), r.getPath());
             CodeBlock.Builder LambdaBuilder = CodeBlock.builder()
@@ -92,7 +92,7 @@ public class RouteFileBuilder {
             //We need to instantiate and resolve middleware here.
             buildMiddleware(c, builder, r.getMiddlewareClassList(), middlwareListName);
 
-            builder.addStatement("list.add(new $T($S, $S, $L, $L))", RouteExecutor.class, r.getPath(), r.getHttpMethod(), middlwareListName, Lambda.toString());
+            builder.addStatement("list.add(new $T($S, com.severell.core.http.HttpMethod.$L, $L, $L))", RouteExecutor.class, r.getPath(), r.getHttpMethod(), middlwareListName, Lambda.toString());
             routeIndex++;
         }
 

@@ -35,7 +35,7 @@ public class MiddlewareChainTest {
 
         MiddlewareChain chain = new MiddlewareChain();
         chain.setMiddleware(list);
-        chain.setTarget(new RouteExecutor("/", "GET", (req, resp, c) -> {
+        chain.setTarget(new RouteExecutor("/", HttpMethod.GET, (req, resp, c) -> {
             assertNotNull(req);
             req.getRequest();
         }));
@@ -55,7 +55,7 @@ public class MiddlewareChainTest {
 
         MiddlewareChain chain = new MiddlewareChain();
         chain.setMiddleware(list);
-        RouteExecutor ex = new RouteExecutor("/", "GET", new ArrayList<>(), (req, resp, c) -> {
+        RouteExecutor ex = new RouteExecutor("/", HttpMethod.GET, new ArrayList<>(), (req, resp, c) -> {
             assertNotNull(req);
             req.getRequest();
         });

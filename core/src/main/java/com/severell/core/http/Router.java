@@ -1,5 +1,6 @@
 package com.severell.core.http;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,22 +11,21 @@ import java.util.HashMap;
 public class Router {
 
     private HashMap<String, RouteNode> trees;
-    private static ArrayList<Route> routes = new ArrayList<Route>();
+    private static ArrayList<RouteInfo> routes = new ArrayList<RouteInfo>();
     private static ArrayList<RouteExecutor> compiledRoutes = new ArrayList<RouteExecutor>();
 
     /**
      * Register a GET route for the given path
      *
      * @param path
-     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route get(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, cl, method, "GET");
-        Route headRoute = new Route(path, cl, method, "HEAD");
+    public static RouteInfo get(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+        RouteInfo route = new RouteInfo(path, method, HttpMethod.GET);
+        RouteInfo headRoute = new RouteInfo(path, method, HttpMethod.HEAD);
         routes.add(route);
         routes.add(headRoute);
         return route;
@@ -35,14 +35,13 @@ public class Router {
      * Register a POST route for the given path
      *
      * @param path
-     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route post(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, cl, method, "POST");
+    public static RouteInfo post(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+        RouteInfo route = new RouteInfo(path, method, HttpMethod.POST);
         routes.add(route);
         return route;
     }
@@ -51,14 +50,13 @@ public class Router {
      * Register a PUT route for the given path
      *
      * @param path
-     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route put(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, cl, method, "PUT");
+    public static RouteInfo put(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+        RouteInfo route = new RouteInfo(path, method, HttpMethod.PUT);
         routes.add(route);
         return route;
     }
@@ -67,14 +65,13 @@ public class Router {
      * Register a Patch route for the given path
      *
      * @param path
-     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route patch(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, cl, method, "PATCH");
+    public static RouteInfo patch(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+        RouteInfo route = new RouteInfo(path, method, HttpMethod.PATCH);
         routes.add(route);
         return route;
     }
@@ -83,14 +80,13 @@ public class Router {
      * Register a DELETE route for the given path
      *
      * @param path
-     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route delete(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path, cl, method, "DELETE");
+    public static RouteInfo delete(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+        RouteInfo route = new RouteInfo(path, method, HttpMethod.DELETE);
         routes.add(route);
         return route;
     }
@@ -99,112 +95,15 @@ public class Router {
      * Register an OPTIONS route for the given path
      *
      * @param path
-     * @param cl Controller Class
      * @param method
      * @return
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static Route options(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        Route route = new Route(path,cl, method, "OPTIONS");
+    public static RouteInfo options(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+        RouteInfo route = new RouteInfo(path, method, HttpMethod.OPTIONS);
         routes.add(route);
         return route;
-    }
-
-    /**
-     * Register a GET route for the given path
-     * @deprecated This will be removed in the next MAJOR version.
-     * Please use lowercase get instead.
-     * @param path
-     * @param cl Controller Class
-     * @param method
-     * @return
-     * @throws NoSuchMethodException
-     * @throws ClassNotFoundException
-     */
-    @Deprecated
-    public static Route Get(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        return get(path, cl, method);
-    }
-
-    /**
-     * Register a POST route for the given path
-     * @deprecated This will be removed in the next MAJOR version.
-     * Please use lowercase post instead.
-     * @param path
-     * @param cl Controller Class
-     * @param method
-     * @return
-     * @throws NoSuchMethodException
-     * @throws ClassNotFoundException
-     */
-    @Deprecated
-    public static Route Post(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        return post(path, cl, method);
-    }
-
-    /**
-     * Register a PUT route for the given path
-     * @deprecated This will be removed in the next MAJOR version.
-     * Please use lowercase put instead.
-     * @param path
-     * @param cl Controller Class
-     * @param method
-     * @return
-     * @throws NoSuchMethodException
-     * @throws ClassNotFoundException
-     */
-    @Deprecated
-    public static Route Put(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        return put(path, cl, method);
-    }
-
-    /**
-     * Register a Patch route for the given path
-     * @deprecated This will be removed in the next MAJOR version.
-     * Please use lowercase patch instead.
-     * @param path
-     * @param cl Controller Class
-     * @param method
-     * @return
-     * @throws NoSuchMethodException
-     * @throws ClassNotFoundException
-     */
-    @Deprecated
-    public static Route Patch(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        return patch(path, cl, method);
-    }
-
-    /**
-     * Register a DELETE route for the given path
-     * @deprecated This will be removed in the next MAJOR version.
-     * Please use lowercase delete instead.
-     * @param path
-     * @param cl Controller Class
-     * @param method
-     * @return
-     * @throws NoSuchMethodException
-     * @throws ClassNotFoundException
-     */
-    @Deprecated
-    public static Route Delete(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        return delete(path, cl, method);
-    }
-
-    /**
-     * Register an OPTIONS route for the given path
-     * @deprecated This will be removed in the next MAJOR version.
-     * Please use lowercase options instead.
-     * @param path
-     * @param cl Controller Class
-     * @param method
-     * @return
-     * @throws NoSuchMethodException
-     * @throws ClassNotFoundException
-     */
-    @Deprecated
-    public static Route Options(String path, Class cl, String method) throws NoSuchMethodException, ClassNotFoundException {
-        return options(path, cl, method);
     }
 
     /**
@@ -302,10 +201,18 @@ public class Router {
     }
 
     /**
+     * Set a list of all Routes.
+     * @return
+     */
+    public static void setRoutes(ArrayList<RouteInfo> routeList) {
+        routes = routeList;
+    }
+
+    /**
      * Get a list of all Routes.
      * @return
      */
-    public ArrayList<Route> getRoutes() {
+    public ArrayList<RouteInfo> getRoutes() {
         return Router.routes;
     }
 
@@ -317,13 +224,15 @@ public class Router {
         trees = new HashMap<>();
 
         for(RouteExecutor r : Router.compiledRoutes) {
-            if(trees.containsKey(r.getHttpMethod())) {
-                RouteNode tree = trees.get(r.getHttpMethod());
+            String httpMethod = r.getHttpMethod().toString();
+
+            if(trees.containsKey(httpMethod)) {
+                RouteNode tree = trees.get(httpMethod);
                 tree.insert(r.getPath(), r);
             } else {
                 RouteNode tree = new RouteNode();
                 tree.insert(r.getPath(), r);
-                trees.put(r.getHttpMethod(), tree);
+                trees.put(httpMethod, tree);
             }
         }
     }
