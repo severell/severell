@@ -23,9 +23,11 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static RouteInfo get(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+    public static RouteInfo get(String path, Method method, Class[] middleware) throws NoSuchMethodException, ClassNotFoundException {
         RouteInfo route = new RouteInfo(path, method, HttpMethod.GET);
         RouteInfo headRoute = new RouteInfo(path, method, HttpMethod.HEAD);
+        route.middleware(middleware);
+        headRoute.middleware(middleware);
         routes.add(route);
         routes.add(headRoute);
         return route;
@@ -40,8 +42,9 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static RouteInfo post(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+    public static RouteInfo post(String path, Method method, Class[] middleware) throws NoSuchMethodException, ClassNotFoundException {
         RouteInfo route = new RouteInfo(path, method, HttpMethod.POST);
+        route.middleware(middleware);
         routes.add(route);
         return route;
     }
@@ -55,8 +58,9 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static RouteInfo put(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+    public static RouteInfo put(String path, Method method, Class[] middleware) throws NoSuchMethodException, ClassNotFoundException {
         RouteInfo route = new RouteInfo(path, method, HttpMethod.PUT);
+        route.middleware(middleware);
         routes.add(route);
         return route;
     }
@@ -70,8 +74,9 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static RouteInfo patch(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+    public static RouteInfo patch(String path, Method method, Class[] middleware) throws NoSuchMethodException, ClassNotFoundException {
         RouteInfo route = new RouteInfo(path, method, HttpMethod.PATCH);
+        route.middleware(middleware);
         routes.add(route);
         return route;
     }
@@ -85,8 +90,9 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static RouteInfo delete(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+    public static RouteInfo delete(String path, Method method, Class[] middleware) throws NoSuchMethodException, ClassNotFoundException {
         RouteInfo route = new RouteInfo(path, method, HttpMethod.DELETE);
+        route.middleware(middleware);
         routes.add(route);
         return route;
     }
@@ -100,8 +106,9 @@ public class Router {
      * @throws NoSuchMethodException
      * @throws ClassNotFoundException
      */
-    public static RouteInfo options(String path, Method method) throws NoSuchMethodException, ClassNotFoundException {
+    public static RouteInfo options(String path, Method method, Class[] middleware) throws NoSuchMethodException, ClassNotFoundException {
         RouteInfo route = new RouteInfo(path, method, HttpMethod.OPTIONS);
+        route.middleware(middleware);
         routes.add(route);
         return route;
     }

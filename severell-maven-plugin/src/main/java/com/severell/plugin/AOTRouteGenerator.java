@@ -2,6 +2,7 @@ package com.severell.plugin;
 
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
+import com.severell.core.http.Middleware;
 import com.severell.core.http.Route;
 import com.severell.core.http.RouteInfo;
 import com.severell.core.http.Router;
@@ -48,24 +49,32 @@ public class AOTRouteGenerator extends SeverellMojo {
 
         for (Method method : controllers) {
             Route r = method.getAnnotation(Route.class);
+            Class[] middleware = new Class[0];
+            getLog().info("Has Middleware - " + method.getAnnotation(Middleware.class));
+            if(method.isAnnotationPresent(Middleware.class)){
+                getLog().info("Has Middleware - " + method.getClass().getName());
+                Middleware middlewareAnnotation = method.getAnnotation(Middleware.class);
+                middleware = middlewareAnnotation.value();
+            }
+
             switch (r.method()) {
                 case GET:
-                    Router.get(r.path(), method);
+                    Router.get(r.path(), method, middleware);
                     break;
                 case POST:
-                    Router.post(r.path(), method);
+                    Router.post(r.path(), method, middleware);
                     break;
                 case PUT:
-                    Router.put(r.path(), method);
+                    Router.put(r.path(), method, middleware);
                     break;
                 case PATCH:
-                    Router.patch(r.path(), method);
+                    Router.patch(r.path(), method, middleware);
                     break;
                 case DELETE:
-                    Router.delete(r.path(), method);
+                    Router.delete(r.path(), method, middleware);
                     break;
                 case OPTIONS:
-                    Router.options(r.path(), method);
+                    Router.options(r.path(), method, middleware);
                     break;
             }
         }

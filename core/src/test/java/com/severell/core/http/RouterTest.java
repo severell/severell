@@ -455,12 +455,12 @@ public class RouterTest {
     @Test
     public void testRouterAddsToRouteListCorrectly() throws NoSuchMethodException, ClassNotFoundException {
         Router.clearRoutes();
-        Router.get("/", method);
-        Router.post("/", method);
-        Router.put("/", method);
-        Router.patch("/", method);
-        Router.delete("/", method);
-        Router.options("/", method);
+        Router.get("/", method, new Class[0]);
+        Router.post("/", method, new Class[0]);
+        Router.put("/", method, new Class[0]);
+        Router.patch("/", method, new Class[0]);
+        Router.delete("/", method, new Class[0]);
+        Router.options("/", method, new Class[0]);
 
         Router router = new Router();
         ArrayList<RouteInfo> routes = router.getRoutes();
