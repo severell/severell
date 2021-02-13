@@ -14,7 +14,7 @@ COUNT=${#strarr[*]}
 NAME=${strarr[$COUNT-1]}
 NAME=$(echo "$NAME" | awk '{print tolower($0)}')
 NAME=$(echo "$NAME" | sed 's/ //g')
-NAME="${NAME}-severell"
+NAME="${NAME}-severell$DBTYPE"
 
 
 case $OPERATION in
@@ -22,16 +22,25 @@ case $OPERATION in
         #If docker image already exists then don't recreate the image.
         if [[ "$(docker image inspect "${NAME}":latest >/dev/null 2>&1 && echo yes || echo no)" == "no" ]]; then
           docker build -t "$NAME" - < ./config/"${DBTYPE}".dockerfile
+        fi
 
+
+        if [ ! "$(docker ps -aq -f name=$NAME)" ]; then
           #Run DB in Docker
-          docker run -d --name "$NAME" -p 5555:5432 "$NAME"
+          case $DBTYPE in
+            "postgres" )
+              docker run -d --name "$NAME" -p 5432:5432 "$NAME"
+            ;;
+            "mysql" )
+              docker run -d --name "$NAME" -p 3306:3306 "$NAME"
+            ;;
+          esac
         else
           docker start "$NAME"
         fi
+
          ;;
     "stop" )
         docker stop "$NAME"
          ;;
 esac
-
-
