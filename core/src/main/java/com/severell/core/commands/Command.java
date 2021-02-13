@@ -42,22 +42,28 @@ public abstract class Command implements Callable<Integer> {
         return connection;
     }
 
-    public void runMavenGoals(String... goals) throws MavenInvocationException {
+    public void runMavenGoals(String... goals) {
         PrintStream originalStream = System.out;
         System.setOut(new PrintStream(new ByteArrayOutputStream()));
-        Invoker invoker = new DefaultInvoker();
-        InvokerLogger logger = invoker.getLogger();
-        logger.setThreshold(InvokerLogger.FATAL);
-        invoker.setLogger(logger);
+        try {
+            Invoker invoker = new DefaultInvoker();
+            InvokerLogger logger = invoker.getLogger();
+            logger.setThreshold(InvokerLogger.FATAL);
+            invoker.setLogger(logger);
 
-        InvocationRequest request = new DefaultInvocationRequest();
-        request.setBatchMode(true);
-        request.setGoals(Arrays.asList(goals));
-        invoker.execute(request);
-        System.setOut(originalStream);
+            InvocationRequest request = new DefaultInvocationRequest();
+            request.setBatchMode(true);
+            request.setGoals(Arrays.asList(goals));
+            invoker.execute(request);
+        } catch (MavenInvocationException | IllegalStateException e) {
+            //Implement Proper Logging Here.
+            e.printStackTrace();
+        } finally{
+            System.setOut(originalStream);
+        }
     }
 
-    public void compile() throws MavenInvocationException {
+    public void compile() {
         runMavenGoals("compile");
     }
 

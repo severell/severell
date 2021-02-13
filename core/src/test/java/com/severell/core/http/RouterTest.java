@@ -464,24 +464,24 @@ public class RouterTest {
 
         Router router = new Router();
         ArrayList<RouteInfo> routes = router.getRoutes();
-        assertEquals("GET", routes.get(0).getHttpMethod());
+        assertEquals(HttpMethod.GET, routes.get(0).getHttpMethod());
         assertEquals("/", routes.get(0).getPath());
-        assertEquals("HEAD", routes.get(1).getHttpMethod());
+        assertEquals(HttpMethod.HEAD, routes.get(1).getHttpMethod());
         assertEquals("/", routes.get(1).getPath());
 
-        assertEquals("POST", routes.get(2).getHttpMethod());
+        assertEquals(HttpMethod.POST, routes.get(2).getHttpMethod());
         assertEquals("/", routes.get(2).getPath());
 
-        assertEquals("PUT", routes.get(3).getHttpMethod());
+        assertEquals(HttpMethod.PUT, routes.get(3).getHttpMethod());
         assertEquals("/", routes.get(3).getPath());
 
-        assertEquals("PATCH", routes.get(4).getHttpMethod());
+        assertEquals(HttpMethod.PATCH, routes.get(4).getHttpMethod());
         assertEquals("/", routes.get(4).getPath());
 
-        assertEquals("DELETE", routes.get(5).getHttpMethod());
+        assertEquals(HttpMethod.DELETE, routes.get(5).getHttpMethod());
         assertEquals("/", routes.get(5).getPath());
 
-        assertEquals("OPTIONS", routes.get(6).getHttpMethod());
+        assertEquals(HttpMethod.OPTIONS, routes.get(6).getHttpMethod());
         assertEquals("/", routes.get(6).getPath());
     }
 

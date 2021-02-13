@@ -10,13 +10,8 @@ public class MigrateCommand extends Command {
 
     @Override
     public void execute() {
-        try {
-            CommandLogger.printlnGreen(String.format("Compiling Migrations..."));
-            compile();
-        } catch (MavenInvocationException e) {
-            //Implement Proper Logging Here.
-            e.printStackTrace();
-        }
+        CommandLogger.printlnGreen(String.format("Compiling Migrations..."));
+        compile();
 
         try {
             Connection con = connection == null ? getConnection() : connection;

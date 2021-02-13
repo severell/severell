@@ -51,13 +51,10 @@ public class MakeModel extends MakeableCommand {
 
         CommandLogger.printlnGreen(String.format("Created Model - %s", name));
 
-        try {
-            System.out.println("");
-            CommandLogger.printlnGreen(String.format("Compiling & Processing Model"));
-            runMavenGoals("compile","process-classes");
-        } catch (MavenInvocationException e) {
-            e.printStackTrace();
-        }
+        System.out.println("");
+        CommandLogger.printlnGreen(String.format("Compiling & Processing Model"));
+        runMavenGoals("compile","process-classes");
+
     }
 
     private TypeSpec getTypeSpec(String tableName, TableMetaData metaData, String modelName) {

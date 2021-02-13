@@ -161,6 +161,7 @@ public class MigrateTest {
         command.setConnection(connection);
         command.execute();
 
+        System.out.println(outContent.toString());
         assertTrue(outContent.toString().contains("Rolling Back - TestMigration"), String.format("Got %s", outContent.toString()));
         assertTrue(outContent.toString().contains("Failed to Reset - ErrorMigration"), String.format("Got %s", outContent.toString()));
     }

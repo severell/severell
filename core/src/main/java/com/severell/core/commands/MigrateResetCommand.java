@@ -8,13 +8,8 @@ public class MigrateResetCommand extends Command{
 
     @Override
     public void execute() {
-        try {
-            CommandLogger.printlnGreen(String.format("Compiling Migrations..."));
-            compile();
-        } catch (MavenInvocationException e) {
-            //Implement Proper Logging Here.
-            e.printStackTrace();
-        }
+        CommandLogger.printlnGreen(String.format("Compiling Migrations..."));
+        compile();
 
         try {
             new Migrate(connection == null ? getConnection() : connection).reset();
