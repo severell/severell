@@ -29,10 +29,10 @@ case $OPERATION in
           #Run DB in Docker
           case $DBTYPE in
             "postgres" )
-              docker run -d --name "$NAME" -p 5432:5432 "$NAME"
+              docker run -d --name "$NAME" -p 5555:5432 "$NAME"
             ;;
             "mysql" )
-              docker run -d --name "$NAME" -p 3306:3306 "$NAME"
+              docker run -d --name "$NAME" -p 5555:3306 "$NAME"
             ;;
           esac
         else
