@@ -6,7 +6,7 @@ public class Manager {
 
     protected String config;
     protected String driver_prefix;
-    private Container container;
+    protected Container container;
 
     public Manager(Container c) {
         this.container = c;

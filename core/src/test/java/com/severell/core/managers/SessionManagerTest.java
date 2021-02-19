@@ -1,8 +1,8 @@
 package com.severell.core.managers;
 
 import com.severell.core.container.Container;
-import com.severell.core.drivers.Session;
-import com.severell.core.drivers.SessionMemoryDriver;
+import com.severell.core.session.Session;
+import com.severell.core.session.SessionMemoryDriver;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNull;

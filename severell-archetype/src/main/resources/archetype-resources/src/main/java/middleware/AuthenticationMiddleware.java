@@ -1,6 +1,6 @@
 package ${package}.middleware;
 
-import com.severell.core.drivers.Session;
+import com.severell.core.session.Session;
 import com.severell.core.http.MiddlewareChain;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;

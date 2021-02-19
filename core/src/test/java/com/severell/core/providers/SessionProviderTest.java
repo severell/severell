@@ -1,8 +1,9 @@
 package com.severell.core.providers;
 
 import com.severell.core.container.Container;
-import com.severell.core.drivers.SessionMemoryDriver;
+import com.severell.core.session.SessionMemoryDriver;
 import com.severell.core.managers.SessionManager;
+import com.severell.core.session.SessionProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

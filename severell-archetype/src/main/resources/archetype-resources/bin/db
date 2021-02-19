@@ -34,6 +34,9 @@ case $OPERATION in
             "mysql" )
               docker run -d --name "$NAME" -p 5555:3306 "$NAME"
             ;;
+            "redis" )
+              docker run -d --name "$NAME" -p 6379:6379 "$NAME"
+            ;;
           esac
         else
           docker start "$NAME"

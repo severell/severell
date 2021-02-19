@@ -1,12 +1,11 @@
 package com.severell.core.middleware;
 
-import com.severell.core.drivers.Session;
+import com.severell.core.session.Session;
 import com.severell.core.exceptions.MiddlewareException;
 import com.severell.core.http.MiddlewareChain;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
 
-import javax.servlet.http.Cookie;
 import java.util.UUID;
 import java.util.function.Function;
 

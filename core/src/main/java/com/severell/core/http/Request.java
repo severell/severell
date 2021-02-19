@@ -4,9 +4,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.io.BufferedReader;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -31,6 +32,34 @@ public class Request extends HttpServletRequestWrapper {
     private HashMap<String, String> urlParams;
     private Map<String, String> queryData;
     private Map<String, String> inputData;
+    private HttpSession session;
+
+    public void setSession(HttpSession session) {
+        this.session = session;
+    }
+
+    public HttpSession genereateNewSession() {
+        return super.getSession(true);
+    }
+
+    @Override
+    public HttpSession getSession() {
+        if(session != null) {
+            return session;
+        }
+
+        return super.getSession();
+    }
+
+    @Override
+    public HttpSession getSession(boolean create) {
+        if(session != null) {
+            return session;
+        }
+
+        return super.getSession(create);
+    }
+
 
     /**
      * Used internally to add the named route parameters.
@@ -147,5 +176,18 @@ public class Request extends HttpServletRequestWrapper {
         if(queryData == null) {
             queryData = new HashMap<>();
         }
+    }
+
+    public Cookie getCookie(String s) {
+        Cookie[] cookies = getCookies();
+        if(cookies != null) {
+            for(Cookie cookie: cookies) {
+                if(cookie.getName().equals(s)) {
+                    return cookie;
+                }
+            }
+        }
+
+        return null;
     }
 }

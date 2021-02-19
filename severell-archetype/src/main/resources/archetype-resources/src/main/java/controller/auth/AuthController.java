@@ -1,8 +1,8 @@
 package ${package}.controller.auth;
 
-import ${package}.auth.Auth;
+{package}.auth.Auth;
 import com.severell.core.crypto.PasswordUtils;
-import com.severell.core.drivers.Session;
+import com.severell.core.session.Session;
 import com.severell.core.exceptions.ViewException;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
@@ -11,7 +11,6 @@ import com.severell.core.http.Route;
 import ${package}.models.User;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AuthController {

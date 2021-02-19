@@ -1,4 +1,4 @@
-package com.severell.core.drivers;
+package com.severell.core.session;
 
 import com.severell.core.http.Request;
 import org.junit.jupiter.api.Test;

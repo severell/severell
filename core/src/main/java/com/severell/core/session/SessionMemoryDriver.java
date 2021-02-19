@@ -1,4 +1,4 @@
-package com.severell.core.drivers;
+package com.severell.core.session;
 
 /**
  * This uses the default JSESSION sessions
