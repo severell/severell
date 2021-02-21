@@ -5,6 +5,7 @@ import com.severell.core.error.ErrorHandler;
 import com.severell.core.exceptions.ControllerException;
 import com.severell.core.exceptions.MiddlewareException;
 import com.severell.core.exceptions.NotFoundException;
+import org.apache.logging.log4j.Logger;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class Dispatcher {
     private final Container c;
     private Router router;
     private final ErrorHandler errorHandler;
+    private Logger logger;
 
     /**
      * Creates a new Dispatcher
@@ -27,6 +29,7 @@ public class Dispatcher {
         this.c =c;
 
         this.errorHandler = c.make(ErrorHandler.class);
+        this.logger = c.make(Logger.class);
     }
 
     /**
@@ -69,13 +72,15 @@ public class Dispatcher {
      * @throws ControllerException
      */
     private void doRequest(Request request, Response response) throws Exception {
+        logger.info(String.format("Request - %s - %s", request.getMethod(), request.getRequestURI()));
         RouteExecutor ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
 
         if(ref != null) {
             MiddlewareManager manager = new MiddlewareManager(ref, c);
             manager.filterRequest(request, response);
         } else {
-            errorHandler.handle(new NotFoundException("No route has been configured for the given request "), request, response);
+            logger.warn(String.format("%s - %s - %s", request.getMethod(), request.getRequestURI(), "No route has been configured for the given request "));
+//            errorHandler.handle(new NotFoundException("No route has been configured for the given request "), request, response);
         }
     }
 }

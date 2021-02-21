@@ -46,10 +46,10 @@ public class AppProviderTest {
         ArgumentCaptor<Class> classCaptor = ArgumentCaptor.forClass(Class.class);
         ArgumentCaptor<Object> objCapture = ArgumentCaptor.forClass(Object.class);
 
-        verify(c, times(4)).singleton(classCaptor.capture(),objCapture.capture());
+        verify(c, times(5)).singleton(classCaptor.capture(),objCapture.capture());
 
-        assertTrue(objCapture.getAllValues().get(0) instanceof ErrorHandler);
-        assertTrue(objCapture.getAllValues().get(3) instanceof Database);
+        assertTrue(objCapture.getAllValues().get(1) instanceof ErrorHandler);
+        assertTrue(objCapture.getAllValues().get(4) instanceof Database);
 
     }
 
@@ -70,8 +70,8 @@ public class AppProviderTest {
         ArgumentCaptor<Class> classCaptor = ArgumentCaptor.forClass(Class.class);
         ArgumentCaptor<Object> objCapture = ArgumentCaptor.forClass(Object.class);
 
-        verify(c, times(4)).singleton(classCaptor.capture(),objCapture.capture());
+        verify(c, times(5)).singleton(classCaptor.capture(),objCapture.capture());
 
-        assertTrue(objCapture.getAllValues().get(0) instanceof ErrorHandler);
+        assertTrue(objCapture.getAllValues().get(1) instanceof ErrorHandler);
     }
 }

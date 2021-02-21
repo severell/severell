@@ -33,7 +33,9 @@ public class SessionManager extends Manager{
             sessionThreadLocal.get().put(driver, session);
         }
 
-        ((BaseSessionDriver)session).setContainer(this.container);
+        if(session != null) {
+            ((BaseSessionDriver) session).setContainer(this.container);
+        }
         return session;
     }
 }

@@ -59,6 +59,7 @@ public class ProjectClassLoader {
             Class cl = classLoader.loadClass(basePackage + ".Providers");
             return (ServiceProvider[]) cl.getMethod("load", Container.class).invoke(null, container);
         }catch (Exception e) {
+            e.printStackTrace();
             log.info("Unable to retrieve Providers");
             return new ServiceProvider[0];
         }

@@ -11,6 +11,9 @@ import io.ebean.Database;
 import io.ebean.DatabaseFactory;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.datasource.DataSourceConfig;
+import org.apache.commons.logging.Log;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The AppProvider provides necessary dependencies to the Container.
@@ -20,6 +23,8 @@ public class AppProvider extends ServiceProvider{
     public AppProvider(Container c) {
         super(c);
     }
+
+    private static final Logger logger = LogManager.getLogger(AppProvider.class);
 
     private static final ThreadLocal<ObjectMapper> om = new ThreadLocal<ObjectMapper>() {
         @Override
@@ -36,8 +41,10 @@ public class AppProvider extends ServiceProvider{
             c.singleton(DefaultMustacheFactory.class, new DefaultMustacheFactory());
         }
 
+        c.singleton(Logger.class, logger);
         c.singleton(ErrorHandler.class, new ErrorHandler(c));
         c.singleton(Dispatcher.class, new Dispatcher(c));
+
         c.bind("_databaseFactory",(c) ->  DatabaseFactory.create(c.make(DatabaseConfig.class)));
         c.bind(ObjectMapper.class, (c) -> om.get());
     }

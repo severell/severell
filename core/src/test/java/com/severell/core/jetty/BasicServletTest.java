@@ -3,6 +3,7 @@ package com.severell.core.jetty;
 import com.severell.core.container.Container;
 import com.severell.core.http.*;
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,12 +29,15 @@ public class BasicServletTest {
     private HttpServletRequest req;
     private HttpServletResponse resp;
     private RouteExecutor executor;
+    private Logger logger;
 
     @BeforeEach
     public void setup() throws IOException {
         c = mock(Container.class);
         r = mock(Router.class);
+        logger = mock(Logger.class);
 
+        given(c.make(Logger.class)).willReturn(logger);
         req = mock(HttpServletRequest.class);
         resp = mock(HttpServletResponse.class);
         given(resp.getWriter()).willReturn(mock(PrintWriter.class));
@@ -42,6 +46,7 @@ public class BasicServletTest {
         dispatcher = new Dispatcher(c);
         dispatcher.initRouter();
         given(c.make(Dispatcher.class)).willReturn(dispatcher);
+
     }
 
     @Test
