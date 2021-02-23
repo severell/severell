@@ -1,6 +1,6 @@
 package ${package}.controller.auth;
 
-{package}.auth.Auth;
+import ${package}.auth.Auth;
 import com.severell.core.crypto.PasswordUtils;
 import com.severell.core.session.Session;
 import com.severell.core.exceptions.ViewException;
