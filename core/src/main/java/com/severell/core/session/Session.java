@@ -1,5 +1,7 @@
 package com.severell.core.session;
 
+import com.severell.core.http.Request;
+
 public interface Session {
 
     /**
@@ -37,5 +39,11 @@ public interface Session {
      * @param value Value to be stored in the session
      */
     void put(String key, Object value);
+
+    /**
+     * Set the Request Object for the Session
+     * @param r Request obj.
+     */
+    void setRequest(Request r);
 
 }

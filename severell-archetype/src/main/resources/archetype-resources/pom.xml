@@ -99,14 +99,6 @@
                 <configuration>
                     <basePackage>${package}</basePackage>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>io.repaint.maven</groupId>

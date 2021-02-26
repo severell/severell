@@ -21,7 +21,6 @@ public class App {
             System.exit(1);
         }
         Container c = new Container();
-        c.singleton("_MiddlewareList", Middleware.MIDDLEWARE);
         c.singleton(Auth.class, new Auth());
 
         AppServer server = new AppServer(Config.get("PORT", "8080"));
@@ -34,10 +33,11 @@ public class App {
         }
 
         try {
-            RouteBuilder builder = new RouteBuilder();
-            ArrayList routes = builder.build();
+            Class clazz = Class.forName("com.severell.core._severell$RouteBuilder");
+            Object obj = clazz.getConstructor().newInstance();
+            ArrayList routes = (ArrayList) clazz.getMethod("build").invoke(obj);
             Router.setCompiledRoutes(routes);
-            c.singleton("DefaultMiddleware", builder.buildDefaultMiddleware());
+            c.singleton("DefaultMiddleware", clazz.getMethod("buildDefaultMiddleware").invoke(obj));
         }catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
