@@ -24,8 +24,10 @@ public class SessionProvider extends ServiceProvider {
         this.c.bind("SessionRedisDriver", (container) -> new SessionRedisDriver());
         this.c.singleton(SessionManager.class, new SessionManager(this.c));
 
-        JedisPool pool = new JedisPool(getJedisPoolConfig(), Config.get("REDIS_URL", "localhost"));
-        this.c.singleton(JedisPool.class, pool);
+        if(Config.get("SESSION_DRIVER", "").equalsIgnoreCase("Redis")) {
+            JedisPool pool = new JedisPool(getJedisPoolConfig(), Config.get("REDIS_URL", "localhost"));
+            this.c.singleton(JedisPool.class, pool);
+        }
     }
 
     @Override

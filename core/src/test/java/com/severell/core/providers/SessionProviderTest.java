@@ -35,7 +35,7 @@ public class SessionProviderTest {
         ArgumentCaptor<Function<Container, Object>> sessCaptor = ArgumentCaptor.forClass(Function.class);
 
         verify(c, times(2)).bind(any(String.class), objCaptor.capture());
-        verify(c, times(2)).singleton(any(Class.class), sesssionCaptor.capture());
+        verify(c, times(1)).singleton(any(Class.class), sesssionCaptor.capture());
 
         assertTrue(sesssionCaptor.getAllValues().get(0) instanceof SessionManager);
         assertTrue(objCaptor.getAllValues().get(0).apply(null) instanceof SessionMemoryDriver);
