@@ -22,7 +22,6 @@ public interface Response {
 
     Responsable download(File file, String mimeType, String name) throws IOException;
 
-
     void close() throws IOException;
 
     void redirect(String s);

@@ -73,7 +73,7 @@ public class UndertowRequest implements Request {
     @Override
     public Cookie cookie(String s) {
         CookieImpl cookieImpl = (CookieImpl) exchange.getRequestCookies().get(s);
-        return new UndertowCookie(cookieImpl);
+        return cookieImpl != null ? new UndertowCookie(cookieImpl) : null;
     }
 
     @Override

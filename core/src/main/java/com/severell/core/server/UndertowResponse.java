@@ -9,12 +9,16 @@ import com.severell.core.exceptions.ViewException;
 import com.severell.core.http.Responsable;
 import com.severell.core.http.Response;
 import com.severell.core.view.View;
+import io.undertow.io.Sender;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
+import org.xnio.channels.StreamSinkChannel;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channel;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
@@ -188,12 +192,23 @@ public class UndertowResponse implements Response {
      * @throws IOException
      */
     public Responsable download(File file, String mimeType, String name) throws IOException {
-        byte[] bytes = Files.readAllBytes(file.toPath());
+        exchange.setStatusCode(200);
         header("Content-Type", mimeType);
-        header("Content-Length", String.valueOf(bytes.length));
-        header("Content-Disposition", "attachment; filename=\"" + name == null ? "generated" : name + "\"");
-        Responsable responsable = setResponsable(200);
-        responsable.getWriter().write(bytes.toString());
+        header("Content-Disposition", "attachment; filename=\"" + (name == null ? "generated" : name) + "\"");
+
+        try (RandomAccessFile reader = new RandomAccessFile(file, "r");
+             FileChannel channel = reader.getChannel();
+             StreamSinkChannel respChannel = exchange.getResponseChannel()) {
+
+            header("Content-Length", String.valueOf(channel.size()));
+
+            long bytesTransferred = 0;
+            long total = channel.size();
+            while(bytesTransferred < total) {
+                bytesTransferred += respChannel.transferFrom(channel, bytesTransferred, total - bytesTransferred);
+            }
+            respChannel.flush();
+        }
         return responsable;
     }
 }
