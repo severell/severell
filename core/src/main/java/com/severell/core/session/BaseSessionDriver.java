@@ -8,7 +8,13 @@ import com.severell.core.http.NeedsRequest;
  */
 public class BaseSessionDriver extends NeedsRequest {
 
-    Container container;
+    Session underlyingSession;
+
+    public void setUnderlyingSession(Session underlyingSession) {
+        this.underlyingSession = underlyingSession;
+    }
+
+    protected Container container;
 
     public void setContainer(Container container) {
         this.container = container;

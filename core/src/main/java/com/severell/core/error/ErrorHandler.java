@@ -3,8 +3,10 @@ package com.severell.core.error;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.exceptions.NotFoundException;
+import com.severell.core.http.RequestOld;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
+import com.severell.core.http.ResponseOld;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,12 +30,10 @@ public class ErrorHandler {
         this.basePath = basePath;
     }
 
-    public void handle(Exception e, HttpServletRequest request, HttpServletResponse response) {
+    public void handle(Exception e, Request request, Response response) {
         e.printStackTrace();
         if(Config.isLocal()) {
-            Response resp = new Response(response, c);
-            Request req = new Request(request);
-            displayErrorScreen(e, resp, req);
+            displayErrorScreen(e, response, request);
         }
     }
 
@@ -65,7 +65,7 @@ public class ErrorHandler {
 
             here.put("exception", e.getClass().getName());
             here.put("exceptionTitle", e.getMessage());
-            here.put("url", request.getRequestURL());
+            here.put("url", request.path());
 
             response.renderTemplateLiteral(template.getTemplateLiteral(), templateName, here);
         } catch (Exception ex) {

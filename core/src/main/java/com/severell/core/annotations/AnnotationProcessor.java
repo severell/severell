@@ -9,17 +9,12 @@ import org.apache.maven.shared.utils.StringUtils;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.FileObject;
-import javax.tools.StandardLocation;
 import java.io.IOException;
-import java.io.StringWriter;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -195,8 +190,10 @@ public class AnnotationProcessor extends AbstractProcessor {
         for(VariableElement p : params) {
             if (typeUtils.isSameType(p.asType(), elements.getTypeElement(Request.class.getName()).asType())) {
                 paramList.add("request");
-            } else if (typeUtils.isSameType(p.asType(), elements.getTypeElement(Response.class.getName()).asType())){
+            } else if (typeUtils.isSameType(p.asType(), elements.getTypeElement(Response.class.getName()).asType())) {
                 paramList.add("response");
+            } else if (typeUtils.isSameType(p.asType(), elements.getTypeElement(Session.class.getName()).asType())){
+                paramList.add("request.session()");
             } else {
                 lambdaBuilder.addStatement("$T p" + count + " = container.make($L)", p, p.asType() + ".class");
 

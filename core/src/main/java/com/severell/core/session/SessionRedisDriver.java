@@ -1,10 +1,10 @@
 package com.severell.core.session;
 
+import com.severell.core.http.Cookie;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 import java.io.*;
@@ -23,12 +23,12 @@ public class SessionRedisDriver extends BaseSessionDriver implements Session, Ht
 
     private String getActualKey() {
         String actualKey = "";
-        Cookie jsessCookie = request.getCookie("JSESSIONID");
+        Cookie jsessCookie = request.cookie("JSESSIONID");
         if(jsessCookie != null) {
             actualKey += "session-" + jsessCookie.getValue();
         } else {
-            String sessionId = request.genereateNewSession().getId();
-            actualKey += "session-" + sessionId;
+//            String sessionId = request.().getId();
+//            actualKey += "session-" + sessionId;
         }
         return actualKey;
     }
@@ -47,7 +47,7 @@ public class SessionRedisDriver extends BaseSessionDriver implements Session, Ht
 
     @Override
     public String getId() {
-        Cookie jsessCookie = request.getCookie("JSESSIONID");
+        Cookie jsessCookie = request.cookie("JSESSIONID");
         return jsessCookie.getValue();
     }
 

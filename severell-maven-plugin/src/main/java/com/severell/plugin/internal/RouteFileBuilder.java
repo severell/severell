@@ -122,9 +122,9 @@ public class RouteFileBuilder {
     private static void resolve(Container c, CodeBlock.Builder lambdaBuilder, ArrayList<String> paramList, Class[] params) {
         int count = 0;
         for(Class p : params) {
-            if (p == Request.class) {
+            if (p == RequestOld.class) {
                 paramList.add("request");
-            } else if (p == Response.class){
+            } else if (p == ResponseOld.class){
                 paramList.add("response");
             } else {
                 Object obj = c.make(p);

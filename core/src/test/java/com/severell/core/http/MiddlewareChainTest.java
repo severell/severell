@@ -1,10 +1,8 @@
 package com.severell.core.http;
 
 import com.severell.core.container.Container;
-import com.severell.core.middleware.Middleware;
 import org.junit.jupiter.api.Test;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,25 +22,25 @@ public class MiddlewareChainTest {
         list.add(new MiddlewareExecutor((req, resp, c, chain) -> {
             assertNotNull(req);
             chain.next();
-            resp.getContentType();
+//            resp.getContentType();
         }));
 
         list.add(new MiddlewareExecutor((req, resp, c, chain) -> {
             assertNotNull(req);
             chain.next();
-            resp.getLocale();
+//            resp.getLocale();
         }));
 
         MiddlewareChain chain = new MiddlewareChain();
         chain.setMiddleware(list);
         chain.setTarget(new RouteExecutor("/", HttpMethod.GET, (req, resp, c) -> {
             assertNotNull(req);
-            req.getRequest();
+            req.path();
         }));
         chain.execute(container, request, response);
-        verify(request).getRequest();
-        verify(response).getContentType();
-        verify(response).getLocale();
+        verify(request).path();
+//        verify(response).();
+//        verify(response).getLocale();
     }
 
     @Test
@@ -57,11 +55,11 @@ public class MiddlewareChainTest {
         chain.setMiddleware(list);
         RouteExecutor ex = new RouteExecutor("/", HttpMethod.GET, new ArrayList<>(), (req, resp, c) -> {
             assertNotNull(req);
-            req.getRequest();
+            req.path();
         });
         chain.setTarget(ex);
         chain.execute(container, request, response);
-        verify(request).getRequest();
+        verify(request).path();
 
         assertEquals(0, ex.getMiddleware().size());
     }

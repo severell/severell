@@ -4,10 +4,8 @@ import com.severell.core.container.Container;
 import com.severell.core.error.ErrorHandler;
 import com.severell.core.exceptions.ControllerException;
 import com.severell.core.exceptions.MiddlewareException;
-import com.severell.core.exceptions.NotFoundException;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
@@ -48,12 +46,12 @@ public class Dispatcher {
      */
     public void dispatch(Request request, Response response) {
         try {
-           this.doRequest(request, response);
+            this.doRequest(request, response);
         } catch (Exception e) {
             errorHandler.handle(e, request, response);
         } finally {
             try{
-                response.getWriter().close();
+                response.close();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (IllegalStateException e) {
@@ -72,14 +70,14 @@ public class Dispatcher {
      * @throws ControllerException
      */
     private void doRequest(Request request, Response response) throws Exception {
-        logger.info(String.format("Request - %s - %s", request.getMethod(), request.getRequestURI()));
-        RouteExecutor ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
+        logger.info(String.format("Request - %s - %s", request.method(), request.path()));
+        RouteExecutor ref = router.lookup(request.path(), request.method(), request);
 
         if(ref != null) {
             MiddlewareManager manager = new MiddlewareManager(ref, c);
             manager.filterRequest(request, response);
         } else {
-            logger.warn(String.format("%s - %s - %s", request.getMethod(), request.getRequestURI(), "No route has been configured for the given request "));
+            logger.warn(String.format("%s - %s - %s", request.method(), request.path(), "No route has been configured for the given request "));
 //            errorHandler.handle(new NotFoundException("No route has been configured for the given request "), request, response);
         }
     }

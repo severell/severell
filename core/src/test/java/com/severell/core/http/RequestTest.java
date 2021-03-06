@@ -14,7 +14,7 @@ public class RequestTest {
     @Test
     public void parametersTest() {
         HttpServletRequest req = mock(HttpServletRequest.class);
-        Request r = new Request(req);
+        RequestOld r = new RequestOld(req);
 
 
         r.addParam("test1", "test2");
@@ -31,7 +31,7 @@ public class RequestTest {
     @Test
     public void parametersTestWithNull() {
         HttpServletRequest req = mock(HttpServletRequest.class);
-        Request r = new Request(req);
+        RequestOld r = new RequestOld(req);
 
         assertNull(r.param(null));
 
@@ -40,7 +40,7 @@ public class RequestTest {
     @Test
     public void inputTestWithNull() {
         HttpServletRequest req = mock(HttpServletRequest.class);
-        Request r = new Request(req);
+        RequestOld r = new RequestOld(req);
 
         assertNull(r.input(null));
 
@@ -50,7 +50,7 @@ public class RequestTest {
     public void testParseQueryString() {
         HttpServletRequest req = mock(HttpServletRequest.class);
         given(req.getQueryString()).willReturn("key=value&key2=value1&empty=");
-        Request r = new Request(req);
+        RequestOld r = new RequestOld(req);
         assertEquals("value", r.query("key"));
         assertEquals("value1", r.query("key2"));
         assertEquals("", r.query("empty"));
@@ -61,7 +61,7 @@ public class RequestTest {
     public void testParseQueryStringReturnsNull() {
         HttpServletRequest req = mock(HttpServletRequest.class);
         given(req.getQueryString()).willReturn(null);
-        Request r = new Request(req);
+        RequestOld r = new RequestOld(req);
         assertEquals(null, r.query("key"));
     }
 }

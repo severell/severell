@@ -6,6 +6,7 @@ import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.controllers.WelcomeController;
 import com.severell.core.http.Request;
+import com.severell.core.http.RequestOld;
 import com.severell.core.http.Response;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,8 +43,8 @@ public class ErrorHandlerTest {
     public void testErrorHandler() throws IOException {
         Container c = mock(Container.class);
         ErrorHandler handler = new ErrorHandler(c, "src/test/java/");
-        HttpServletRequest req = mock(HttpServletRequest.class);
-        HttpServletResponse resp = mock(HttpServletResponse.class);
+        Request req = mock(Request.class);
+        Response resp = mock(Response.class);
         DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
         given(c.make(DefaultMustacheFactory.class)).willReturn(mf);
         Mustache m = mock(Mustache.class);
@@ -87,8 +88,8 @@ public class ErrorHandlerTest {
     public void testErrorNotFoundHandler() throws IOException {
         Container c = mock(Container.class);
         ErrorHandler handler = new ErrorHandler(c, "src/test/java/");
-        HttpServletRequest req = mock(HttpServletRequest.class);
-        HttpServletResponse resp = mock(HttpServletResponse.class);
+        Request req = mock(Request.class);
+        Response resp = mock(Response.class);
         DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
         given(c.make(DefaultMustacheFactory.class)).willReturn(mf);
         Mustache m = mock(Mustache.class);

@@ -1,7 +1,7 @@
 package com.severell.core.http;
 
 /**
- * If an classes extends this then the HTTP {@link Request} object will
+ * If an classes extends this then the HTTP {@link RequestOld} object will
  * automatically get injected. See {@link com.severell.core.session.BaseSessionDriver}
  */
 

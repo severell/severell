@@ -1,64 +1,12 @@
 package com.severell.core.http;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import com.severell.core.session.Session;
+import java.util.HashMap;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.*;
-import java.util.stream.Collectors;
+public interface Request {
 
-/**
- * A wrapper around {@link HttpServletRequest} with simpler syntax.
- */
-public class Request extends HttpServletRequestWrapper {
 
-    /**
-     * Constructs a request object wrapping the given request.
-     *
-     * @param request the {@link HttpServletRequest} to be wrapped.
-     * @throws IllegalArgumentException if the request is null
-     */
-    public Request(HttpServletRequest request) {
-        super(request);
-    }
-
-    private HashMap<String, String> urlParams;
-    private Map<String, String> queryData;
-    private Map<String, String> inputData;
-    private HttpSession session;
-
-    public void setSession(HttpSession session) {
-        this.session = session;
-    }
-
-    public HttpSession genereateNewSession() {
-        return super.getSession(true);
-    }
-
-    @Override
-    public HttpSession getSession() {
-        if(session != null) {
-            return session;
-        }
-
-        return super.getSession();
-    }
-
-    @Override
-    public HttpSession getSession(boolean create) {
-        if(session != null) {
-            return session;
-        }
-
-        return super.getSession(create);
-    }
+    Session session();
 
 
     /**
@@ -67,7 +15,8 @@ public class Request extends HttpServletRequestWrapper {
      * @param key Name of the route parameter
      * @param value Value of the router parameter
      */
-    protected void addParam(String key, String value) {
+    default void addParam(String key, String value) {
+        HashMap<String, String> urlParams = params();
         if(urlParams == null) {
             urlParams = new HashMap<String, String>();
         }
@@ -76,17 +25,17 @@ public class Request extends HttpServletRequestWrapper {
     }
 
     /**
+     * Get all route parameters
+     * @return Returns a HashMap containing all the route parameters
+     */
+    HashMap<String, String> params();
+
+    /**
      * Get a named route parameter
      * @param name The name of the route parameter
      * @return Returns a string containing the route parameter for the given name
      */
-    public String param(String name) {
-        if(urlParams == null) {
-            return null;
-        }
-
-        return urlParams.get(name);
-    }
+    String param(String name);
 
     /**
      * Get a specific input value. This will return both query string parameters and body data.
@@ -94,39 +43,7 @@ public class Request extends HttpServletRequestWrapper {
      * @param name Key of the input data
      * @return The requested input data.
      */
-    public String input(String name) {
-        if(inputData == null) {
-            inputData = new HashMap<>();
-
-            String contentType = getContentType();
-            if(contentType != null) {
-                contentType = contentType.split(";")[0];
-            }
-            if("application/json".equals(contentType)) {
-                JSONParser jsonParser = new JSONParser();
-                JSONObject obj = null;
-                try {
-                    obj = (JSONObject) jsonParser.parse(getReader());
-                    Iterator<?> keys = obj.keySet().iterator();
-
-                    while( keys.hasNext() ){
-                        String key = (String)keys.next();
-                        String value = String.valueOf(obj.get(key));
-                        inputData.put(key, value);
-
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }
-
-
-        return inputData.get(name) == null ? getParameter(name) : inputData.get(name);
-    }
+     String input(String name);
 
     /**
      * Get a specific query string value.
@@ -134,60 +51,13 @@ public class Request extends HttpServletRequestWrapper {
      * @param key Key for the query string data.
      * @return Returns a string of the query string data.
      */
-    public String query(String key) {
-        if(queryData == null) {
-            parseQueryString();
-        }
+    String query(String key);
 
-        return queryData.get(key);
-    }
+    Cookie cookie(String s);
 
-    private void parseQueryString() {
-        String queryString = getQueryString();
-        if(queryString != null) {
-            this.queryData = Arrays.stream(queryString.split("&")).map(entry -> {
-                try {
-                    return URLDecoder.decode(entry, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                return entry;
-            }).collect(Collectors.toMap(
-                    entry -> {
-                        String[] parts = entry.split("=");
-                        if(parts != null && parts.length > 0) {
-                            return parts[0];
-                        }
+    String method();
 
-                        return "";
-                    },
-                    entry -> {
-                        String[] parts = entry.split("=");
-                        if(parts != null && parts.length > 1) {
-                            return parts[1];
-                        }
+    String path();
 
-                        return "";
-                    },
-                    (key1, key2) -> key1
-            ));
-        }
-
-        if(queryData == null) {
-            queryData = new HashMap<>();
-        }
-    }
-
-    public Cookie getCookie(String s) {
-        Cookie[] cookies = getCookies();
-        if(cookies != null) {
-            for(Cookie cookie: cookies) {
-                if(cookie.getName().equals(s)) {
-                    return cookie;
-                }
-            }
-        }
-
-        return null;
-    }
+    String header(String s);
 }

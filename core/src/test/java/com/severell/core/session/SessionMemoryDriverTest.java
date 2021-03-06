@@ -1,6 +1,7 @@
 package com.severell.core.session;
 
 import com.severell.core.http.Request;
+import com.severell.core.http.Request;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -17,8 +18,8 @@ public class SessionMemoryDriverTest {
     @Test
     public void sessionPutsCorrectValues() {
         Request req = mock(Request.class);
-        HttpSession mockSession = mock(HttpSession.class);
-        given(req.getSession()).willReturn(mockSession);
+        Session mockSession = mock(Session.class);
+        given(req.session()).willReturn(mockSession);
 
         String testKey = "userid";
         String testVal = "1234";
@@ -29,7 +30,7 @@ public class SessionMemoryDriverTest {
         SessionMemoryDriver session = new SessionMemoryDriver();
         session.setRequest(req);
         session.put(testKey, testVal);
-        verify(mockSession).setAttribute(key.capture(), val.capture());
+        verify(mockSession).put(key.capture(), val.capture());
         assertEquals(key.getValue(), testKey);
         assertEquals(val.getValue(), testVal);
 
@@ -39,7 +40,7 @@ public class SessionMemoryDriverTest {
     public void sessionGetsCorrectValue() {
         Request req = mock(Request.class);
         HttpSession mockSession = mock(HttpSession.class);
-        given(req.getSession()).willReturn(mockSession);
+//        given(req.getSession()).willReturn(mockSession);
 
         String testKey = "userid";
         String testVal = "1234";
@@ -57,7 +58,7 @@ public class SessionMemoryDriverTest {
     public void sessionGetsCorrectValueAndType() {
         Request req = mock(Request.class);
         HttpSession mockSession = mock(HttpSession.class);
-        given(req.getSession()).willReturn(mockSession);
+//        given(req.getSession()).willReturn(mockSession);
 
         String testKey = "userid";
         int testVal = 1234;
@@ -76,7 +77,7 @@ public class SessionMemoryDriverTest {
     public void sessionGetStringHandlesNull() {
         Request req = mock(Request.class);
         HttpSession mockSession = mock(HttpSession.class);
-        given(req.getSession()).willReturn(mockSession);
+//        given(req.getSession()).willReturn(mockSession);
 
         String testKey = "userid";
 
@@ -93,7 +94,7 @@ public class SessionMemoryDriverTest {
     public void sessionGetStringReturnsCorrectString() {
         Request req = mock(Request.class);
         HttpSession mockSession = mock(HttpSession.class);
-        given(req.getSession()).willReturn(mockSession);
+//        given(req.getSession()).willReturn(mockSession);
 
         String testKey = "userid";
         String testVal = "1234";
@@ -111,7 +112,7 @@ public class SessionMemoryDriverTest {
     public void sessionGetIdReturnsActualSessionId() {
         Request req = mock(Request.class);
         HttpSession mockSession = mock(HttpSession.class);
-        given(req.getSession()).willReturn(mockSession);
+//        given(req.getSession()).willReturn(mockSession);
 
         String testVal = "1234";
 

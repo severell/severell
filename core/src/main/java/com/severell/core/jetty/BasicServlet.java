@@ -2,8 +2,8 @@ package com.severell.core.jetty;
 
 import com.severell.core.container.Container;
 import com.severell.core.http.Dispatcher;
-import com.severell.core.http.Request;
-import com.severell.core.http.Response;
+import com.severell.core.http.RequestOld;
+import com.severell.core.http.ResponseOld;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -71,8 +71,8 @@ public class BasicServlet extends HttpServlet {
      * @param response
      */
     private void doRequest(HttpServletRequest request, HttpServletResponse response) {
-        Request req = new Request(request);
-        Response resp = new Response(response, c);
-        dispatcher.dispatch(req, resp);
+        RequestOld req = new RequestOld(request);
+        ResponseOld resp = new ResponseOld(response, c);
+//        dispatcher.dispatch(req, resp);
     }
 }

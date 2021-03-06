@@ -47,7 +47,7 @@ public class ResponseTest {
         HashMap<String, Object> expectedData = new HashMap<String, Object>();
         expectedData.put("something", "else");
 
-        Response resp = new Response(r, c);
+        ResponseOld resp = new ResponseOld(r, c);
         resp.render("sometemplate", data);
 
         ArgumentCaptor<String> templateCaptor = ArgumentCaptor.forClass(String.class);
@@ -89,7 +89,7 @@ public class ResponseTest {
         ArgumentCaptor<Writer> writerArgumentCaptor = ArgumentCaptor.forClass(Writer.class);
 
 
-        Response resp = new Response(r, c);
+        ResponseOld resp = new ResponseOld(r, c);
         resp.share("otherdata", "moredata");
         resp.render("sometemplate", data);
 
@@ -111,7 +111,7 @@ public class ResponseTest {
         View view = new ViewMustacheDriver(c);
         given(c.make(View.class)).willReturn(view);
 
-        Response resp = new Response(r, c);
+        ResponseOld resp = new ResponseOld(r, c);
         assertThrows(MustacheNotFoundException.class, () -> {
             resp.render("sometemplate", new HashMap<>());
         });
@@ -123,7 +123,7 @@ public class ResponseTest {
     @Test
     public void responseHeadersTest() {
         HttpServletResponse r = mock(HttpServletResponse.class);
-        Response resp = new Response(r, null);
+        ResponseOld resp = new ResponseOld(r, null);
 
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Test1", "Value1");
@@ -146,7 +146,7 @@ public class ResponseTest {
     @Test
     public void responseNullHeadersTest() {
         HttpServletResponse r = mock(HttpServletResponse.class);
-        Response resp = new Response(r, null);
+        ResponseOld resp = new ResponseOld(r, null);
 
         resp.headers(null);
 
@@ -159,7 +159,7 @@ public class ResponseTest {
     @Test
     public void testRedirect() throws IOException {
         HttpServletResponse r = mock(HttpServletResponse.class);
-        Response resp = new Response(r, null);
+        ResponseOld resp = new ResponseOld(r, null);
 
         resp.redirect("/somewhere");
 

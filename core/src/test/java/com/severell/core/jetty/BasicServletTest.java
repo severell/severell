@@ -77,7 +77,7 @@ public class BasicServletTest {
 
         verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
 
-        assertEquals("POST", reqCapt.getValue().getMethod());
+        assertEquals("POST", reqCapt.getValue().method());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class BasicServletTest {
 
         verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
 
-        assertEquals("PUT", reqCapt.getValue().getMethod());
+        assertEquals("PUT", reqCapt.getValue().method());
     }
 
     @Test
@@ -109,7 +109,7 @@ public class BasicServletTest {
 
         verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
 
-        assertEquals("OPTIONS", reqCapt.getValue().getMethod());
+        assertEquals("OPTIONS", reqCapt.getValue().method());
     }
 
     @Test
@@ -125,7 +125,7 @@ public class BasicServletTest {
 
         verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
 
-        assertEquals("DELETE", reqCapt.getValue().getMethod());
+        assertEquals("DELETE", reqCapt.getValue().method());
     }
 
     @Test
@@ -141,7 +141,7 @@ public class BasicServletTest {
 
         verify(executor).execute(reqCapt.capture(), resCapt.capture(), containerArgumentCaptor.capture());
 
-        assertEquals("PATCH", reqCapt.getValue().getMethod());
+        assertEquals("PATCH", reqCapt.getValue().method());
     }
 
     private void setUpRequest(Container c, Router r, HttpServletRequest req, String method, ArrayList middleware, RouteExecutor route) throws IOException {
@@ -149,7 +149,7 @@ public class BasicServletTest {
         given(c.make(BasicDataSource.class)).willReturn(ds);
         given(req.getMethod()).willReturn(method);
         given(req.getRequestURI()).willReturn("/");
-        given(r.lookup(any(String.class), any(String.class), any(Request.class))).willReturn(route);
+        given(r.lookup(any(String.class), any(String.class), any(RequestOld.class))).willReturn(route);
         given(route.getMiddleware()).willReturn(middleware);
 //        given(route.getMiddlewareAfter()).willReturn(middleware);
         BufferedReader reader = mock(BufferedReader.class);
