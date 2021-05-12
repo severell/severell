@@ -3,7 +3,6 @@ package com.severell.core.server;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.http.Dispatcher;
-import com.severell.core.http.ResponseOld;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.session.Session;
 import io.undertow.util.Sessions;
@@ -38,7 +37,7 @@ public class UndertowTransformer {
                 break;
         }
 
-        UndertowRequest request = new UndertowRequest(exchange, sessionImpl);
+        UndertowRequest request = new UndertowRequest(exchange, sessionImpl, container);
         UndertowResponse response = new UndertowResponse(exchange, container);
 
         dispatcher.dispatch(request, response);

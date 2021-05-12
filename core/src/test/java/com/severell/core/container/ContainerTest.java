@@ -4,8 +4,6 @@ import com.severell.core.http.Request;
 import com.severell.core.http.Response;
 import com.severell.core.session.Session;
 import com.severell.core.session.SessionMemoryDriver;
-import com.severell.core.http.RequestOld;
-import com.severell.core.http.ResponseOld;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;
@@ -19,7 +17,7 @@ import static org.mockito.Mockito.verify;
 
 public class ContainerTest {
 
-    public static void index(RequestOld r, ResponseOld res, Session sess, Integer testInt) {
+    public static void index(Request r, Response res, Session sess, Integer testInt) {
         sess.getId();
         assertNotNull(r);
         assertNotNull(res);

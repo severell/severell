@@ -1,5 +1,8 @@
 package com.severell.core.server;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.severell.core.container.Container;
 import com.severell.core.http.Cookie;
 import com.severell.core.http.Request;
 import com.severell.core.session.Session;
@@ -7,8 +10,11 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.CookieImpl;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormDataParser;
-import io.undertow.util.Sessions;
 
+import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +29,9 @@ public class UndertowRequest implements Request {
     private HttpServerExchange exchange;
     private FormData formData;
     private Session session;
+    private Container container;
 
-    public UndertowRequest(HttpServerExchange exchange, Session session) {
+    public UndertowRequest(HttpServerExchange exchange, Session session, Container container) {
         queryData = new HashMap<>();
         params = new HashMap<>();
         for(Map.Entry<String, Deque<String>> entry : exchange.getQueryParameters().entrySet()) {
@@ -37,6 +44,7 @@ public class UndertowRequest implements Request {
 
         formData = exchange.getAttachment(FormDataParser.FORM_DATA);
         this.session = session;
+        this.container = container;
     }
 
     @Override
@@ -66,6 +74,46 @@ public class UndertowRequest implements Request {
     }
 
     @Override
+    public String[] inputAsArray(String name) {
+        return formData == null || formData.get(name) == null ? new String[]{query(name)} : toStringArray(formData.get(name));
+    }
+
+    @Override
+    public <T> T json(Class<T> clazz) throws IOException {
+        if("application/json".equals(header("Content-Type"))) {
+            try(Reader reader = Channels.newReader(exchange.getRequestChannel(), Charset.defaultCharset())) {
+                ObjectMapper mapper = container.make(ObjectMapper.class);
+                return mapper.readValue(reader, clazz);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public JsonNode json() throws IOException {
+        if("application/json".equals(header("Content-Type"))) {
+            try(Reader reader = Channels.newReader(exchange.getRequestChannel(), Charset.defaultCharset())){
+                ObjectMapper mapper = container.make(ObjectMapper.class);
+                return mapper.readValue(reader, JsonNode.class);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public byte[] raw() throws IOException {
+        try(Reader reader = Channels.newReader(exchange.getRequestChannel(), Charset.defaultCharset());
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            PrintWriter writer = new PrintWriter(stream);
+        ) {
+            reader.transferTo(writer);
+            writer.flush();
+            return stream.toByteArray();
+        }
+
+    }
+
+    @Override
     public String query(String key) {
         return queryData.get(key);
     }
@@ -88,6 +136,10 @@ public class UndertowRequest implements Request {
 
     @Override
     public String header(String s) {
-        return exchange.getRequestHeaders().get(s).getFirst();
+        return exchange.getRequestHeaders().get(s) != null ? exchange.getRequestHeaders().get(s).getFirst() : null;
+    }
+
+    private String[] toStringArray(Deque<FormData.FormValue> deque) {
+        return deque.stream().map((formValue -> formValue.getValue())).toArray(String[]::new);
     }
 }

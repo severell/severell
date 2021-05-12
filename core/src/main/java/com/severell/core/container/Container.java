@@ -3,7 +3,6 @@ package com.severell.core.container;
 import com.severell.core.http.NeedsRequest;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
-import com.severell.core.http.ResponseOld;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package com.severell.core.commands;
 
-import com.severell.core.http.ResponseOld;
+import com.severell.core.http.Response;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
@@ -23,7 +23,7 @@ public class MakeController extends MakeableCommand {
         MethodSpec index = MethodSpec.methodBuilder("index")
                 .addModifiers(Modifier.PUBLIC)
                 .addException(IOException.class)
-                .addParameter(ResponseOld.class, "response")
+                .addParameter(Response.class, "response")
                 .returns(void.class).build();
 
         TypeSpec helloWorld = TypeSpec.classBuilder(name)

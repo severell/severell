@@ -22,7 +22,7 @@ public class RouterTest {
 
     }
 
-    private static RequestOld req;
+    private static Request req;
     private static Container c;
     private static ServletContextHandler context;
     private static ArrayList<RouteExecutor> routes = new ArrayList<>();
@@ -33,7 +33,7 @@ public class RouterTest {
     @BeforeEach
     public void setUp() throws NoSuchMethodException, ClassNotFoundException {
         Router.clearRoutes();
-        req = mock(RequestOld.class);
+        req = mock(Request.class);
         context = mock(ServletContextHandler.class);
         c = mock(Container.class);
         routes =  new ArrayList<>();
@@ -197,7 +197,7 @@ public class RouterTest {
     @Test
     public void routerHandlesNamedParamInMidPathCorrectly() throws Exception {
         Router router = new Router();
-        RequestOld req = mock(RequestOld.class);
+        req = mock(Request.class);
 
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
@@ -232,7 +232,7 @@ public class RouterTest {
     @Test
     public void routerHandleTwoNamesParams() throws Exception {
         Router router = new Router();
-        RequestOld req = mock(RequestOld.class);
+        req = mock(Request.class);
 
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
@@ -368,7 +368,7 @@ public class RouterTest {
         })));
         Router.setCompiledRoutes(routes);
         Router router = new Router();
-        RequestOld req = mock(RequestOld.class);
+        req = mock(Request.class);
 
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
@@ -409,7 +409,7 @@ public class RouterTest {
     @Test
     public void routerHandlesPartFixedPartWildcard() throws Exception {
         Router router = new Router();
-        RequestOld req = mock(RequestOld.class);
+        Request req = mock(Request.class);
 
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
@@ -442,7 +442,7 @@ public class RouterTest {
         })));
         Router.setCompiledRoutes(routes);
         Router router = new Router();
-        RequestOld req = mock(RequestOld.class);
+        req = mock(Request.class);
 
         String path = "/homebase";
         router.compileRoutes();
@@ -488,7 +488,7 @@ public class RouterTest {
     @Test
     public void routerReturnsNullForEmptyRoute() throws Exception {
         Router.clearRoutes();
-        req = mock(RequestOld.class);
+        req = mock(Request.class);
         context = mock(ServletContextHandler.class);
         c = mock(Container.class);
         routes =  new ArrayList<>();

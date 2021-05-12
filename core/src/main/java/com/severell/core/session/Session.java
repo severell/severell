@@ -1,7 +1,6 @@
 package com.severell.core.session;
 
 import com.severell.core.http.Request;
-import com.severell.core.http.RequestOld;
 
 public interface Session {
 

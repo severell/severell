@@ -1,5 +1,6 @@
 package com.severell.core.server;
 
+import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.http.AppServer;
 import com.severell.core.providers.ServiceProvider;
@@ -16,6 +17,7 @@ import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.session.InMemorySessionManager;
 import io.undertow.server.session.SessionAttachmentHandler;
 import io.undertow.server.session.SessionCookieConfig;
+import org.xnio.Options;
 
 
 import static io.undertow.UndertowOptions.ENABLE_HTTP2;
@@ -44,6 +46,8 @@ public class ServerProvider extends ServiceProvider {
             ser = Undertow.builder()
                     .addHttpListener(Integer.parseInt(appServer.getPort()), "localhost")
                     .setServerOption(ENABLE_HTTP2, true)
+                    .setWorkerOption(Options.WORKER_IO_THREADS, Integer.parseInt(Config.get("IO_THREADS", "16")))
+                    .setWorkerOption(Options.WORKER_TASK_CORE_THREADS, Integer.parseInt(Config.get("CORE_THREADS", "80")))
                     .setHandler(new EagerFormParsingHandler(
                             FormParserFactory.builder()
                                     .addParsers(new MultiPartParserDefinition())

@@ -16,7 +16,7 @@ public class Auth extends NeedsRequest {
         if(user != null) {
             auth = PasswordUtils.checkPassword(password, user.getPassword());
             if(auth) {
-                request.getSession().setAttribute("userid", user.getId());
+                request.session().put("userid", user);
             }
         }
 

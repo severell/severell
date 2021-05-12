@@ -1,6 +1,9 @@
 package com.severell.core.http;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.severell.core.session.Session;
+
+import java.io.IOException;
 import java.util.HashMap;
 
 public interface Request {
@@ -38,12 +41,42 @@ public interface Request {
     String param(String name);
 
     /**
-     * Get a specific input value. This will return both query string parameters and body data.
+     * Get a specific input value. This will get only the first value.
      *
      * @param name Key of the input data
      * @return The requested input data.
      */
      String input(String name);
+
+    /**
+     * Get a specific input value. This will get all values for that key
+     *
+     * @param name Key of the input data
+     * @return The requested input data.
+     */
+    String[] inputAsArray(String name);
+
+    /**
+     * This will deserialize json input into an object on the given clazz.
+     *
+     * @param clazz The class to deserialize the json body into
+     * @return
+     */
+    <T> T json(Class<T> clazz) throws IOException;
+
+    /**
+     * This will deserialize json input into a JsonNode
+     *
+     * @return JsonNode
+     */
+    JsonNode json() throws IOException;
+
+    /**
+     * Returns the request body as raw byte array
+     *
+     * @return byte array of request body
+     */
+    byte[] raw() throws IOException;
 
     /**
      * Get a specific query string value.

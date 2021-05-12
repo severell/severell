@@ -6,15 +6,12 @@ import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.controllers.WelcomeController;
 import com.severell.core.http.Request;
-import com.severell.core.http.RequestOld;
 import com.severell.core.http.Response;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -59,7 +56,7 @@ public class ErrorHandlerTest {
 
         ArgumentCaptor<HashMap<String, Object>> dataCapt = ArgumentCaptor.forClass(HashMap.class);
 
-        verify(m).execute(any(), dataCapt.capture());
+        verify(resp).renderTemplateLiteral(any(), any(), dataCapt.capture());
 
         assertEquals("WelcomeController.java", dataCapt.getValue().get("fileName"));
         FileSnippet snipper = ((FileSnippet) dataCapt.getValue().get("fileSnippet"));
@@ -105,8 +102,7 @@ public class ErrorHandlerTest {
 
         ArgumentCaptor<HashMap<String, Object>> dataCapt = ArgumentCaptor.forClass(HashMap.class);
 
-        verify(m).execute(any(), dataCapt.capture());
-
+        verify(resp).renderTemplateLiteral(any(), any(), dataCapt.capture());
         assertEquals("com.severell.core.exceptions.NotFoundException", dataCapt.getValue().get("exception"));
         assertEquals("404 Opps", dataCapt.getValue().get("exceptionTitle"));
         assertNull(dataCapt.getValue().get("url"));

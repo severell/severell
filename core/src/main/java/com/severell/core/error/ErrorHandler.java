@@ -3,13 +3,9 @@ package com.severell.core.error;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.exceptions.NotFoundException;
-import com.severell.core.http.RequestOld;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
-import com.severell.core.http.ResponseOld;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 
 import org.apache.commons.io.FilenameUtils;
