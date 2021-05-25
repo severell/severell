@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>severell-parent</artifactId>
+        <groupId>com.severell</groupId>
+        <version>0.0.2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>jte</artifactId>
+
+    <properties>
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <skipNexusStagingDeployMojo>false</skipNexusStagingDeployMojo>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.severell</groupId>
+            <artifactId>core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>gg.jte</groupId>
+            <artifactId>jte</artifactId>
+            <version>1.9.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

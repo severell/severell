@@ -17,12 +17,12 @@ public class AuthController {
 
     @Route(path = "/register", method = HttpMethod.GET)
     public void register(Request request, Response resp) throws IOException, ViewException {
-        resp.render("auth/register.mustache", new HashMap<String, Object>());
+        resp.render("auth/register.jte", new HashMap<String, Object>());
     }
 
     @Route(path = "/login", method = HttpMethod.GET)
     public void login(Request request, Response resp, Session session, Auth auth) throws IOException, ViewException {
-        resp.render("auth/login.mustache", new HashMap<String, Object>());
+        resp.render("auth/login.jte", new HashMap<String, Object>());
     }
 
     @Route(path = "/login", method = HttpMethod.POST)

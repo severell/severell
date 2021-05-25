@@ -6,6 +6,7 @@ import com.severell.core.exceptions.MiddlewareException;
 
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Verifies the CSRFToken
@@ -24,8 +25,7 @@ public class CsrfMiddleware implements Middleware{
     @Override
     public void handle(Request request, Response response, MiddlewareChain chain) throws Exception {
         String finalToken = verifyToken(request, session);
-        Function<String, String> func = (obj) -> String.format("<input type='hidden' name='__token' value='%s' />", finalToken);
-        response.share("csrf", func);
+        response.share("csrf", finalToken);
         chain.next();
         response.header("Set-Cookie", String.format("XSRF-TOKEN=%s; SameSite=strict", finalToken));
     }

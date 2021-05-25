@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -49,7 +50,7 @@ public class CsrfMiddlewareTest {
         given(session.getString("csrfToken")).willReturn(token);
 
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
+        ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         CsrfMiddleware middleware = new CsrfMiddleware(session);
 
@@ -57,7 +58,7 @@ public class CsrfMiddlewareTest {
 
         verify(resp).share(key.capture(), val.capture());
         assertEquals("csrf", key.getValue());
-        assertEquals(String.format("<input type='hidden' name='__token' value='%s' />", token), val.getValue().apply("something"));
+        assertEquals(token, val.getValue());
     }
 
     @Test
@@ -74,7 +75,7 @@ public class CsrfMiddlewareTest {
         given(request.input("__token")).willReturn(token);
 
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
+        ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         CsrfMiddleware middleware = new CsrfMiddleware(session);
 
@@ -83,7 +84,7 @@ public class CsrfMiddlewareTest {
 
         verify(resp).share(key.capture(), val.capture());
         assertEquals("csrf", key.getValue());
-        assertEquals(String.format("<input type='hidden' name='__token' value='%s' />", token), val.getValue().apply("something"));
+        assertEquals(token, val.getValue());
     }
 
     @Test

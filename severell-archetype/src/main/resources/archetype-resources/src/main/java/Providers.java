@@ -15,6 +15,7 @@ public class Providers {
                 new AppProvider(c),
                 new ServerProvider(c),
                 new SessionProvider(c),
+                new JteProvider(c),
                 new ViewProvider(c),
                 new JobsProvider(c),
                 new MailProvider(c),

@@ -13,7 +13,7 @@ public class MainController {
 
     @Route(path = "/", method = HttpMethod.GET)
     public void index(Request request, Response resp) throws IOException, ViewException {
-        resp.render("index.mustache", new HashMap<String, Object>());
+        resp.render("index.jte", new HashMap<String, Object>());
     }
 
 }

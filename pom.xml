@@ -42,6 +42,7 @@
         <module>core</module>
         <module>severell-maven-plugin</module>
         <module>severell-archetype</module>
+        <module>jte</module>
     </modules>
 
     <dependencies>
