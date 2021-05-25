@@ -7,6 +7,7 @@ import com.severell.core.providers.*;
 import com.severell.core.server.ServerProvider;
 import com.severell.core.session.SessionProvider;
 import com.severell.core.view.ViewProvider;
+import com.severell.jte.JteProvider;
 
 public class Providers {
 
