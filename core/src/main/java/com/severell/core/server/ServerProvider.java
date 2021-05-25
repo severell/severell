@@ -65,6 +65,7 @@ public class ServerProvider extends ServiceProvider {
 
     private HttpHandler getMainHandler() {
         SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(new InMemorySessionManager("severell"), new SessionCookieConfig());
+        EagerFormParsingHandler formParsingHandler = new EagerFormParsingHandler(FormParserFactory.builder().addParsers(new MultiPartParserDefinition()).build());
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         ResourceManager manager = null;
 
@@ -83,6 +84,7 @@ public class ServerProvider extends ServiceProvider {
                             @Override
                             public void handleRequest(final HttpServerExchange exchange) throws Exception {
                                 sessionAttachmentHandler.handleRequest(exchange);
+                                formParsingHandler.handleRequest(exchange);
                                 UndertowTransformer transformer = c.make(UndertowTransformer.class);
                                 transformer.dispatch(exchange);
                             }

@@ -23,8 +23,8 @@ public class SecureHeadersMiddlewareTest {
         SecureHeadersMiddleware middleware = new SecureHeadersMiddleware();
         middleware.handle(req, resp, chain);
 
-//        verify(resp).headers(key.capture());
-//
+        verify(resp).headers(key.capture());
+
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Strict-Transport-Security", "max-age=63072000; includeSubdomains");
         headers.put("X-Frame-Options", "SAMEORIGIN");

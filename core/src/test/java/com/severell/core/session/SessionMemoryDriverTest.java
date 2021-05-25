@@ -17,9 +17,7 @@ public class SessionMemoryDriverTest {
 
     @Test
     public void sessionPutsCorrectValues() {
-        Request req = mock(Request.class);
         Session mockSession = mock(Session.class);
-        given(req.session()).willReturn(mockSession);
 
         String testKey = "userid";
         String testVal = "1234";
@@ -28,7 +26,7 @@ public class SessionMemoryDriverTest {
         ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
 
         SessionMemoryDriver session = new SessionMemoryDriver();
-        session.setRequest(req);
+        session.setUnderlyingSession(mockSession);
         session.put(testKey, testVal);
         verify(mockSession).put(key.capture(), val.capture());
         assertEquals(key.getValue(), testKey);
@@ -38,36 +36,32 @@ public class SessionMemoryDriverTest {
 
     @Test
     public void sessionGetsCorrectValue() {
-        Request req = mock(Request.class);
-        HttpSession mockSession = mock(HttpSession.class);
-//        given(req.getSession()).willReturn(mockSession);
+        Session mockSession = mock(Session.class);
 
         String testKey = "userid";
         String testVal = "1234";
 
-        given(mockSession.getAttribute(testKey)).willReturn(testVal);
+        given(mockSession.get(testKey)).willReturn(testVal);
 
 
         SessionMemoryDriver session = new SessionMemoryDriver();
-        session.setRequest(req);
+        session.setUnderlyingSession(mockSession);
         String retVal = (String) session.get(testKey);
         assertEquals(retVal, testVal);
     }
 
     @Test
     public void sessionGetsCorrectValueAndType() {
-        Request req = mock(Request.class);
-        HttpSession mockSession = mock(HttpSession.class);
-//        given(req.getSession()).willReturn(mockSession);
+        Session mockSession = mock(Session.class);
 
         String testKey = "userid";
         int testVal = 1234;
 
-        given(mockSession.getAttribute(testKey)).willReturn(testVal);
+        given(mockSession.get(testKey)).willReturn(testVal);
 
 
         SessionMemoryDriver session = new SessionMemoryDriver();
-        session.setRequest(req);
+        session.setUnderlyingSession(mockSession);
         Integer retVal = session.get(testKey, Integer.class);
         assertEquals(retVal, testVal);
         assertTrue(retVal instanceof Integer);
@@ -75,44 +69,38 @@ public class SessionMemoryDriverTest {
 
     @Test
     public void sessionGetStringHandlesNull() {
-        Request req = mock(Request.class);
-        HttpSession mockSession = mock(HttpSession.class);
-//        given(req.getSession()).willReturn(mockSession);
+        Session mockSession = mock(Session.class);
 
         String testKey = "userid";
 
-        given(mockSession.getAttribute(testKey)).willReturn(null);
+        given(mockSession.get(testKey)).willReturn(null);
 
 
         SessionMemoryDriver session = new SessionMemoryDriver();
-        session.setRequest(req);
+        session.setUnderlyingSession(mockSession);
         String retVal = session.getString(testKey);
         assertNull(retVal);
     }
 
     @Test
     public void sessionGetStringReturnsCorrectString() {
-        Request req = mock(Request.class);
-        HttpSession mockSession = mock(HttpSession.class);
-//        given(req.getSession()).willReturn(mockSession);
+        Session mockSession = mock(Session.class);
 
         String testKey = "userid";
         String testVal = "1234";
 
-        given(mockSession.getAttribute(testKey)).willReturn(testVal);
+        given(mockSession.get(testKey)).willReturn(testVal);
 
 
         SessionMemoryDriver session = new SessionMemoryDriver();
-        session.setRequest(req);
+        session.setUnderlyingSession(mockSession);
         String retVal = session.getString(testKey);
         assertEquals(retVal, testVal);
     }
 
     @Test
     public void sessionGetIdReturnsActualSessionId() {
-        Request req = mock(Request.class);
-        HttpSession mockSession = mock(HttpSession.class);
-//        given(req.getSession()).willReturn(mockSession);
+        Session mockSession = mock(Session.class);
 
         String testVal = "1234";
 
@@ -120,7 +108,7 @@ public class SessionMemoryDriverTest {
 
 
         SessionMemoryDriver session = new SessionMemoryDriver();
-        session.setRequest(req);
+        session.setUnderlyingSession(mockSession);
         String retVal = session.getId();
         assertEquals(retVal, testVal);
     }

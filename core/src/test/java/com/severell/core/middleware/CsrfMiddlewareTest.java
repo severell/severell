@@ -55,7 +55,7 @@ public class CsrfMiddlewareTest {
 
         middleware.handle(request, resp, chain);
 
-//        verify(resp).share(key.capture(), val.capture());
+        verify(resp).share(key.capture(), val.capture());
         assertEquals("csrf", key.getValue());
         assertEquals(String.format("<input type='hidden' name='__token' value='%s' />", token), val.getValue().apply("something"));
     }
@@ -81,7 +81,7 @@ public class CsrfMiddlewareTest {
 
         middleware.handle(request, resp, chain);
 
-//        verify(resp).share(key.capture(), val.capture());
+        verify(resp).share(key.capture(), val.capture());
         assertEquals("csrf", key.getValue());
         assertEquals(String.format("<input type='hidden' name='__token' value='%s' />", token), val.getValue().apply("something"));
     }
