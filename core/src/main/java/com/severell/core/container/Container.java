@@ -25,7 +25,7 @@ public class Container {
 
 
     /**
-     * Retrieve a dependency from the container. If object stored is {@link Function<Container, T>}
+     * Retrieve a dependency from the container. If object stored is {@link Function}
      * then the function is called to build a new instance of the requested dependency. Otherwise
      * this will return the object stored.
      * @param c Class - Used as the key
@@ -37,7 +37,7 @@ public class Container {
     }
 
     /**
-     * Retrieve a dependency from the container. If object stored is {@link Function<Container, T>}
+     * Retrieve a dependency from the container. If object stored is {@link Function}
      * then the function is called to build a new instance of the requested dependency. Otherwise
      * this will return the object stored.
      * @param s The key used to look up in the container
@@ -57,7 +57,7 @@ public class Container {
     }
 
     /**
-     * This binds an object to the container. Bind takes in a {@link Function<Container, Object>}. This
+     * This binds an object to the container. Bind takes in a {@link Function}. This
      * is used to "build" an instance of the requested object.
      * @param key - Class used as the key.
      * @param closure - Builder function. This function should return an instance of the object to be bound
@@ -67,7 +67,7 @@ public class Container {
     }
 
     /**
-     * This binds an object to the container. Bind takes in a {@link Function<Container, Object>}. This
+     * This binds an object to the container. Bind takes in a {@link Function}. This
      * is used to "build" an instance of the requested object.
      * @param key - String used as the key.
      * @param closure - Builder function. This function should return an instance of the object to be bound
