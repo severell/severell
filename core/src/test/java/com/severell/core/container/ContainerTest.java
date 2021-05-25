@@ -1,9 +1,9 @@
 package com.severell.core.container;
 
-import com.severell.core.drivers.Session;
-import com.severell.core.drivers.SessionMemoryDriver;
 import com.severell.core.http.Request;
 import com.severell.core.http.Response;
+import com.severell.core.session.Session;
+import com.severell.core.session.SessionMemoryDriver;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationTargetException;

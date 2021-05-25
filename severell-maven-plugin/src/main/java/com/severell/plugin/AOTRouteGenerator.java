@@ -2,6 +2,10 @@ package com.severell.plugin;
 
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
+import com.severell.core.http.Middleware;
+import com.severell.core.http.Route;
+import com.severell.core.http.RouteInfo;
+import com.severell.core.http.Router;
 import com.severell.core.providers.ServiceProvider;
 import com.severell.plugin.internal.ClassFileCompiler;
 import com.severell.plugin.internal.RouteFileBuilder;
@@ -17,14 +21,17 @@ import org.apache.maven.project.MavenProject;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +44,42 @@ public class AOTRouteGenerator extends SeverellMojo {
     @Parameter(readonly = true, defaultValue = "${project.build.directory}/classes")
     public String targetDirectory;
 
+    public void processRouteAnnotations(ProjectClassLoader classLoader) throws NoSuchMethodException, ClassNotFoundException {
+        Set<Method> controllers = classLoader.getControllerMethods();
+
+        for (Method method : controllers) {
+            Route r = method.getAnnotation(Route.class);
+            Class[] middleware = new Class[0];
+            getLog().info("Has Middleware - " + method.getAnnotation(Middleware.class));
+            if(method.isAnnotationPresent(Middleware.class)){
+                getLog().info("Has Middleware - " + method.getClass().getName());
+                Middleware middlewareAnnotation = method.getAnnotation(Middleware.class);
+                middleware = middlewareAnnotation.value();
+            }
+
+            switch (r.method()) {
+                case GET:
+                    Router.get(r.path(), method, middleware);
+                    break;
+                case POST:
+                    Router.post(r.path(), method, middleware);
+                    break;
+                case PUT:
+                    Router.put(r.path(), method, middleware);
+                    break;
+                case PATCH:
+                    Router.patch(r.path(), method, middleware);
+                    break;
+                case DELETE:
+                    Router.delete(r.path(), method, middleware);
+                    break;
+                case OPTIONS:
+                    Router.options(r.path(), method, middleware);
+                    break;
+            }
+        }
+    }
+
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         try {
@@ -44,6 +87,8 @@ public class AOTRouteGenerator extends SeverellMojo {
             ProjectClassLoader classLoader = new ProjectClassLoader(project, basePackage, getLog());
             Path target = Path.of(targetDirectory);
             bootstrap(container, classLoader);
+
+            processRouteAnnotations(classLoader);
 
             Path sourceFile = RouteFileBuilder.build(container, basePackage);
 

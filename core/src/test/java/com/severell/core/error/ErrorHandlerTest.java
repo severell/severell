@@ -12,8 +12,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -42,8 +40,8 @@ public class ErrorHandlerTest {
     public void testErrorHandler() throws IOException {
         Container c = mock(Container.class);
         ErrorHandler handler = new ErrorHandler(c, "src/test/java/");
-        HttpServletRequest req = mock(HttpServletRequest.class);
-        HttpServletResponse resp = mock(HttpServletResponse.class);
+        Request req = mock(Request.class);
+        Response resp = mock(Response.class);
         DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
         given(c.make(DefaultMustacheFactory.class)).willReturn(mf);
         Mustache m = mock(Mustache.class);
@@ -58,7 +56,7 @@ public class ErrorHandlerTest {
 
         ArgumentCaptor<HashMap<String, Object>> dataCapt = ArgumentCaptor.forClass(HashMap.class);
 
-        verify(m).execute(any(), dataCapt.capture());
+        verify(resp).renderTemplateLiteral(any(), any(), dataCapt.capture());
 
         assertEquals("WelcomeController.java", dataCapt.getValue().get("fileName"));
         FileSnippet snipper = ((FileSnippet) dataCapt.getValue().get("fileSnippet"));
@@ -87,8 +85,8 @@ public class ErrorHandlerTest {
     public void testErrorNotFoundHandler() throws IOException {
         Container c = mock(Container.class);
         ErrorHandler handler = new ErrorHandler(c, "src/test/java/");
-        HttpServletRequest req = mock(HttpServletRequest.class);
-        HttpServletResponse resp = mock(HttpServletResponse.class);
+        Request req = mock(Request.class);
+        Response resp = mock(Response.class);
         DefaultMustacheFactory mf = mock(DefaultMustacheFactory.class);
         given(c.make(DefaultMustacheFactory.class)).willReturn(mf);
         Mustache m = mock(Mustache.class);
@@ -104,8 +102,7 @@ public class ErrorHandlerTest {
 
         ArgumentCaptor<HashMap<String, Object>> dataCapt = ArgumentCaptor.forClass(HashMap.class);
 
-        verify(m).execute(any(), dataCapt.capture());
-
+        verify(resp).renderTemplateLiteral(any(), any(), dataCapt.capture());
         assertEquals("com.severell.core.exceptions.NotFoundException", dataCapt.getValue().get("exception"));
         assertEquals("404 Opps", dataCapt.getValue().get("exceptionTitle"));
         assertNull(dataCapt.getValue().get("url"));

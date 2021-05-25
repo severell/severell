@@ -15,6 +15,7 @@ import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import javax.servlet.MultipartConfigElement;
 import java.io.File;
@@ -30,7 +31,11 @@ public class JettyProvider extends ServiceProvider {
     public void register() {
         this.c.singleton(BasicServlet.class, new BasicServlet(this.c));
         this.c.singleton(ServletContextHandler.class, new ServletContextHandler(ServletContextHandler.SESSIONS));
-        this.c.singleton(Server.class, new Server());
+
+        int minThreads = Integer.parseInt(Config.get("JETTY_MIN_THREADS", "10"));
+        int maxThreads = Integer.parseInt(Config.get("JETTY_MAX_THREADS", "50"));
+        Server server = new Server(new QueuedThreadPool(maxThreads, minThreads));
+        this.c.singleton(Server.class, server);
     }
 
     @Override

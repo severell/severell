@@ -3,17 +3,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>${groupId}</groupId>
-    <artifactId>${artifactId}</artifactId>
-    <version>${version}</version>
+    <groupId>\${groupId}</groupId>
+    <artifactId>\${artifactId}</artifactId>
+    <version>\${version}</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <severell.version>${project.version}</severell.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.14.0</version>
+        </dependency>
         <dependency>
             <groupId>com.squareup</groupId>
             <artifactId>javapoet</artifactId>
@@ -28,7 +34,12 @@
         <dependency>
             <groupId>com.severell</groupId>
             <artifactId>core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>\${severell.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.severell</groupId>
+            <artifactId>jte</artifactId>
+            <version>\${severell.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -89,18 +100,10 @@
             <plugin>
                 <groupId>com.severell</groupId>
                 <artifactId>severell-maven-plugin</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
+                <version>\${severell.version}</version>
                 <configuration>
-                    <basePackage>${package}</basePackage>
+                    <basePackage>\${package}</basePackage>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>io.repaint.maven</groupId>
@@ -117,6 +120,9 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
+                <configuration>
+                    <mainClass>\${package}.App</mainClass>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -154,7 +160,7 @@
                     </descriptors>
                     <archive>
                         <manifest>
-                            <mainClass>${package}.App</mainClass>
+                            <mainClass>\${package}.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

@@ -4,9 +4,8 @@ import com.severell.core.container.Container;
 import com.severell.core.error.ErrorHandler;
 import com.severell.core.exceptions.ControllerException;
 import com.severell.core.exceptions.MiddlewareException;
-import com.severell.core.exceptions.NotFoundException;
+import org.apache.logging.log4j.Logger;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
@@ -17,6 +16,7 @@ public class Dispatcher {
     private final Container c;
     private Router router;
     private final ErrorHandler errorHandler;
+    private Logger logger;
 
     /**
      * Creates a new Dispatcher
@@ -27,6 +27,7 @@ public class Dispatcher {
         this.c =c;
 
         this.errorHandler = c.make(ErrorHandler.class);
+        this.logger = c.make(Logger.class);
     }
 
     /**
@@ -45,12 +46,12 @@ public class Dispatcher {
      */
     public void dispatch(Request request, Response response) {
         try {
-           this.doRequest(request, response);
+            this.doRequest(request, response);
         } catch (Exception e) {
             errorHandler.handle(e, request, response);
         } finally {
             try{
-                response.getWriter().close();
+                response.close();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (IllegalStateException e) {
@@ -69,13 +70,15 @@ public class Dispatcher {
      * @throws ControllerException
      */
     private void doRequest(Request request, Response response) throws Exception {
-        RouteExecutor ref = router.lookup(request.getRequestURI(), request.getMethod(), request);
+        logger.info(String.format("Request - %s - %s", request.method(), request.path()));
+        RouteExecutor ref = router.lookup(request.path(), request.method(), request);
 
         if(ref != null) {
             MiddlewareManager manager = new MiddlewareManager(ref, c);
             manager.filterRequest(request, response);
         } else {
-            errorHandler.handle(new NotFoundException("No route has been configured for the given request "), request, response);
+            logger.warn(String.format("%s - %s - %s", request.method(), request.path(), "No route has been configured for the given request "));
+//            errorHandler.handle(new NotFoundException("No route has been configured for the given request "), request, response);
         }
     }
 }

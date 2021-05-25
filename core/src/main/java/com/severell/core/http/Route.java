@@ -1,95 +1,13 @@
 package com.severell.core.http;
 
-import com.severell.core.exceptions.MiddlewareException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
-
-/**
- * This class holds information for a distinct route.
- */
-public class Route {
-
-    private String path;
-    private Method method;
-    private String httpMethod;
-    private ArrayList<Class> middlewareClassList;
-
-    /**
-     * Create a new route
-     * @param path Route path I.E. /users
-     * @param cl Controller Class
-     * @param method Fully qualified name of the associated controller method.
-     * @param httpMethod HTTP Method I.E. POST
-     * @throws ClassNotFoundException
-     * @throws NoSuchMethodException
-     */
-    protected Route(String path, Class cl, String method, String httpMethod) throws ClassNotFoundException, NoSuchMethodException {
-        this.path = path;
-        this.method = getMethodLike(cl, method);
-        this.httpMethod = httpMethod;
-    }
-
-    /**
-     * Add Middleware to this route
-     * @param middleware
-     */
-    public void middleware(Class... middleware) {
-        middlewareClassList = new ArrayList<>();
-        middlewareClassList.addAll(Arrays.asList(middleware));
-    }
-
-    /**
-     * Returns the middleware {@link Method}. The method is only used to compile
-     * the Routes and not used at Runtime.
-     * @return
-     */
-    public Method getMethod() {
-        return this.method;
-    }
-
-    /**
-     * Get the Route path. I.E. /users
-     * @return
-     */
-    public String getPath() {
-        return this.path;
-    }
-
-    /**
-     * Get the HTTP Request method. I.E. POST
-     * @return
-     */
-    public String getHttpMethod() {
-        return this.httpMethod;
-    }
-
-    /**
-     * Return a list of Middleware associated with
-     * this route.
-     * @return
-     */
-    public ArrayList<Class> getMiddlewareClassList() {
-        return this.middlewareClassList;
-    }
-
-    /**
-     * Uses Reflection to retrieve the controller {@link Method}. This is not used
-     * at Runtime.
-     * @param c
-     * @param name
-     * @return
-     */
-    private static Method getMethodLike(Class c, String name) {
-        final Optional<Method> matchedMethod = Arrays.asList(c.getDeclaredMethods()).stream().filter(method ->
-                method.getName().toLowerCase().equals(name.toLowerCase())).findAny();
-
-        if (!matchedMethod.isPresent()) {
-            throw new RuntimeException("No method containing: " + name);
-        }
-
-        return matchedMethod.get();
-    }
+@Retention(RetentionPolicy.SOURCE)
+@Target(ElementType.METHOD)
+public @interface Route {
+    String path();
+    HttpMethod method();
 }

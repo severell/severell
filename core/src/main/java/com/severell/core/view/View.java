@@ -3,6 +3,7 @@ package com.severell.core.view;
 import com.severell.core.exceptions.ViewException;
 
 import java.io.Writer;
+import java.util.Map;
 
 public interface View {
 
@@ -14,7 +15,7 @@ public interface View {
      * @param writer Writer to write the output. I.E. {@link java.io.PrintWriter} from Response
      * @throws ViewException
      */
-    void render(String template, Object object, Writer writer) throws ViewException;
+    void render(String template, Map<String,Object> object, Writer writer) throws ViewException;
 
     /**
      * Render a template. This will use the underlying ViewManager and the
@@ -25,6 +26,6 @@ public interface View {
      * @param writer Writer to write the output. I.E. {@link java.io.PrintWriter} from Response
      * @throws ViewException
      */
-    void render(String template, Object object, String baseDir, Writer writer) throws ViewException;
+    void render(String template, Map<String, Object> object, String baseDir, Writer writer) throws ViewException;
 
 }

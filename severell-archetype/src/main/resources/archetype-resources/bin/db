@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+OPERATION=$1
+DBTYPE=$2
+DIR="$( cd "$( dirname "${BASH_SOURCE[1]}" )" >/dev/null 2>&1 && pwd )"
+
+# Set space as the delimiter
+IFS='/'
+
+#Read the split words into an array based on space delimiter
+read -a strarr <<< "$DIR"
+
+COUNT=${#strarr[*]}
+NAME=${strarr[$COUNT-1]}
+NAME=$(echo "$NAME" | awk '{print tolower($0)}')
+NAME=$(echo "$NAME" | sed 's/ //g')
+NAME="${NAME}-severell$DBTYPE"
+
+
+case $OPERATION in
+    "start" )
+        #If docker image already exists then don't recreate the image.
+        if [[ "$(docker image inspect "${NAME}":latest >/dev/null 2>&1 && echo yes || echo no)" == "no" ]]; then
+          docker build -t "$NAME" - < ./config/"${DBTYPE}".dockerfile
+        fi
+
+
+        if [ ! "$(docker ps -aq -f name=$NAME)" ]; then
+          #Run DB in Docker
+          case $DBTYPE in
+            "postgres" )
+              docker run -d --name "$NAME" -p 5555:5432 "$NAME"
+            ;;
+            "mysql" )
+              docker run -d --name "$NAME" -p 5555:3306 "$NAME"
+            ;;
+            "redis" )
+              docker run -d --name "$NAME" -p 6379:6379 "$NAME"
+            ;;
+          esac
+        else
+          docker start "$NAME"
+        fi
+
+         ;;
+    "stop" )
+        docker stop "$NAME"
+         ;;
+esac

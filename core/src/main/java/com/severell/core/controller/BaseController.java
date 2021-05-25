@@ -1,7 +1,9 @@
 package com.severell.core.controller;
 import com.severell.core.container.Container;
+import com.severell.core.http.Needs;
 import com.severell.core.jobs.Tasker;
 
+@Needs("container")
 public class BaseController {
 
     private Container container;

@@ -1,0 +1,4 @@
+FROM postgres
+ENV POSTGRES_USER severell
+ENV POSTGRES_PASSWORD severell
+ENV POSTGRES_DB test

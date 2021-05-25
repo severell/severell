@@ -1,14 +1,13 @@
 package com.severell.core.middleware;
 
-import com.severell.core.drivers.Session;
-import com.severell.core.http.MiddlewareChain;
-import com.severell.core.http.Request;
-import com.severell.core.http.Response;
+import com.severell.core.http.*;
+import com.severell.core.session.Session;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
@@ -20,7 +19,7 @@ public class CsrfMiddlewareTest {
     @Test
     public void shouldStoreNewTokenInSession() throws Exception {
         Request request = mock(Request.class);
-        given(request.getMethod()).willReturn("GET");
+        given(request.method()).willReturn("GET");
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Response resp = mock(Response.class);
@@ -42,7 +41,7 @@ public class CsrfMiddlewareTest {
     public void shouldReturnStoredToken() throws Exception {
         String token = UUID.randomUUID().toString();
         Request request = mock(Request.class);
-        given(request.getMethod()).willReturn("GET");
+        given(request.method()).willReturn("GET");
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Response resp = mock(Response.class);
@@ -51,7 +50,7 @@ public class CsrfMiddlewareTest {
         given(session.getString("csrfToken")).willReturn(token);
 
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
+        ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         CsrfMiddleware middleware = new CsrfMiddleware(session);
 
@@ -59,7 +58,7 @@ public class CsrfMiddlewareTest {
 
         verify(resp).share(key.capture(), val.capture());
         assertEquals("csrf", key.getValue());
-        assertEquals(String.format("<input type='hidden' name='__token' value='%s' />", token), val.getValue().apply("something"));
+        assertEquals(token, val.getValue());
     }
 
     @Test
@@ -67,7 +66,7 @@ public class CsrfMiddlewareTest {
         String token = UUID.randomUUID().toString();
 
         Request request = mock(Request.class);
-        given(request.getMethod()).willReturn("POST");
+        given(request.method()).willReturn("POST");
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Response resp = mock(Response.class);
@@ -76,7 +75,7 @@ public class CsrfMiddlewareTest {
         given(request.input("__token")).willReturn(token);
 
         ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<Function<String,String>> val = ArgumentCaptor.forClass(Function.class);
+        ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
 
         CsrfMiddleware middleware = new CsrfMiddleware(session);
 
@@ -85,7 +84,7 @@ public class CsrfMiddlewareTest {
 
         verify(resp).share(key.capture(), val.capture());
         assertEquals("csrf", key.getValue());
-        assertEquals(String.format("<input type='hidden' name='__token' value='%s' />", token), val.getValue().apply("something"));
+        assertEquals(token, val.getValue());
     }
 
     @Test
@@ -94,7 +93,7 @@ public class CsrfMiddlewareTest {
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Request request = mock(Request.class);
-        given(request.getMethod()).willReturn("POST");
+        given(request.method()).willReturn("POST");
 
         Response resp = mock(Response.class);
         Session session = mock(Session.class);
@@ -114,7 +113,7 @@ public class CsrfMiddlewareTest {
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Request request = mock(Request.class);
-        given(request.getMethod()).willReturn("POST");
+        given(request.method()).willReturn("POST");
 
         Response resp = mock(Response.class);
         Session session = mock(Session.class);
@@ -131,7 +130,7 @@ public class CsrfMiddlewareTest {
     @Test
     public void errorShouldBeThrownWhenNoTokenStored() throws Exception {
         Request request = mock(Request.class);
-        given(request.getMethod()).willReturn("POST");
+        given(request.method()).willReturn("POST");
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
         Response resp = mock(Response.class);

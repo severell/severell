@@ -5,6 +5,7 @@ import com.squareup.javapoet.*;
 import io.ebean.Model;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.apache.maven.shared.utils.StringUtils;
 import picocli.CommandLine;
 
@@ -49,6 +50,11 @@ public class MakeModel extends MakeableCommand {
         make(javaFile);
 
         CommandLogger.printlnGreen(String.format("Created Model - %s", name));
+
+        System.out.println("");
+        CommandLogger.printlnGreen(String.format("Compiling & Processing Model"));
+        runMavenGoals("compile","process-classes");
+
     }
 
     private TypeSpec getTypeSpec(String tableName, TableMetaData metaData, String modelName) {

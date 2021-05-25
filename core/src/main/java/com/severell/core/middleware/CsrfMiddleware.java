@@ -1,14 +1,12 @@
 package com.severell.core.middleware;
 
-import com.severell.core.drivers.Session;
+import com.severell.core.http.*;
+import com.severell.core.session.Session;
 import com.severell.core.exceptions.MiddlewareException;
-import com.severell.core.http.MiddlewareChain;
-import com.severell.core.http.Request;
-import com.severell.core.http.Response;
 
-import javax.servlet.http.Cookie;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Verifies the CSRFToken
@@ -27,10 +25,9 @@ public class CsrfMiddleware implements Middleware{
     @Override
     public void handle(Request request, Response response, MiddlewareChain chain) throws Exception {
         String finalToken = verifyToken(request, session);
-        Function<String, String> func = (obj) -> String.format("<input type='hidden' name='__token' value='%s' />", finalToken);
-        response.share("csrf", func);
+        response.share("csrf", finalToken);
         chain.next();
-        response.addHeader("Set-Cookie", String.format("XSRF-TOKEN=%s; SameSite=strict", finalToken));
+        response.header("Set-Cookie", String.format("XSRF-TOKEN=%s; SameSite=strict", finalToken));
     }
 
     /**
@@ -44,8 +41,8 @@ public class CsrfMiddleware implements Middleware{
     private String verifyToken(Request r, Session session) throws MiddlewareException {
         String token;
         String storedToken = session.getString("csrfToken");
-        if("POST".equalsIgnoreCase(r.getMethod())) {
-            token = r.input("__token") == null ? r.getHeader("X-XSRF-TOKEN") : r.input("__token");
+        if("POST".equalsIgnoreCase(r.method())) {
+            token = r.input("__token") == null ? r.header("X-XSRF-TOKEN") : r.input("__token");
             if(!compareTokens(token,storedToken)){
                 throw new MiddlewareException("Invalid CSRFToken");
             }

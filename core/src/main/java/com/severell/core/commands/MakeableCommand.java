@@ -1,10 +1,14 @@
 package com.severell.core.commands;
 
+import com.severell.core.config.Config;
 import com.squareup.javapoet.JavaFile;
+import org.apache.maven.shared.invoker.*;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
 
 public abstract class MakeableCommand extends Command{
 

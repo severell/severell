@@ -1,7 +1,6 @@
 package com.severell.core.http;
 
 import com.severell.core.container.Container;
-import com.severell.core.exceptions.MiddlewareException;
 
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +34,7 @@ public class MiddlewareChain {
      * @param request
      * @param response
      * @throws Exception
+     * @return
      */
     public void execute(Container c, Request request, Response response) throws Exception {
         this.container = c;

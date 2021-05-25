@@ -1,10 +1,13 @@
 package com.severell.core.providers;
 
 import com.severell.core.container.Container;
-import com.severell.core.drivers.SessionMemoryDriver;
+import com.severell.core.session.SessionMemoryDriver;
 import com.severell.core.managers.SessionManager;
+import com.severell.core.session.SessionProvider;
+import com.severell.core.session.SessionRedisDriver;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.internal.verification.Times;
 
 import java.util.function.Function;
 
@@ -31,11 +34,12 @@ public class SessionProviderTest {
         ArgumentCaptor<Object> sesssionCaptor = ArgumentCaptor.forClass(Object.class);
         ArgumentCaptor<Function<Container, Object>> sessCaptor = ArgumentCaptor.forClass(Function.class);
 
-        verify(c).bind(any(String.class), objCaptor.capture());
-        verify(c).singleton(any(Class.class), sesssionCaptor.capture());
+        verify(c, times(2)).bind(any(String.class), objCaptor.capture());
+        verify(c, times(1)).singleton(any(Class.class), sesssionCaptor.capture());
 
-        assertTrue(sesssionCaptor.getValue() instanceof SessionManager);
-        assertTrue(objCaptor.getValue().apply(null) instanceof SessionMemoryDriver);
+        assertTrue(sesssionCaptor.getAllValues().get(0) instanceof SessionManager);
+        assertTrue(objCaptor.getAllValues().get(0).apply(null) instanceof SessionMemoryDriver);
+        assertTrue(objCaptor.getAllValues().get(1).apply(null) instanceof SessionRedisDriver);
 
         p.boot();
 

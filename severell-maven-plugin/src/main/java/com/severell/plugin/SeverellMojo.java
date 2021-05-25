@@ -45,6 +45,7 @@ public abstract class SeverellMojo extends AbstractMojo {
                 .filter(s -> {
                     return !s.getClass().getSimpleName().equals("AppProvider")
                             && !s.getClass().getSimpleName().equals("JettyProvider")
+                            && !s.getClass().getSimpleName().equals("ServerProvider")
                             && !s.getClass().getSimpleName().equals("RouteProvider");
                 })
                 .collect(Collectors.toList());
@@ -57,7 +58,7 @@ public abstract class SeverellMojo extends AbstractMojo {
             }
         }
 
-        classLoader.initRoutes();
+//        classLoader.initRoutes();
 
         for(ServiceProvider provider : providers) {
             try {

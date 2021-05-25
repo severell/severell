@@ -1,14 +1,17 @@
 package ${package};
 
 import ${package}.auth.Auth;
-import com.severell.core.http.AppServer;
 import com.severell.core.config.Config;
 import com.severell.core.container.Container;
+import com.severell.core.http.AppServer;
+import com.severell.core.http.RouteFile;
 import com.severell.core.http.Router;
 import com.severell.core.providers.ServiceProvider;
+import org.reflections.Reflections;
 
 import javax.naming.NamingException;
 import java.util.ArrayList;
+import java.util.Set;
 
 
 public class App {
@@ -21,7 +24,6 @@ public class App {
             System.exit(1);
         }
         Container c = new Container();
-        c.singleton("_MiddlewareList", Middleware.MIDDLEWARE);
         c.singleton(Auth.class, new Auth());
 
         AppServer server = new AppServer(Config.get("PORT", "8080"));
@@ -34,10 +36,18 @@ public class App {
         }
 
         try {
-            RouteBuilder builder = new RouteBuilder();
-            ArrayList routes = builder.build();
+            ArrayList routes = new ArrayList();
+            Reflections reflections = new Reflections("com.severell");
+            Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(RouteFile.class);
+            for(Class clazz : annotated) {
+                Object obj = clazz.getConstructor().newInstance();
+                routes.addAll((ArrayList) clazz.getMethod("build").invoke(obj));
+            }
+
+            Class clazz = Class.forName("com.severell.core._severell$RouteBuilder");
+            Object obj = clazz.getConstructor().newInstance();
             Router.setCompiledRoutes(routes);
-            c.singleton("DefaultMiddleware", builder.buildDefaultMiddleware());
+            c.singleton("DefaultMiddleware", clazz.getMethod("buildDefaultMiddleware").invoke(obj));
         }catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
