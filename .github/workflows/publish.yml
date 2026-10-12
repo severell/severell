@@ -26,7 +26,10 @@ jobs:
           *) echo "Only -SNAPSHOT versions are published by this workflow"; exit 1 ;;
         esac
     - name: Build, test and publish
-      run: mvn -B deploy --file pom.xml
+      # Maven 3.10+ only sends server credentials to the origins it associates with the
+      # server id, and treats the id "central" as Maven Central (repo.maven.apache.org).
+      # Scope credentials by id so they are also sent to central.sonatype.com.
+      run: mvn -B deploy --file pom.xml -Dmaven.repository.credentialScope=id
       env:
         CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
         CENTRAL_TOKEN: ${{ secrets.CENTRAL_TOKEN }}
