@@ -48,7 +48,8 @@ public class ServerProvider extends ServiceProvider {
         Undertow ser = null;
         if (appServer != null) {
             ser = Undertow.builder()
-                    .addHttpListener(Integer.parseInt(appServer.getPort()), "localhost")
+                    // HOST=0.0.0.0 is needed in containers so the server is reachable from outside.
+                    .addHttpListener(Integer.parseInt(appServer.getPort()), Config.get("HOST", "localhost"))
                     .setServerOption(ENABLE_HTTP2, true)
                     .setWorkerOption(Options.WORKER_IO_THREADS, Integer.parseInt(Config.get("IO_THREADS", "16")))
                     .setWorkerOption(Options.WORKER_TASK_CORE_THREADS, Integer.parseInt(Config.get("CORE_THREADS", "80")))
