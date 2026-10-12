@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.severell.core.container.Container;
 import com.severell.core.http.Cookie;
 import com.severell.core.http.Request;
+import com.severell.core.http.RequestContext;
 import com.severell.core.session.Session;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.CookieImpl;
@@ -29,6 +30,7 @@ public class UndertowRequest implements Request {
     private FormData formData;
     private Session session;
     private Container container;
+    private final RequestContext context = new RequestContext();
 
     public UndertowRequest(HttpServerExchange exchange, Session session, Container container) {
         queryData = new HashMap<>();
@@ -140,5 +142,10 @@ public class UndertowRequest implements Request {
 
     private String[] toStringArray(Deque<FormData.FormValue> deque) {
         return deque.stream().map((formValue -> formValue.getValue())).toArray(String[]::new);
+    }
+
+    @Override
+    public RequestContext context() {
+        return context;
     }
 }

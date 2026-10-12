@@ -93,4 +93,11 @@ public interface Request {
     String path();
 
     String header(String s);
+
+    /**
+     * Values stored for the lifetime of this request, for example by middleware.
+     *
+     * @return The context for this request
+     */
+    RequestContext context();
 }
