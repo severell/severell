@@ -54,4 +54,11 @@ public interface Session {
     default void regenerate() {
         throw new UnsupportedOperationException("This session driver can't regenerate its id");
     }
+
+    /**
+     * Throws the session away and starts an empty one with a new id, e.g. when a user signs out.
+     */
+    default void reset() {
+        throw new UnsupportedOperationException("This session driver can't reset");
+    }
 }

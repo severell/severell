@@ -24,19 +24,14 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
         super(container);
     }
 
-    // Set once the id changes mid-request, after which the request's cookie names the old session.
-    private boolean regenerated;
-
+    // The session id is the cookie's id when that session exists (see
+    // SeverellSessionCookieConfig), and the new id after regenerate() or reset().
     private String getActualKey() {
-        String actualKey = "";
-        Cookie jsessCookie = request.cookie("JSESSIONID");
-        if(jsessCookie != null && !regenerated) {
-            actualKey += "session-" + jsessCookie.getValue();
-        } else {
-            String sessionId = undertowSession.getId();
-            actualKey += "session-" + sessionId;
-        }
-        return actualKey;
+        return key(undertowSession.getId());
+    }
+
+    static String key(String sessionId) {
+        return "session-" + sessionId;
     }
 
     public void getRemoteSession() {
@@ -79,7 +74,13 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
         try(Jedis jedis = pool.getResource()) {
             objectOutputStream = new ObjectOutputStream(writer);
             HashMap<String, Object> session = new HashMap<>();
-            Iterator<String> iterator = undertowSession.getAttributeNames().iterator();
+            Iterator<String> iterator;
+            try {
+                iterator = undertowSession.getAttributeNames().iterator();
+            } catch (IllegalStateException e) {
+                // Another request replaced this session (sign-in or sign-out); don't bring it back.
+                return;
+            }
             while(iterator.hasNext()) {
                 String sessKey = iterator.next();
                 session.put(sessKey, undertowSession.getAttribute(sessKey));
@@ -108,15 +109,12 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
     }
 
     @Override
-    public void regenerate() {
-        String oldKey = getActualKey();
-        super.regenerate();
-        regenerated = true;
-        // The data is written under the new id at the end of the request; drop the old copy so
-        // the old id can't be used to load it.
+    protected void forgetSession(String oldId) {
+        // Delete the old copy before the new session is created, so the old id is unknown from
+        // now on and can't be used to load the data.
         JedisPool pool = container.make(JedisPool.class);
         try(Jedis jedis = pool.getResource()) {
-            jedis.del(oldKey);
+            jedis.del(key(oldId));
         }
     }
 }

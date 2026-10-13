@@ -14,6 +14,11 @@ import java.util.Base64;
  */
 public class CsrfTokens {
 
+    /**
+     * Where the session keeps its secret. Sessions drop it when their id is regenerated.
+     */
+    public static final String SESSION_KEY = "csrfToken";
+
     static final int TOKEN_BYTES = 32;
 
     private static final SecureRandom random = new SecureRandom();

@@ -40,19 +40,28 @@ public class CsrfMiddlewareTest {
         return (String) val.getValue();
     }
 
+    // A session that remembers what's put in it, unlike a mock.
+    private static class MapSession implements Session {
+        final java.util.Map<String, Object> data = new HashMap<>();
+        public Object get(String key) { return data.get(key); }
+        public String getString(String key) { return (String) data.get(key); }
+        public <T> T get(String key, Class<T> c) { return c.cast(data.get(key)); }
+        public String getId() { return "id"; }
+        public void put(String key, Object value) { data.put(key, value); }
+        public void setRequest(Request r) { }
+    }
+
     @Test
     public void getStoresANewSecretAndSharesAMaskedToken() throws Exception {
-        Request request = request("GET", null);
         Response resp = mock(Response.class);
-        Session session = sessionWith(null);
+        MapSession session = new MapSession();
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
-        new CsrfMiddleware(session).handle(request, resp, chain);
+        new CsrfMiddleware(session).handle(request("GET", null), resp, chain);
 
-        ArgumentCaptor<Object> secret = ArgumentCaptor.forClass(Object.class);
-        verify(session).put(eq("csrfToken"), secret.capture());
-        assertTrue(CsrfTokens.isValidSecret((String) secret.getValue()));
-        assertTrue(CsrfTokens.matches(sharedToken(resp), (String) secret.getValue()));
+        String secret = session.getString("csrfToken");
+        assertTrue(CsrfTokens.isValidSecret(secret));
+        assertTrue(CsrfTokens.matches(sharedToken(resp), secret));
         verify(chain).next();
     }
 
@@ -149,9 +158,10 @@ public class CsrfMiddlewareTest {
     public void tokensFromBeforeMaskingAreReplacedOnGetAndRefusedOnPost() throws Exception {
         String legacy = UUID.randomUUID().toString();
 
-        Session session = sessionWith(legacy);
+        MapSession session = new MapSession();
+        session.put("csrfToken", legacy);
         new CsrfMiddleware(session).handle(request("GET", null), mock(Response.class), mock(MiddlewareChain.class));
-        verify(session).put(eq("csrfToken"), argThat(v -> CsrfTokens.isValidSecret((String) v)));
+        assertTrue(CsrfTokens.isValidSecret(session.getString("csrfToken")));
 
         Request post = request("POST", null);
         given(post.input("__token")).willReturn(legacy);
@@ -192,5 +202,41 @@ public class CsrfMiddlewareTest {
         new CsrfMiddleware(sessionWith(CsrfTokens.newSecret())).handle(request("POST", route), mock(Response.class), chain);
 
         verify(chain, never()).next();
+    }
+
+    @Test
+    public void aTokenInTheQueryStringIsRefused() throws Exception {
+        String secret = CsrfTokens.newSecret();
+        String masked = CsrfTokens.mask(secret);
+        Request request = request("POST", null);
+        given(request.query("__token")).willReturn(masked);
+        given(request.input("__token")).willReturn(masked);
+        MiddlewareChain chain = mock(MiddlewareChain.class);
+        Response resp = mock(Response.class);
+
+        new CsrfMiddleware(sessionWith(secret)).handle(request, resp, chain);
+
+        verify(chain, never()).next();
+        verify(resp).json(any(HashMap.class), eq(403));
+    }
+
+    @Test
+    public void cookieUsesTheSecretInPlaceAfterTheRequest() throws Exception {
+        // Signing in replaces the session and drops its secret while the request runs.
+        String before = CsrfTokens.newSecret();
+        Session session = mock(Session.class);
+        given(session.getString("csrfToken")).willReturn(before, before, (String) null);
+        Response resp = mock(Response.class);
+
+        new CsrfMiddleware(session).handle(request("GET", null), resp, mock(MiddlewareChain.class));
+
+        ArgumentCaptor<Object> after = ArgumentCaptor.forClass(Object.class);
+        verify(session).put(eq("csrfToken"), after.capture());
+        ArgumentCaptor<String> header = ArgumentCaptor.forClass(String.class);
+        verify(resp).header(eq("Set-Cookie"), header.capture());
+        String cookie = header.getValue();
+        String token = cookie.substring("XSRF-TOKEN=".length(), cookie.indexOf(';'));
+        assertTrue(CsrfTokens.matches(token, (String) after.getValue()));
+        assertFalse(CsrfTokens.matches(token, before));
     }
 }

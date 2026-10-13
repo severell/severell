@@ -32,9 +32,4 @@ public class SessionMemoryDriver extends BaseSessionDriver implements Session {
     public void put(String key, Object value) {
         this.underlyingSession.put(key, value);
     }
-
-    @Override
-    public void regenerate() {
-        this.underlyingSession.regenerate();
-    }
 }

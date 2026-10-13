@@ -9,7 +9,7 @@ public class SeverellSessionCookieConfigTest {
 
     @Test
     public void sessionCookieCarriesTheConfiguredFlags() {
-        Cookie cookie = new SeverellSessionCookieConfig(true, true, "Lax").cookie("abc");
+        Cookie cookie = new SeverellSessionCookieConfig(true, true, "Lax", id -> true).cookie("abc");
         assertEquals("JSESSIONID", cookie.getName());
         assertEquals("abc", cookie.getValue());
         assertEquals("/", cookie.getPath());
@@ -21,8 +21,10 @@ public class SeverellSessionCookieConfigTest {
 
     @Test
     public void localCookieCanSkipSecure() {
-        Cookie cookie = new SeverellSessionCookieConfig(false, true, "Strict").cookie("abc");
+        Cookie cookie = new SeverellSessionCookieConfig(false, true, "Strict", id -> true).cookie("abc");
         assertFalse(cookie.isSecure());
         assertEquals("Strict", cookie.getSameSiteMode());
     }
+
+    // Rejecting ids the server never issued is tested against a real server in SessionFixationTest.
 }

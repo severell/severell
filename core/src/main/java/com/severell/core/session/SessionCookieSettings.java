@@ -36,6 +36,14 @@ public class SessionCookieSettings {
         if (value == null || value.trim().isEmpty()) {
             return defaultValue;
         }
-        return Boolean.parseBoolean(value.trim());
+        switch (value.trim().toLowerCase()) {
+            case "true": case "1": case "yes": case "on":
+                return true;
+            case "false": case "0": case "no": case "off":
+                return false;
+            default:
+                // A typo must not silently turn a security flag off.
+                throw new IllegalArgumentException(key + " must be true or false, not \"" + value + "\"");
+        }
     }
 }

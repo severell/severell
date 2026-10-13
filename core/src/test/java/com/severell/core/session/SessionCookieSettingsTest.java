@@ -60,4 +60,17 @@ public class SessionCookieSettingsTest {
         load(dir, "SESSION_COOKIE_SAME_SITE=bogus\n");
         assertEquals("Lax", SessionCookieSettings.sameSite());
     }
+
+    @Test
+    public void commonSpellingsOfTrueAndFalseWork(@TempDir Path dir) throws Exception {
+        load(dir, "ENV=TEST\nSESSION_COOKIE_SECURE=1\nSESSION_COOKIE_HTTP_ONLY=no\n");
+        assertTrue(SessionCookieSettings.secure());
+        assertFalse(SessionCookieSettings.httpOnly());
+    }
+
+    @Test
+    public void aTypoIsAnErrorNotFalse(@TempDir Path dir) throws Exception {
+        load(dir, "SESSION_COOKIE_SECURE=ture\n");
+        assertThrows(IllegalArgumentException.class, SessionCookieSettings::secure);
+    }
 }

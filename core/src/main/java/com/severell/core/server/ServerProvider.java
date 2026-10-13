@@ -17,6 +17,8 @@ import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.handlers.resource.ResourceManager;
 import io.undertow.server.session.InMemorySessionManager;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import io.undertow.server.session.SessionAttachmentHandler;
 import org.xnio.Options;
 
@@ -64,7 +66,9 @@ public class ServerProvider extends ServiceProvider {
     }
 
     private HttpHandler getMainHandler() {
-        SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(new InMemorySessionManager("severell"), new SeverellSessionCookieConfig());
+        InMemorySessionManager sessionManager = new InMemorySessionManager("severell");
+        SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(sessionManager,
+                new SeverellSessionCookieConfig(id -> sessionExists(sessionManager, id)));
         EagerFormParsingHandler formParsingHandler = new EagerFormParsingHandler(FormParserFactory.builder().addParsers(new MultiPartParserDefinition()).build());
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         ResourceManager manager = null;
@@ -90,5 +94,22 @@ public class ServerProvider extends ServiceProvider {
                             }
                         }
                 ));
+    }
+
+    /**
+     * A session id is only accepted if we issued it: it's live in memory, or (with Redis
+     * sessions) saved in Redis, e.g. from before a restart or by another server.
+     */
+    private boolean sessionExists(InMemorySessionManager sessionManager, String id) {
+        if (sessionManager.getSession(id) != null) {
+            return true;
+        }
+        if ("redis".equalsIgnoreCase(Config.get("SESSION_DRIVER", "Memory"))) {
+            JedisPool pool = c.make(JedisPool.class);
+            try (Jedis jedis = pool.getResource()) {
+                return jedis.exists(UndertowRedisSession.key(id));
+            }
+        }
+        return false;
     }
 }
