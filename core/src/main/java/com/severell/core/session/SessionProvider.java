@@ -30,6 +30,8 @@ public class SessionProvider extends ServiceProvider {
 
     @Override
     public void boot() {
-        this.c.bind(Session.class,  (container) -> container.make(SessionManager.class).create_driver(Config.get("SESSION_DRIVER", "Memory")));
+        // Memory is the only driver (checked in register()); don't pass the raw setting, whose
+        // spelling ("memory") wouldn't match the driver's binding name.
+        this.c.bind(Session.class,  (container) -> container.make(SessionManager.class).create_driver("Memory"));
     }
 }
