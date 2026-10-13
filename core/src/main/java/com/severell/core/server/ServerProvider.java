@@ -98,7 +98,7 @@ public class ServerProvider extends ServiceProvider {
                 ));
     }
 
-    private SessionAttachmentHandler sessionHandler() {
+    SessionAttachmentHandler sessionHandler() {
         if (!SessionCookieSettings.secure() && !Config.isLocal()) {
             LogManager.getLogger(ServerProvider.class).warn("SESSION_COOKIE_SECURE is off outside local development: "
                     + "session and CSRF cookies lose their __Host- protection and can be planted by other subdomains");

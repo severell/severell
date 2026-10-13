@@ -246,7 +246,7 @@ public class DatabaseSessionManager implements SessionManager {
         }
     }
 
-    private void deleteExpiredQuietly() {
+    void deleteExpiredQuietly() {
         try {
             deleteExpired();
         } catch (Exception e) {

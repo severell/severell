@@ -269,4 +269,73 @@ public class DatabaseSessionManagerTest {
             TimeZone.setDefault(original);
         }
     }
+
+    @Test
+    public void cleanupKeepsGoingWhenTheDatabaseFails() throws Exception {
+        sql("DROP TABLE sessions");
+        assertDoesNotThrow(manager::deleteExpiredQuietly);
+    }
+
+    @Test
+    public void stopEndsTheCleanupAndCanBeCalledTwice() {
+        manager.stop();
+        manager.stop();
+        manager.start();
+        manager.stop();
+    }
+
+    @Test
+    public void lookingUpBySessionIdAlone() {
+        String id = newSessionWith("userid", 7).getId();
+        assertEquals(7, manager.getSession(id).getAttribute("userid"));
+        assertNull(manager.getSession("nope"));
+    }
+
+    @Test
+    public void undertowBookkeepingIsEmpty() {
+        manager.registerSessionListener(null);
+        manager.removeSessionListener(null);
+        assertEquals("severell", manager.getDeploymentName());
+        assertTrue(manager.getTransientSessions().isEmpty());
+        assertTrue(manager.getActiveSessions().isEmpty());
+        assertTrue(manager.getAllSessions().isEmpty());
+        assertNull(manager.getStatistics());
+        manager.setDefaultSessionTimeout(60);
+        assertEquals(60, manager.getTimeoutSeconds());
+    }
+
+    @Test
+    public void sessionDetails() {
+        DatabaseSession session = newSessionWith("userid", 7);
+        session.setAttribute("name", "Mitch");
+        assertEquals(java.util.Set.of("userid", "name"), session.getAttributeNames());
+        assertEquals(1800, session.getMaxInactiveInterval());
+        assertSame(manager, session.getSessionManager());
+        session.setMaxInactiveInterval(5);
+        session.requestDone(null);
+        assertEquals(0, session.getCreationTime());
+        assertEquals(0, session.getLastAccessedTime());
+        assertEquals(7, session.setAttribute("userid", null));
+        assertThrows(UnsupportedOperationException.class, () -> session.changeSessionId(null, config));
+        assertThrows(IllegalArgumentException.class, () -> session.getAttribute("name", Integer.class));
+    }
+
+    @Test
+    public void aNewSessionThatsInvalidatedIsNeverSaved() throws Exception {
+        HttpServerExchange exchange = new HttpServerExchange(null);
+        DatabaseSession session = (DatabaseSession) manager.createSession(exchange, config);
+        session.setAttribute("userid", 7);
+        session.invalidate(exchange);
+        session.save();
+        assertEquals(0, rows());
+    }
+
+    @Test
+    public void aDatabaseErrorWhileSavingIsReported() throws Exception {
+        DatabaseSession session = newSessionWith("userid", 7);
+        DatabaseSession loaded = load(session.getId());
+        sql("DROP TABLE sessions");
+        loaded.setAttribute("userid", 8);
+        assertThrows(IllegalStateException.class, loaded::save);
+    }
 }
