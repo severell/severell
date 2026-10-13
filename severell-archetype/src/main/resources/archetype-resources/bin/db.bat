@@ -33,8 +33,6 @@ IF "%OPERATION%"=="start" (
 			docker run -d --name %NAME% -p 5555:5432 %NAME%
 		) ELSE IF "%DBTYPE%"=="mysql" (
 			docker run -d --name %NAME% -p 5555:3306 %NAME%
-		) ELSE IF "%DBTYPE%"=="redis" (
-			docker run -d --name %NAME% -p 6379:6379 %NAME%
 		)
 	) ELSE (
 
