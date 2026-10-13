@@ -1,6 +1,5 @@
 package com.severell.core.server;
 
-import com.severell.core.config.Config;
 import com.severell.core.container.Container;
 import com.severell.core.http.Dispatcher;
 import io.undertow.server.HttpServerExchange;
