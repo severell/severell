@@ -1,5 +1,8 @@
 package com.severell.core.server;
 
+import io.undertow.server.HttpServerExchange;
+import io.undertow.server.session.SessionConfig;
+
 import com.severell.core.container.Container;
 import com.severell.core.http.Request;
 import com.severell.core.session.BaseSessionDriver;
@@ -8,6 +11,7 @@ import com.severell.core.session.Session;
 public class UndertowInMemorySession extends BaseSessionDriver implements Session {
 
     io.undertow.server.session.Session undertowSession;
+    HttpServerExchange exchange;
 
     public UndertowInMemorySession(io.undertow.server.session.Session session) {
         this.undertowSession = session;
@@ -15,6 +19,10 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
 
     public UndertowInMemorySession(Container container) {
         this.container = container;
+    }
+
+    public void setExchange(HttpServerExchange exchange) {
+        this.exchange = exchange;
     }
 
     public void setUndertowSession(io.undertow.server.session.Session undertowSession) {
@@ -51,5 +59,14 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
     @Override
     public void setRequest(Request r) {
         //Don't need to implement this. Should I throw an error?
+    }
+
+    @Override
+    public void regenerate() {
+        if (exchange == null) {
+            throw new IllegalStateException("No request to regenerate the session for");
+        }
+        SessionConfig config = exchange.getAttachment(SessionConfig.ATTACHMENT_KEY);
+        undertowSession.changeSessionId(exchange, config);
     }
 }

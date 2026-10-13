@@ -24,10 +24,13 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
         super(container);
     }
 
+    // Set once the id changes mid-request, after which the request's cookie names the old session.
+    private boolean regenerated;
+
     private String getActualKey() {
         String actualKey = "";
         Cookie jsessCookie = request.cookie("JSESSIONID");
-        if(jsessCookie != null) {
+        if(jsessCookie != null && !regenerated) {
             actualKey += "session-" + jsessCookie.getValue();
         } else {
             String sessionId = undertowSession.getId();
@@ -102,5 +105,18 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
     @Override
     public void setRequest(Request r) {
         request = r;
+    }
+
+    @Override
+    public void regenerate() {
+        String oldKey = getActualKey();
+        super.regenerate();
+        regenerated = true;
+        // The data is written under the new id at the end of the request; drop the old copy so
+        // the old id can't be used to load it.
+        JedisPool pool = container.make(JedisPool.class);
+        try(Jedis jedis = pool.getResource()) {
+            jedis.del(oldKey);
+        }
     }
 }

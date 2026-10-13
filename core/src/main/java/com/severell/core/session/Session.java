@@ -46,4 +46,12 @@ public interface Session {
      */
     void setRequest(Request r);
 
+
+    /**
+     * Gives the session a new id, keeping its data, and sends the new id to the browser. Call it
+     * when a user signs in so a session id an attacker planted or saw earlier stops working.
+     */
+    default void regenerate() {
+        throw new UnsupportedOperationException("This session driver can't regenerate its id");
+    }
 }

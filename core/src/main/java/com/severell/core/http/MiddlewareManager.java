@@ -34,6 +34,11 @@ public class MiddlewareManager {
      * @throws Exception
      */
     public void filterRequest(Request request, Response response) throws Exception {
+        // Lets middleware see which route matched, e.g. so CsrfMiddleware can honor @SkipCsrf.
+        RequestContext context = request.context();
+        if (context != null) {
+            context.set(RouteExecutor.CONTEXT_KEY, this.ref);
+        }
         List<MiddlewareExecutor> middleware = getMiddleware();
         this.chain.setMiddleware(middleware);
         this.chain.setTarget(this.ref);

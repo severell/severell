@@ -18,7 +18,6 @@ import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.handlers.resource.ResourceManager;
 import io.undertow.server.session.InMemorySessionManager;
 import io.undertow.server.session.SessionAttachmentHandler;
-import io.undertow.server.session.SessionCookieConfig;
 import org.xnio.Options;
 
 
@@ -65,7 +64,7 @@ public class ServerProvider extends ServiceProvider {
     }
 
     private HttpHandler getMainHandler() {
-        SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(new InMemorySessionManager("severell"), new SessionCookieConfig());
+        SessionAttachmentHandler sessionAttachmentHandler = new SessionAttachmentHandler(new InMemorySessionManager("severell"), new SeverellSessionCookieConfig());
         EagerFormParsingHandler formParsingHandler = new EagerFormParsingHandler(FormParserFactory.builder().addParsers(new MultiPartParserDefinition()).build());
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         ResourceManager manager = null;

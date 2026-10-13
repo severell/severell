@@ -5,143 +5,192 @@ import com.severell.core.session.Session;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class CsrfMiddlewareTest {
 
-    @Test
-    public void shouldStoreNewTokenInSession() throws Exception {
+    private Request request(String method, RouteExecutor route) {
         Request request = mock(Request.class);
-        given(request.method()).willReturn("GET");
-        MiddlewareChain chain = mock(MiddlewareChain.class);
+        given(request.method()).willReturn(method);
+        given(request.path()).willReturn("/thing");
+        RequestContext context = new RequestContext();
+        if (route != null) {
+            context.set(RouteExecutor.CONTEXT_KEY, route);
+        }
+        given(request.context()).willReturn(context);
+        return request;
+    }
 
-        Response resp = mock(Response.class);
+    private Session sessionWith(String secret) {
         Session session = mock(Session.class);
+        given(session.getString("csrfToken")).willReturn(secret);
+        return session;
+    }
 
-        ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
+    private String sharedToken(Response resp) {
         ArgumentCaptor<Object> val = ArgumentCaptor.forClass(Object.class);
-
-        CsrfMiddleware middleware = new CsrfMiddleware(session);
-
-        middleware.handle(request, resp, chain);
-
-        verify(session).put(key.capture(), val.capture());
-        assertEquals("csrfToken", key.getValue());
-        assertNotNull(val.getValue());
+        verify(resp).share(eq("csrf"), val.capture());
+        return (String) val.getValue();
     }
 
     @Test
-    public void shouldReturnStoredToken() throws Exception {
-        String token = UUID.randomUUID().toString();
-        Request request = mock(Request.class);
-        given(request.method()).willReturn("GET");
+    public void getStoresANewSecretAndSharesAMaskedToken() throws Exception {
+        Request request = request("GET", null);
+        Response resp = mock(Response.class);
+        Session session = sessionWith(null);
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
-        Response resp = mock(Response.class);
-        Session session = mock(Session.class);
+        new CsrfMiddleware(session).handle(request, resp, chain);
 
-        given(session.getString("csrfToken")).willReturn(token);
-
-        ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
-
-        CsrfMiddleware middleware = new CsrfMiddleware(session);
-
-        middleware.handle(request, resp, chain);
-
-        verify(resp).share(key.capture(), val.capture());
-        assertEquals("csrf", key.getValue());
-        assertEquals(token, val.getValue());
+        ArgumentCaptor<Object> secret = ArgumentCaptor.forClass(Object.class);
+        verify(session).put(eq("csrfToken"), secret.capture());
+        assertTrue(CsrfTokens.isValidSecret((String) secret.getValue()));
+        assertTrue(CsrfTokens.matches(sharedToken(resp), (String) secret.getValue()));
+        verify(chain).next();
     }
 
     @Test
-    public void noErrorShouldBeThrownWhenTokensMatch() throws Exception {
-        String token = UUID.randomUUID().toString();
-
-        Request request = mock(Request.class);
-        given(request.method()).willReturn("POST");
-        MiddlewareChain chain = mock(MiddlewareChain.class);
-
+    public void getReusesTheStoredSecret() throws Exception {
+        String secret = CsrfTokens.newSecret();
         Response resp = mock(Response.class);
-        Session session = mock(Session.class);
-        given(session.getString("csrfToken")).willReturn(token);
-        given(request.input("__token")).willReturn(token);
+        Session session = sessionWith(secret);
 
-        ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> val = ArgumentCaptor.forClass(String.class);
+        new CsrfMiddleware(session).handle(request("GET", null), resp, mock(MiddlewareChain.class));
 
-        CsrfMiddleware middleware = new CsrfMiddleware(session);
-
-
-        middleware.handle(request, resp, chain);
-
-        verify(resp).share(key.capture(), val.capture());
-        assertEquals("csrf", key.getValue());
-        assertEquals(token, val.getValue());
+        verify(session, never()).put(anyString(), any());
+        String shared = sharedToken(resp);
+        assertNotEquals(secret, shared);
+        assertTrue(CsrfTokens.matches(shared, secret));
     }
 
     @Test
-    public void errorShouldBeThrownWhenTokensDontMatch() throws Exception {
-        String token = UUID.randomUUID().toString();
-        MiddlewareChain chain = mock(MiddlewareChain.class);
-
-        Request request = mock(Request.class);
-        given(request.method()).willReturn("POST");
-
+    public void setsAStrictXsrfCookieWithAMaskedToken() throws Exception {
+        String secret = CsrfTokens.newSecret();
         Response resp = mock(Response.class);
-        Session session = mock(Session.class);
-        given(session.getString("csrfToken")).willReturn(token);
-        given(request.input("__token")).willReturn("");
 
-        CsrfMiddleware middleware = new CsrfMiddleware(session);
+        new CsrfMiddleware(sessionWith(secret)).handle(request("GET", null), resp, mock(MiddlewareChain.class));
 
-        assertThrows(Exception.class, () -> {
-            middleware.handle(request, resp, chain);
-        });
+        ArgumentCaptor<String> header = ArgumentCaptor.forClass(String.class);
+        verify(resp).header(eq("Set-Cookie"), header.capture());
+        String cookie = header.getValue();
+        assertTrue(cookie.startsWith("XSRF-TOKEN="));
+        assertTrue(cookie.contains("SameSite=Strict"));
+        String token = cookie.substring("XSRF-TOKEN=".length(), cookie.indexOf(';'));
+        assertTrue(CsrfTokens.matches(token, secret));
     }
 
     @Test
-    public void errorShouldBeThrownWhenNoTokenPassedUp() throws Exception {
-        String token = UUID.randomUUID().toString();
+    public void postWithAValidFormTokenPasses() throws Exception {
+        String secret = CsrfTokens.newSecret();
+        Request request = request("POST", null);
+        given(request.input("__token")).willReturn(CsrfTokens.mask(secret));
         MiddlewareChain chain = mock(MiddlewareChain.class);
-
-        Request request = mock(Request.class);
-        given(request.method()).willReturn("POST");
-
         Response resp = mock(Response.class);
-        Session session = mock(Session.class);
-        given(session.getString("csrfToken")).willReturn(null);
-        given(request.input("__token")).willReturn(null);
 
-        CsrfMiddleware middleware = new CsrfMiddleware(session);
+        new CsrfMiddleware(sessionWith(secret)).handle(request, resp, chain);
 
-        assertThrows(Exception.class, () -> {
-            middleware.handle(request, resp,  chain);
-        });
+        verify(chain).next();
+        verify(resp, never()).json(any(), eq(403));
     }
 
     @Test
-    public void errorShouldBeThrownWhenNoTokenStored() throws Exception {
-        Request request = mock(Request.class);
-        given(request.method()).willReturn("POST");
+    public void validHeaderTokensPass() throws Exception {
+        for (String header : new String[]{"X-CSRF-TOKEN", "X-XSRF-TOKEN"}) {
+            String secret = CsrfTokens.newSecret();
+            Request request = request("PATCH", null);
+            given(request.header(header)).willReturn(CsrfTokens.mask(secret));
+            MiddlewareChain chain = mock(MiddlewareChain.class);
+
+            new CsrfMiddleware(sessionWith(secret)).handle(request, mock(Response.class), chain);
+
+            verify(chain).next();
+        }
+    }
+
+    @Test
+    public void unsafeMethodsWithoutAValidTokenAreRefusedWith403() throws Exception {
+        String secret = CsrfTokens.newSecret();
+        for (String method : new String[]{"POST", "PUT", "PATCH", "DELETE", "post"}) {
+            for (String token : new String[]{null, "", "junk", secret, CsrfTokens.mask(CsrfTokens.newSecret())}) {
+                Request request = request(method, null);
+                given(request.input("__token")).willReturn(token);
+                MiddlewareChain chain = mock(MiddlewareChain.class);
+                Response resp = mock(Response.class);
+
+                new CsrfMiddleware(sessionWith(secret)).handle(request, resp, chain);
+
+                verify(chain, never()).next();
+                verify(resp).json(any(HashMap.class), eq(403));
+            }
+        }
+    }
+
+    @Test
+    public void postIsRefusedWhenTheSessionHasNoSecret() throws Exception {
+        Request request = request("POST", null);
+        given(request.input("__token")).willReturn(CsrfTokens.mask(CsrfTokens.newSecret()));
+        MiddlewareChain chain = mock(MiddlewareChain.class);
+        Response resp = mock(Response.class);
+
+        new CsrfMiddleware(sessionWith(null)).handle(request, resp, chain);
+
+        verify(chain, never()).next();
+        verify(resp).json(any(HashMap.class), eq(403));
+    }
+
+    @Test
+    public void tokensFromBeforeMaskingAreReplacedOnGetAndRefusedOnPost() throws Exception {
+        String legacy = UUID.randomUUID().toString();
+
+        Session session = sessionWith(legacy);
+        new CsrfMiddleware(session).handle(request("GET", null), mock(Response.class), mock(MiddlewareChain.class));
+        verify(session).put(eq("csrfToken"), argThat(v -> CsrfTokens.isValidSecret((String) v)));
+
+        Request post = request("POST", null);
+        given(post.input("__token")).willReturn(legacy);
+        MiddlewareChain chain = mock(MiddlewareChain.class);
+        new CsrfMiddleware(sessionWith(legacy)).handle(post, mock(Response.class), chain);
+        verify(chain, never()).next();
+    }
+
+    @Test
+    public void safeMethodsArentChecked() throws Exception {
+        for (String method : new String[]{"GET", "HEAD", "OPTIONS", "TRACE"}) {
+            MiddlewareChain chain = mock(MiddlewareChain.class);
+            new CsrfMiddleware(sessionWith(CsrfTokens.newSecret())).handle(request(method, null), mock(Response.class), chain);
+            verify(chain).next();
+        }
+    }
+
+    @Test
+    public void skippedRoutesArentCheckedAndGetNoToken() throws Exception {
+        RouteExecutor route = new RouteExecutor("/api", HttpMethod.POST, new ArrayList<>(), true, (r, s, c) -> {});
+        Session session = sessionWith(null);
+        MiddlewareChain chain = mock(MiddlewareChain.class);
+        Response resp = mock(Response.class);
+
+        new CsrfMiddleware(session).handle(request("POST", route), resp, chain);
+
+        verify(chain).next();
+        verify(resp, never()).json(any(), anyInt());
+        verify(resp, never()).share(anyString(), any());
+        verify(session, never()).put(anyString(), any());
+    }
+
+    @Test
+    public void routesWithoutSkipCsrfAreChecked() throws Exception {
+        RouteExecutor route = new RouteExecutor("/form", HttpMethod.POST, new ArrayList<>(), (r, s, c) -> {});
         MiddlewareChain chain = mock(MiddlewareChain.class);
 
-        Response resp = mock(Response.class);
-        Session session = mock(Session.class);
-        given(session.getString("csrfToken")).willReturn("");
-        given(request.input("__token")).willReturn(null);
+        new CsrfMiddleware(sessionWith(CsrfTokens.newSecret())).handle(request("POST", route), mock(Response.class), chain);
 
-        CsrfMiddleware middleware = new CsrfMiddleware(session);
-
-        assertThrows(Exception.class, () -> {
-            middleware.handle(request,resp, chain);
-        });
+        verify(chain, never()).next();
     }
 }

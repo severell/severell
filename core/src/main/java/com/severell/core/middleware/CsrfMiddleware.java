@@ -2,16 +2,31 @@ package com.severell.core.middleware;
 
 import com.severell.core.http.*;
 import com.severell.core.session.Session;
-import com.severell.core.exceptions.MiddlewareException;
+import com.severell.core.session.SessionCookieSettings;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.HashMap;
+import java.util.Set;
 
 /**
- * Verifies the CSRFToken
+ * Protects against cross-site request forgery.
+ *
+ * Requests that can change state (anything but GET, HEAD, OPTIONS and TRACE) must send the
+ * CSRF token, as the {@code __token} form field or the {@code X-CSRF-TOKEN} or
+ * {@code X-XSRF-TOKEN} header. Otherwise they're refused with 403. Templates get the token as
+ * the shared {@code csrf} value, and JavaScript can read it from the {@code XSRF-TOKEN} cookie.
+ * Tokens are masked per response (see {@link CsrfTokens}) so they can't leak through BREACH.
+ *
+ * Routes or controllers marked {@link SkipCsrf} aren't checked.
  */
-public class CsrfMiddleware implements Middleware{
+public class CsrfMiddleware implements Middleware {
+
+    static final String SESSION_KEY = "csrfToken";
+    static final String FORM_FIELD = "__token";
+    static final String COOKIE_NAME = "XSRF-TOKEN";
+    private static final Set<String> SAFE_METHODS = Set.of("GET", "HEAD", "OPTIONS", "TRACE");
+    private static final Logger logger = LogManager.getLogger(CsrfMiddleware.class);
 
     /**
      * The Request session
@@ -24,56 +39,53 @@ public class CsrfMiddleware implements Middleware{
 
     @Override
     public void handle(Request request, Response response, MiddlewareChain chain) throws Exception {
-        String finalToken = verifyToken(request, session);
-        response.share("csrf", finalToken);
+        if (isSkipped(request)) {
+            logger.debug("CSRF check skipped for {} {} (@SkipCsrf)", request.method(), request.path());
+            chain.next();
+            return;
+        }
+
+        String secret = session.getString(SESSION_KEY);
+        boolean safe = request.method() != null && SAFE_METHODS.contains(request.method().toUpperCase());
+
+        if (!safe && !CsrfTokens.matches(submittedToken(request), secret)) {
+            HashMap<String, Object> body = new HashMap<>();
+            body.put("error", "Invalid CSRF token. Reload the page and try again.");
+            response.json(body, 403);
+            return;
+        }
+
+        if (!CsrfTokens.isValidSecret(secret)) {
+            secret = CsrfTokens.newSecret();
+            session.put(SESSION_KEY, secret);
+        }
+
+        response.share("csrf", CsrfTokens.mask(secret));
         chain.next();
-        response.header("Set-Cookie", String.format("XSRF-TOKEN=%s; SameSite=strict", finalToken));
+        response.header("Set-Cookie", xsrfCookie(CsrfTokens.mask(secret)));
     }
 
-    /**
-     * Verifies the CSRF Token on Post requests. For other requests it returns the stored
-     * one or generates a new one.
-     * @param r
-     * @param session
-     * @return CSRF Token String
-     * @throws MiddlewareException
-     */
-    private String verifyToken(Request r, Session session) throws MiddlewareException {
-        String token;
-        String storedToken = session.getString("csrfToken");
-        if("POST".equalsIgnoreCase(r.method())) {
-            token = r.input("__token") == null ? r.header("X-XSRF-TOKEN") : r.input("__token");
-            if(!compareTokens(token,storedToken)){
-                throw new MiddlewareException("Invalid CSRFToken");
-            }
-            return token;
-        } else {
-            return storedToken != null ? storedToken : generateToken(session);
+    private static boolean isSkipped(Request request) {
+        RequestContext context = request.context();
+        RouteExecutor route = context == null ? null : context.get(RouteExecutor.CONTEXT_KEY, RouteExecutor.class);
+        return route != null && route.isSkipCsrf();
+    }
+
+    private static String submittedToken(Request request) {
+        String token = request.input(FORM_FIELD);
+        if (token == null || token.isEmpty()) {
+            token = request.header("X-CSRF-TOKEN");
         }
-    }
-
-    /**
-     * Compare the CSRF Token in the request to the store one.
-     * @param token
-     * @param storedToken
-     * @return Returns true if the CSRF Tokens match. Otherwise false.
-     */
-    private boolean compareTokens(String token, String storedToken) {
-        if(storedToken != null && token != null) {
-            return storedToken.equals(token);
+        if (token == null || token.isEmpty()) {
+            token = request.header("X-XSRF-TOKEN");
         }
-        return false;
-    }
-
-    /**
-     * Generate a new CSRF Token
-     * @param session
-     * @return CSRF Token
-     */
-    private String generateToken(Session session) {
-        String token = UUID.randomUUID().toString();
-        session.put("csrfToken", token);
         return token;
     }
 
+    // Readable by the page's JavaScript (no HttpOnly) so it can send the header; Strict so other
+    // sites never send it along.
+    static String xsrfCookie(String maskedToken) {
+        return COOKIE_NAME + "=" + maskedToken + "; Path=/; SameSite=Strict"
+                + (SessionCookieSettings.secure() ? "; Secure" : "");
+    }
 }
