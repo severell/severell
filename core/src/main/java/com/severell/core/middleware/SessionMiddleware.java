@@ -22,10 +22,13 @@ public class SessionMiddleware implements Middleware{
             ((RemoteSession) session).getRemoteSession();
         }
 
-        chain.next();
-
-        if(session instanceof RemoteSession) {
-            ((RemoteSession) session).updateRemoteSession();
+        try {
+            chain.next();
+        } finally {
+            // Save even if the request failed, or a sign-in that replaced the session is lost.
+            if(session instanceof RemoteSession) {
+                ((RemoteSession) session).updateRemoteSession();
+            }
         }
     }
 }

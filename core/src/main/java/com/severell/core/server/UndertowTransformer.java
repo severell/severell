@@ -28,11 +28,13 @@ public class UndertowTransformer {
             case "memory":
                 UndertowInMemorySession inMemorySession = container.make("ServerMemorySession", UndertowInMemorySession.class);
                 inMemorySession.setUndertowSession(session);
+                inMemorySession.setExchange(exchange);
                 sessionImpl = inMemorySession;
                 break;
             case "redis":
                 UndertowRedisSession redisSession = container.make("ServerRedisSession", UndertowRedisSession.class);
                 redisSession.setUndertowSession(session);
+                redisSession.setExchange(exchange);
                 sessionImpl = redisSession;
                 break;
         }

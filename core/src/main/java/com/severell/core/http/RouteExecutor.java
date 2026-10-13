@@ -18,8 +18,14 @@ public class RouteExecutor {
         void apply(Request request, Response response, Container container) throws Exception;
     }
 
+    /**
+     * The key the matched route is stored under in {@link Request#context()} while middleware runs.
+     */
+    public static final String CONTEXT_KEY = "severell.route";
+
     private final RouteFunction func;
     private final ArrayList<MiddlewareExecutor> middleware;
+    private final boolean skipCsrf;
     public String path;
     public HttpMethod httpMethod;
 
@@ -28,13 +34,29 @@ public class RouteExecutor {
         this.httpMethod = httpMethod;
         this.func = func;
         this.middleware = null;
+        this.skipCsrf = false;
     }
 
     public RouteExecutor(String path, HttpMethod httpMethod, ArrayList<MiddlewareExecutor> middleware, RouteExecutor.RouteFunction func) {
+        this(path, httpMethod, middleware, false, func);
+    }
+
+    /**
+     * @param skipCsrf true if the route or its controller has {@link SkipCsrf}
+     */
+    public RouteExecutor(String path, HttpMethod httpMethod, ArrayList<MiddlewareExecutor> middleware, boolean skipCsrf, RouteExecutor.RouteFunction func) {
         this.path = path;
         this.httpMethod = httpMethod;
         this.func = func;
         this.middleware = middleware;
+        this.skipCsrf = skipCsrf;
+    }
+
+    /**
+     * Whether CSRF checks are turned off for this route with {@link SkipCsrf}.
+     */
+    public boolean isSkipCsrf() {
+        return skipCsrf;
     }
 
     /**

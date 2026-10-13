@@ -13,6 +13,8 @@ public class Auth extends NeedsRequest {
         if(user != null) {
             auth = PasswordUtils.checkPassword(password, user.getPassword());
             if(auth) {
+                // A new session at sign-in, so a session id someone planted or saw earlier is useless.
+                request.session().regenerate();
                 request.session().put("userid", user);
             }
         }

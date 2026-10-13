@@ -1,5 +1,13 @@
 package com.severell.core.server;
 
+import io.undertow.server.HttpServerExchange;
+import io.undertow.server.session.SessionConfig;
+import io.undertow.server.session.SessionManager;
+import com.severell.core.middleware.CsrfTokens;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import com.severell.core.container.Container;
 import com.severell.core.http.Request;
 import com.severell.core.session.BaseSessionDriver;
@@ -8,6 +16,7 @@ import com.severell.core.session.Session;
 public class UndertowInMemorySession extends BaseSessionDriver implements Session {
 
     io.undertow.server.session.Session undertowSession;
+    HttpServerExchange exchange;
 
     public UndertowInMemorySession(io.undertow.server.session.Session session) {
         this.undertowSession = session;
@@ -15,6 +24,10 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
 
     public UndertowInMemorySession(Container container) {
         this.container = container;
+    }
+
+    public void setExchange(HttpServerExchange exchange) {
+        this.exchange = exchange;
     }
 
     public void setUndertowSession(io.undertow.server.session.Session undertowSession) {
@@ -51,5 +64,90 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
     @Override
     public void setRequest(Request r) {
         //Don't need to implement this. Should I throw an error?
+    }
+
+    @Override
+    public void regenerate() {
+        replace(true);
+    }
+
+    @Override
+    public void reset() {
+        replace(false);
+    }
+
+    /**
+     * Moves to a brand-new session with a new id and invalidates the old one, so a request still
+     * holding the old id can't see or save what happens next. The CSRF secret is never carried
+     * over: whoever knew the old session's token must not be able to use it in the new one.
+     */
+    private void replace(boolean keepData) {
+        if (exchange == null) {
+            throw new IllegalStateException("No request to replace the session for");
+        }
+        SessionConfig config = exchange.getAttachment(SessionConfig.ATTACHMENT_KEY);
+        SessionManager manager = undertowSession.getSessionManager();
+
+        Map<String, Object> data = new HashMap<>();
+        if (keepData) {
+            for (String name : undertowSession.getAttributeNames()) {
+                data.put(name, undertowSession.getAttribute(name));
+            }
+        }
+        data.remove(CsrfTokens.SESSION_KEY);
+
+        String oldId = undertowSession.getId();
+        undertowSession.invalidate(exchange);
+        forgetSession(oldId);
+
+        // Undertow reuses the id from the request's cookie when creating a session if that id is
+        // still accepted, and with Redis another request can write the old session back at any
+        // moment. Hide the cookie so the new session always gets a new id.
+        io.undertow.server.session.Session fresh = manager.createSession(exchange, new NewIdSessionConfig(config));
+        data.forEach(fresh::setAttribute);
+        undertowSession = fresh;
+    }
+
+    /**
+     * Passes everything through to the real config, except that it never reports the session
+     * id the request came with.
+     */
+    static class NewIdSessionConfig implements SessionConfig {
+        private final SessionConfig delegate;
+
+        NewIdSessionConfig(SessionConfig delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void setSessionId(HttpServerExchange exchange, String sessionId) {
+            delegate.setSessionId(exchange, sessionId);
+        }
+
+        @Override
+        public void clearSession(HttpServerExchange exchange, String sessionId) {
+            delegate.clearSession(exchange, sessionId);
+        }
+
+        @Override
+        public String findSessionId(HttpServerExchange exchange) {
+            return null;
+        }
+
+        @Override
+        public SessionCookieSource sessionCookieSource(HttpServerExchange exchange) {
+            return delegate.sessionCookieSource(exchange);
+        }
+
+        @Override
+        public String rewriteUrl(String originalUrl, String sessionId) {
+            return delegate.rewriteUrl(originalUrl, sessionId);
+        }
+    }
+
+    /**
+     * Called after the old session is invalidated, before the new one is created.
+     */
+    protected void forgetSession(String oldId) {
     }
 }

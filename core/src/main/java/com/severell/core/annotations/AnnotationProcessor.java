@@ -196,7 +196,11 @@ public class AnnotationProcessor extends AbstractProcessor {
         builder.addStatement("$T<$T> " + middlwareListName + " = new $T<>()",ArrayList.class, MiddlewareExecutor.class, ArrayList.class);
         buildMiddleware(builder, set, middlwareListName);
 
-        builder.addStatement("list.add(new $T($S, com.severell.core.http.HttpMethod.$L, $L, $L))", RouteExecutor.class, path, method, middlwareListName, Lambda.toString());
+        // @SkipCsrf on the method, or on its controller for every route in it.
+        boolean skipCsrf = element.getAnnotation(SkipCsrf.class) != null
+                || element.getEnclosingElement().getAnnotation(SkipCsrf.class) != null;
+
+        builder.addStatement("list.add(new $T($S, com.severell.core.http.HttpMethod.$L, $L, $L, $L))", RouteExecutor.class, path, method, middlwareListName, skipCsrf, Lambda.toString());
         routeIndex++;
         return routeIndex;
     }
