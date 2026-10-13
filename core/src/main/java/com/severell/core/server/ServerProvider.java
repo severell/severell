@@ -17,8 +17,6 @@ import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.handlers.resource.ResourceManager;
 import io.undertow.server.session.InMemorySessionManager;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
 import io.undertow.server.session.SessionAttachmentHandler;
 import org.xnio.Options;
 
@@ -38,7 +36,6 @@ public class ServerProvider extends ServiceProvider {
     public void register() {
         c.bind(UndertowTransformer.class, (container -> new UndertowTransformer(c)));
         c.bind("ServerMemorySession", (container -> new UndertowInMemorySession(c)));
-        c.bind("ServerRedisSession", (container -> new UndertowRedisSession(c)));
 
     }
 
@@ -97,18 +94,9 @@ public class ServerProvider extends ServiceProvider {
     }
 
     /**
-     * A session id is only accepted if we issued it and it hasn't ended: it's live in memory, or
-     * with Redis sessions, saved in Redis (e.g. from before a restart or by another server).
+     * A session id is only accepted if we issued it and it hasn't ended: it's live in memory.
      */
     private boolean sessionExists(InMemorySessionManager sessionManager, String id) {
-        if ("redis".equalsIgnoreCase(Config.get("SESSION_DRIVER", "Memory"))) {
-            // Redis decides: a session another server signed out or replaced is gone from Redis
-            // even if this server still has a copy in memory.
-            JedisPool pool = c.make(JedisPool.class);
-            try (Jedis jedis = pool.getResource()) {
-                return jedis.exists(UndertowRedisSession.key(id));
-            }
-        }
         return sessionManager.getSession(id) != null;
     }
 }

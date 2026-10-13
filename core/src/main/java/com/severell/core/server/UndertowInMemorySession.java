@@ -96,13 +96,10 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
         }
         data.remove(CsrfTokens.SESSION_KEY);
 
-        String oldId = undertowSession.getId();
         undertowSession.invalidate(exchange);
-        forgetSession(oldId);
 
         // Undertow reuses the id from the request's cookie when creating a session if that id is
-        // still accepted, and with Redis another request can write the old session back at any
-        // moment. Hide the cookie so the new session always gets a new id.
+        // still accepted. Hide the cookie so the new session always gets a new id.
         io.undertow.server.session.Session fresh = manager.createSession(exchange, new NewIdSessionConfig(config));
         data.forEach(fresh::setAttribute);
         undertowSession = fresh;
@@ -143,11 +140,5 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
         public String rewriteUrl(String originalUrl, String sessionId) {
             return delegate.rewriteUrl(originalUrl, sessionId);
         }
-    }
-
-    /**
-     * Called after the old session is invalidated, before the new one is created.
-     */
-    protected void forgetSession(String oldId) {
     }
 }
