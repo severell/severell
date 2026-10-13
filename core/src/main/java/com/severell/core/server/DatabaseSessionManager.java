@@ -13,8 +13,10 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +32,8 @@ import java.util.concurrent.TimeUnit;
  * code. The id column holds a SHA-256 of the session id, so reading the table doesn't reveal
  * ids that could be used to take over sessions. A session is only saved once something is
  * stored in it, is only written when it changes (or to extend its expiry), and expires after
- * the configured idle time. Expired rows are deleted hourly.
+ * the configured idle time. Expired rows are deleted hourly. Expiry times are stored in UTC,
+ * so servers in different time zones agree on them.
  *
  * Sessions are saved by {@link com.severell.core.middleware.SessionMiddleware}, so it must be
  * in the app's middleware.
@@ -38,6 +41,9 @@ import java.util.concurrent.TimeUnit;
 public class DatabaseSessionManager implements SessionManager {
 
     static final String TABLE = "sessions";
+    // Largest session, as JSON, that will be saved: sessions hold ids and short values, and a
+    // cap stops anyone filling the database through values they control.
+    static final int MAX_SIZE = 16 * 1024;
     private static final AttachmentKey<DatabaseSession> LOADED = AttachmentKey.create(DatabaseSession.class);
 
     private final DataSource dataSource;
@@ -135,7 +141,7 @@ public class DatabaseSessionManager implements SessionManager {
                 if (!rs.next()) {
                     return null;
                 }
-                Instant expiresAt = rs.getTimestamp(2).toInstant();
+                Instant expiresAt = rs.getTimestamp(2, utc()).toInstant();
                 if (!expiresAt.isAfter(now())) {
                     return null;
                 }
@@ -151,11 +157,12 @@ public class DatabaseSessionManager implements SessionManager {
      * Saves a new session: called once it has data.
      */
     void insert(DatabaseSession session, ObjectNode data) throws SQLException {
+        String json = checkSize(data);
         try (Connection c = dataSource.getConnection();
              PreparedStatement s = c.prepareStatement("INSERT INTO " + TABLE + " (id, data, expires_at) VALUES (?, ?, ?)")) {
             s.setString(1, key(session.getId()));
-            s.setString(2, data.toString());
-            s.setTimestamp(3, Timestamp.from(newExpiry()));
+            s.setString(2, json);
+            s.setTimestamp(3, Timestamp.from(newExpiry()), utc());
             s.executeUpdate();
         }
     }
@@ -175,7 +182,7 @@ public class DatabaseSessionManager implements SessionManager {
                 ObjectNode current;
                 try (PreparedStatement s = c.prepareStatement("SELECT data FROM " + TABLE + " WHERE id = ? AND expires_at > ? FOR UPDATE")) {
                     s.setString(1, key(session.getId()));
-                    s.setTimestamp(2, Timestamp.from(now()));
+                    s.setTimestamp(2, Timestamp.from(now()), utc());
                     try (ResultSet rs = s.executeQuery()) {
                         if (!rs.next()) {
                             c.rollback();
@@ -186,9 +193,10 @@ public class DatabaseSessionManager implements SessionManager {
                 }
                 current.setAll(changes);
                 removed.forEach(current::remove);
+                String json = checkSize(current);
                 try (PreparedStatement s = c.prepareStatement("UPDATE " + TABLE + " SET data = ?, expires_at = ? WHERE id = ?")) {
-                    s.setString(1, current.toString());
-                    s.setTimestamp(2, Timestamp.from(newExpiry()));
+                    s.setString(1, json);
+                    s.setTimestamp(2, Timestamp.from(newExpiry()), utc());
                     s.setString(3, key(session.getId()));
                     s.executeUpdate();
                 }
@@ -209,9 +217,9 @@ public class DatabaseSessionManager implements SessionManager {
     void touch(DatabaseSession session) throws SQLException {
         try (Connection c = dataSource.getConnection();
              PreparedStatement s = c.prepareStatement("UPDATE " + TABLE + " SET expires_at = ? WHERE id = ? AND expires_at > ?")) {
-            s.setTimestamp(1, Timestamp.from(newExpiry()));
+            s.setTimestamp(1, Timestamp.from(newExpiry()), utc());
             s.setString(2, key(session.getId()));
-            s.setTimestamp(3, Timestamp.from(now()));
+            s.setTimestamp(3, Timestamp.from(now()), utc());
             s.executeUpdate();
         }
     }
@@ -233,7 +241,7 @@ public class DatabaseSessionManager implements SessionManager {
     public int deleteExpired() throws SQLException {
         try (Connection c = dataSource.getConnection();
              PreparedStatement s = c.prepareStatement("DELETE FROM " + TABLE + " WHERE expires_at <= ?")) {
-            s.setTimestamp(1, Timestamp.from(now()));
+            s.setTimestamp(1, Timestamp.from(now()), utc());
             return s.executeUpdate();
         }
     }
@@ -241,7 +249,8 @@ public class DatabaseSessionManager implements SessionManager {
     private void deleteExpiredQuietly() {
         try {
             deleteExpired();
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            // Keep the hourly cleanup running whatever went wrong this time.
             e.printStackTrace();
         }
     }
@@ -252,6 +261,18 @@ public class DatabaseSessionManager implements SessionManager {
      */
     boolean touchDue(Instant expiresAt) {
         return expiresAt.minusSeconds(timeoutSeconds - timeoutSeconds / 10).isBefore(now());
+    }
+
+    private static String checkSize(ObjectNode data) {
+        String json = data.toString();
+        if (json.length() > MAX_SIZE) {
+            throw new IllegalStateException("Session is larger than " + MAX_SIZE + " characters; not saved");
+        }
+        return json;
+    }
+
+    private static Calendar utc() {
+        return Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     }
 
     ObjectMapper mapper() {

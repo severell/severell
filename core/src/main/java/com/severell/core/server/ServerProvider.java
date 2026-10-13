@@ -120,6 +120,8 @@ public class ServerProvider extends ServiceProvider {
         pool.setUsername(Config.get("DB_USERNAME"));
         pool.setPassword(Config.get("DB_PASSWORD"));
         pool.setMaxTotal(Integer.parseInt(Config.get("SESSION_DB_POOL_SIZE", "8")));
+        // Fail the request rather than hang every server when the database is slow or busy.
+        pool.setMaxWaitMillis(5000);
         return pool;
     }
 }

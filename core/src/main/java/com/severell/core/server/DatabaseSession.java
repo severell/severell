@@ -136,6 +136,10 @@ public class DatabaseSession implements Session {
     @Override
     public Object removeAttribute(String name) {
         checkValid();
+        if (!data.has(name)) {
+            // Nothing to remove: don't write the session just for this.
+            return null;
+        }
         Object old = getAttribute(name);
         data.remove(name);
         changes.remove(name);

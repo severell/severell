@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -226,5 +227,46 @@ public class DatabaseSessionManagerTest {
 
         assertEquals(1, manager.deleteExpired());
         assertEquals(1, rows());
+    }
+
+    @Test
+    public void oversizedSessionsArentSaved() throws Exception {
+        HttpServerExchange exchange = new HttpServerExchange(null);
+        DatabaseSession session = (DatabaseSession) manager.createSession(exchange, config);
+        session.setAttribute("big", "x".repeat(DatabaseSessionManager.MAX_SIZE));
+        assertThrows(IllegalStateException.class, session::save);
+        assertEquals(0, rows());
+
+        String id = newSessionWith("userid", 7).getId();
+        DatabaseSession loaded = load(id);
+        loaded.setAttribute("big", "x".repeat(DatabaseSessionManager.MAX_SIZE));
+        assertThrows(IllegalStateException.class, loaded::save);
+        assertNull(load(id).getAttribute("big"));
+    }
+
+    @Test
+    public void removingAKeyThatIsntThereWritesNothing() throws Exception {
+        String id = newSessionWith("userid", 7).getId();
+        sql("UPDATE sessions SET data = '{\"userid\":7,\"other\":1}'");
+        DatabaseSession loaded = load(id);
+        sql("UPDATE sessions SET data = '{\"userid\":7,\"other\":2}'");
+        loaded.removeAttribute("system_flash");
+        loaded.save();
+        assertEquals(2, load(id).getAttribute("other"), "no write, so the concurrent change stands");
+    }
+
+    @Test
+    public void serversInDifferentTimeZonesAgreeOnExpiry() {
+        TimeZone original = TimeZone.getDefault();
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
+            String id = newSessionWith("userid", 7).getId();
+            TimeZone.setDefault(TimeZone.getTimeZone("Asia/Tokyo"));
+            assertNotNull(load(id));
+            clock.now = clock.now.plus(Duration.ofMinutes(31));
+            assertNull(load(id));
+        } finally {
+            TimeZone.setDefault(original);
+        }
     }
 }
