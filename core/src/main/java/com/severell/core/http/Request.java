@@ -95,6 +95,14 @@ public interface Request {
     String header(String s);
 
     /**
+     * @return every value of a request header, e.g. each Cookie header
+     */
+    default java.util.List<String> headers(String name) {
+        String value = header(name);
+        return value == null ? java.util.Collections.emptyList() : java.util.Collections.singletonList(value);
+    }
+
+    /**
      * Values stored for the lifetime of this request, for example by middleware.
      *
      * @return The context for this request

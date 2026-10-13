@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -17,6 +18,17 @@ import java.util.Set;
  * {@code X-XSRF-TOKEN} header. Otherwise they're refused with 403. Templates get the token as
  * the shared {@code csrf} value, and JavaScript can read it from the {@code XSRF-TOKEN} cookie.
  * Tokens are masked per response (see {@link CsrfTokens}) so they can't leak through BREACH.
+ *
+ * The secret tokens are checked against lives in the session once the session holds anything
+ * (e.g. a signed-in user). Until then it lives in an HttpOnly cookie, so a signed-out visitor
+ * doesn't need a stored session. When served over https the cookie is named with the
+ * {@code __Host-} prefix, so browsers won't let another subdomain set or overwrite it (the
+ * session cookie is too: see SeverellSessionCookieConfig). Signing in or out (a new session
+ * id) always starts a new secret, as does a session first holding something, so after first
+ * putting something in the session, redirect rather than render a form in the same response.
+ *
+ * Writes the browser marks as coming from another site or subdomain ({@code Sec-Fetch-Site})
+ * are refused too, and the secret cookie is read strictly (see {@link StrictCookies}).
  *
  * Routes or controllers marked {@link SkipCsrf} aren't checked.
  */
@@ -45,29 +57,75 @@ public class CsrfMiddleware implements Middleware {
             return;
         }
 
-        String secret = session.getString(SESSION_KEY);
+        String sessionSecret = validSecret(session.getString(SESSION_KEY));
+        String cookieSecret = validSecret(cookieSecret(request));
+        // Once the session holds anything (e.g. a signed-in user) only its own secret counts, so
+        // a secret seen in a cookie before sign-in can't be used after.
+        String secret = session.isEmpty() ? cookieSecret : sessionSecret;
         boolean safe = request.method() != null && SAFE_METHODS.contains(request.method().toUpperCase());
 
-        if (!safe && !CsrfTokens.matches(submittedToken(request), secret)) {
+        if (!safe && (fromAnotherSite(request) || !CsrfTokens.matches(submittedToken(request), secret))) {
             HashMap<String, Object> body = new HashMap<>();
             body.put("error", "Invalid CSRF token. Reload the page and try again.");
             response.json(body, 403);
             return;
         }
 
-        response.share("csrf", CsrfTokens.mask(currentSecret()));
-        chain.next();
-        // Read it again: signing in or out replaces the session and its secret mid-request.
-        response.header("Set-Cookie", xsrfCookie(CsrfTokens.mask(currentSecret())));
+        if (secret == null) {
+            secret = CsrfTokens.newSecret();
+        }
+        String sessionId = session.getId();
+        response.share("csrf", CsrfTokens.mask(secret));
+        try {
+            chain.next();
+        } finally {
+            // Even if the handler failed: it may have signed someone in or out first.
+            settle(response, secret, cookieSecret, sessionId);
+        }
     }
 
-    private String currentSecret() {
-        String secret = session.getString(SESSION_KEY);
-        if (!CsrfTokens.isValidSecret(secret)) {
+    private void settle(Response response, String secret, String cookieSecret, String sessionId) {
+        if (!Objects.equals(sessionId, session.getId())) {
+            // Signed in or out: the session (and any secret in it) was replaced. Start a new
+            // secret so a token someone learned before can't be used after.
             secret = CsrfTokens.newSecret();
+            if (session.isEmpty()) {
+                response.header("Set-Cookie", secretCookie(secret));
+            } else {
+                session.put(SESSION_KEY, secret);
+                response.header("Set-Cookie", expiredSecretCookie());
+            }
+        } else if (session.isEmpty()) {
+            if (!secret.equals(cookieSecret)) {
+                response.header("Set-Cookie", secretCookie(secret));
+            }
+        } else if (!secret.equals(validSecret(session.getString(SESSION_KEY)))) {
+            // The session holds something but no secret yet. If it only started holding
+            // something during this request (e.g. a sign-in that skipped this middleware), it
+            // gets a new secret rather than the cookie's, which may have been seen before.
+            if (secret.equals(cookieSecret)) {
+                secret = CsrfTokens.newSecret();
+            }
             session.put(SESSION_KEY, secret);
         }
-        return secret;
+        response.header("Set-Cookie", xsrfCookie(CsrfTokens.mask(secret)));
+    }
+
+    private static String validSecret(String secret) {
+        return CsrfTokens.isValidSecret(secret) ? secret : null;
+    }
+
+    private static String cookieSecret(Request request) {
+        // Strictly, not with Undertow's lenient parser: see StrictCookies.
+        return StrictCookies.value(request.headers("Cookie"), secretCookieName());
+    }
+
+    // Browsers say where a request came from. Refuse writes from anywhere but this exact origin,
+    // including sibling subdomains, whatever cookies they managed to plant. Browsers that don't
+    // send the header still need the token.
+    private static boolean fromAnotherSite(Request request) {
+        String site = request.header("Sec-Fetch-Site");
+        return site != null && !site.equals("same-origin") && !site.equals("none");
     }
 
     private static boolean isSkipped(Request request) {
@@ -90,6 +148,23 @@ public class CsrfMiddleware implements Middleware {
             token = request.header("X-XSRF-TOKEN");
         }
         return token;
+    }
+
+    // __Host- cookies must be Secure, so the prefix is only used when cookies are.
+    static String secretCookieName() {
+        return SessionCookieSettings.secure() ? "__Host-csrf" : "csrf";
+    }
+
+    // The secret itself: never readable by JavaScript. Lax so it's there when someone follows
+    // a link to the site, and the page they land on keeps the same secret as their other tabs.
+    static String secretCookie(String secret) {
+        return secretCookieName() + "=" + secret + "; Path=/; HttpOnly; SameSite=Lax"
+                + (SessionCookieSettings.secure() ? "; Secure" : "");
+    }
+
+    static String expiredSecretCookie() {
+        return secretCookieName() + "=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax"
+                + (SessionCookieSettings.secure() ? "; Secure" : "");
     }
 
     // Readable by the page's JavaScript (no HttpOnly) so it can send the header; Strict so other

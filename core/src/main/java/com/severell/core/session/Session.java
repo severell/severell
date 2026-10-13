@@ -48,6 +48,15 @@ public interface Session {
 
 
     /**
+     * @return whether nothing is stored in the session. A session that has never held anything
+     * needn't be saved, so state for signed-out visitors (like the CSRF secret) is kept in a
+     * cookie instead.
+     */
+    default boolean isEmpty() {
+        return false;
+    }
+
+    /**
      * Gives the session a new id, keeping its data, and sends the new id to the browser. Call it
      * when a user signs in so a session id an attacker planted or saw earlier stops working.
      * The CSRF secret is replaced too, so redirect afterwards rather than rendering a page with

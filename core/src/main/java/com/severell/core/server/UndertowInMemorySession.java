@@ -47,6 +47,10 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
 
     @Override
     public <T> T get(String key, Class<T> c) {
+        if (this.undertowSession instanceof DatabaseSession) {
+            // Stored as JSON: read it back as the type asked for.
+            return ((DatabaseSession) this.undertowSession).getAttribute(key, c);
+        }
         Object val = this.undertowSession.getAttribute(key);
         return val == null ? null : (T) val;
     }
@@ -59,6 +63,11 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
     @Override
     public void put(String key, Object value) {
         undertowSession.setAttribute(key, value);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return undertowSession.getAttributeNames().isEmpty();
     }
 
     @Override

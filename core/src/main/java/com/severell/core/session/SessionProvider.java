@@ -18,12 +18,8 @@ public class SessionProvider extends ServiceProvider {
 
     @Override
     public void register() {
-        String driver = Config.get("SESSION_DRIVER", "Memory");
-        if(!driver.equalsIgnoreCase("Memory")) {
-            // Fail at startup rather than run without sessions.
-            throw new IllegalStateException("Unsupported SESSION_DRIVER \"" + driver + "\". Only Memory is supported;"
-                    + " Redis sessions were removed.");
-        }
+        // Fails at startup on an unknown driver rather than running without sessions.
+        SessionSettings.driver();
         this.c.bind("SessionMemoryDriver", (container) -> new SessionMemoryDriver());
         this.c.singleton(SessionManager.class, new SessionManager(this.c));
     }

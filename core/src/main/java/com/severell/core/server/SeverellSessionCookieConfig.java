@@ -1,6 +1,8 @@
 package com.severell.core.server;
 
+import com.severell.core.http.StrictCookies;
 import com.severell.core.session.SessionCookieSettings;
+import io.undertow.util.Headers;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
 import io.undertow.server.handlers.CookieImpl;
@@ -12,6 +14,10 @@ import java.util.function.Predicate;
 /**
  * The session cookie, with Secure, HttpOnly and SameSite set from {@link SessionCookieSettings}.
  * Undertow's own SessionCookieConfig can't set SameSite in this version.
+ *
+ * When it's Secure the cookie is named {@code __Host-session}: browsers won't let another
+ * subdomain (or a plain-http response) set a {@code __Host-} cookie, so nobody can plant their
+ * own session in someone else's browser. Otherwise it's {@code JSESSIONID}.
  */
 public class SeverellSessionCookieConfig extends SessionCookieConfig {
 
@@ -36,11 +42,18 @@ public class SeverellSessionCookieConfig extends SessionCookieConfig {
         this.sameSite = sameSite;
         setSecure(secure);
         setHttpOnly(httpOnly);
+        setCookieName(cookieName(secure));
+    }
+
+    // __Host- cookies must be Secure, with Path=/ and no Domain (as cookie() sets them).
+    static String cookieName(boolean secure) {
+        return secure ? "__Host-session" : "JSESSIONID";
     }
 
     @Override
     public String findSessionId(HttpServerExchange exchange) {
-        String sessionId = super.findSessionId(exchange);
+        // Strictly, not with Undertow's lenient parser: see StrictCookies.
+        String sessionId = StrictCookies.value(exchange.getRequestHeaders().get(Headers.COOKIE), getCookieName());
         return sessionId != null && sessionExists.test(sessionId) ? sessionId : null;
     }
 
