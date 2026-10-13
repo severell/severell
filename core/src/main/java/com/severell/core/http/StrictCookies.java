@@ -39,7 +39,7 @@ public final class StrictCookies {
                         return null;
                     }
                     found = value;
-                } else if (pair.contains(name + "=")) {
+                } else if (Pattern.compile("(^|[\\s\"=,])" + Pattern.quote(name) + "=").matcher(pair).find()) {
                     // Another cookie carrying this name: possibly smuggled. Trust neither.
                     return null;
                 }

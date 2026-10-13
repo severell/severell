@@ -39,6 +39,18 @@ public class StrictCookiesTest {
     }
 
     @Test
+    public void aNamelessCookieCarryingTheNameIsRefused() {
+        assertNull(StrictCookies.value(List.of("=__Host-session=ATTACKER"), "__Host-session"));
+        assertNull(StrictCookies.value(List.of("t1=\"x\"__Host-session=ATTACKER"), "__Host-session"));
+    }
+
+    @Test
+    public void otherCookiesThatMerelyEndInTheNameDontInterfere() {
+        // e.g. another local app's _csrf cookie next to our plain "csrf" cookie in development.
+        assertEquals("abc", StrictCookies.value(List.of("_csrf=zzz; csrf=abc; x=my_csrf=1"), "csrf"));
+    }
+
+    @Test
     public void namesAreCaseSensitive() {
         assertNull(StrictCookies.value(List.of("__host-session=abc"), "__Host-session"));
     }
