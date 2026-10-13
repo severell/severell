@@ -66,6 +66,11 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
     }
 
     @Override
+    public boolean isEmpty() {
+        return undertowSession.getAttributeNames().isEmpty();
+    }
+
+    @Override
     public void setRequest(Request r) {
         //Don't need to implement this. Should I throw an error?
     }
