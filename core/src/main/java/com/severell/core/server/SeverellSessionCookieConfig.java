@@ -1,6 +1,8 @@
 package com.severell.core.server;
 
+import com.severell.core.http.StrictCookies;
 import com.severell.core.session.SessionCookieSettings;
+import io.undertow.util.Headers;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
 import io.undertow.server.handlers.CookieImpl;
@@ -50,7 +52,8 @@ public class SeverellSessionCookieConfig extends SessionCookieConfig {
 
     @Override
     public String findSessionId(HttpServerExchange exchange) {
-        String sessionId = super.findSessionId(exchange);
+        // Strictly, not with Undertow's lenient parser: see StrictCookies.
+        String sessionId = StrictCookies.value(exchange.getRequestHeaders().get(Headers.COOKIE), getCookieName());
         return sessionId != null && sessionExists.test(sessionId) ? sessionId : null;
     }
 

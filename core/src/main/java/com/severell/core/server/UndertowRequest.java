@@ -140,6 +140,12 @@ public class UndertowRequest implements Request {
         return exchange.getRequestHeaders().get(s) != null ? exchange.getRequestHeaders().get(s).getFirst() : null;
     }
 
+    @Override
+    public java.util.List<String> headers(String name) {
+        io.undertow.util.HeaderValues values = exchange.getRequestHeaders().get(name);
+        return values == null ? java.util.Collections.emptyList() : new java.util.ArrayList<>(values);
+    }
+
     private String[] toStringArray(Deque<FormData.FormValue> deque) {
         return deque.stream().map((formValue -> formValue.getValue())).toArray(String[]::new);
     }

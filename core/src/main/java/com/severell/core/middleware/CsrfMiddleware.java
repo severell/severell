@@ -24,7 +24,11 @@ import java.util.Set;
  * doesn't need a stored session. When served over https the cookie is named with the
  * {@code __Host-} prefix, so browsers won't let another subdomain set or overwrite it (the
  * session cookie is too: see SeverellSessionCookieConfig). Signing in or out (a new session
- * id) always starts a new secret, as does a session first holding something.
+ * id) always starts a new secret, as does a session first holding something, so after first
+ * putting something in the session, redirect rather than render a form in the same response.
+ *
+ * Writes the browser marks as coming from another site or subdomain ({@code Sec-Fetch-Site})
+ * are refused too, and the secret cookie is read strictly (see {@link StrictCookies}).
  *
  * Routes or controllers marked {@link SkipCsrf} aren't checked.
  */
@@ -60,7 +64,7 @@ public class CsrfMiddleware implements Middleware {
         String secret = session.isEmpty() ? cookieSecret : sessionSecret;
         boolean safe = request.method() != null && SAFE_METHODS.contains(request.method().toUpperCase());
 
-        if (!safe && !CsrfTokens.matches(submittedToken(request), secret)) {
+        if (!safe && (fromAnotherSite(request) || !CsrfTokens.matches(submittedToken(request), secret))) {
             HashMap<String, Object> body = new HashMap<>();
             body.put("error", "Invalid CSRF token. Reload the page and try again.");
             response.json(body, 403);
@@ -112,8 +116,16 @@ public class CsrfMiddleware implements Middleware {
     }
 
     private static String cookieSecret(Request request) {
-        Cookie cookie = request.cookie(secretCookieName());
-        return cookie == null ? null : cookie.getValue();
+        // Strictly, not with Undertow's lenient parser: see StrictCookies.
+        return StrictCookies.value(request.headers("Cookie"), secretCookieName());
+    }
+
+    // Browsers say where a request came from. Refuse writes from anywhere but this exact origin,
+    // including sibling subdomains, whatever cookies they managed to plant. Browsers that don't
+    // send the header still need the token.
+    private static boolean fromAnotherSite(Request request) {
+        String site = request.header("Sec-Fetch-Site");
+        return site != null && !site.equals("same-origin") && !site.equals("none");
     }
 
     private static boolean isSkipped(Request request) {

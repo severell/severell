@@ -12,7 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -49,10 +48,10 @@ public class DatabaseSessionServerTest {
         try (Connection c = dataSource.getConnection(); Statement s = c.createStatement()) {
             s.execute("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, expires_at timestamp NOT NULL)");
         }
-        portA = freePort();
-        portB = freePort();
-        serverA = server(portA, dataSource);
-        serverB = server(portB, dataSource);
+        serverA = server(dataSource);
+        serverB = server(dataSource);
+        portA = port(serverA);
+        portB = port(serverB);
     }
 
     @AfterEach
@@ -62,18 +61,17 @@ public class DatabaseSessionServerTest {
         serverB.stop();
     }
 
-    private static int freePort() throws Exception {
-        try (ServerSocket socket = new ServerSocket(0)) {
-            return socket.getLocalPort();
-        }
+    private static int port(Undertow server) {
+        return ((java.net.InetSocketAddress) server.getListenerInfo().get(0).getAddress()).getPort();
     }
 
-    private Undertow server(int port, JdbcDataSource dataSource) {
+    // Port 0: the OS picks a free port when the server binds, so tests can't race for one.
+    private Undertow server(JdbcDataSource dataSource) {
         DatabaseSessionManager manager = new DatabaseSessionManager(dataSource, new ObjectMapper(), 1800);
         manager.start();
         SeverellSessionCookieConfig config = new SeverellSessionCookieConfig(false, true, "Lax", id -> true);
         Undertow server = Undertow.builder()
-                .addHttpListener(port, "127.0.0.1")
+                .addHttpListener(0, "127.0.0.1")
                 .setHandler(new SessionAttachmentHandler(this::handle, manager, config))
                 .build();
         server.start();

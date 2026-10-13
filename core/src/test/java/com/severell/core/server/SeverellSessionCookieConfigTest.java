@@ -29,5 +29,17 @@ public class SeverellSessionCookieConfigTest {
         assertEquals("Strict", cookie.getSameSiteMode());
     }
 
+    @Test
+    public void aSmuggledSessionCookieIsIgnored() {
+        SeverellSessionCookieConfig config = new SeverellSessionCookieConfig(true, true, "Lax", id -> true);
+        io.undertow.server.HttpServerExchange exchange = new io.undertow.server.HttpServerExchange(null);
+        exchange.getRequestHeaders().add(io.undertow.util.Headers.COOKIE, "t1=\"x\" __Host-session=ATTACKER; __Host-session=VICTIM");
+        assertNull(config.findSessionId(exchange));
+
+        io.undertow.server.HttpServerExchange plain = new io.undertow.server.HttpServerExchange(null);
+        plain.getRequestHeaders().add(io.undertow.util.Headers.COOKIE, "JSESSIONID=old; __Host-session=VICTIM");
+        assertEquals("VICTIM", config.findSessionId(plain));
+    }
+
     // Rejecting ids the server never issued is tested against a real server in SessionFixationTest.
 }

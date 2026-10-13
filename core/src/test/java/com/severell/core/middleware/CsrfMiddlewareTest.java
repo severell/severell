@@ -66,9 +66,7 @@ public class CsrfMiddlewareTest {
     }
 
     private static Request withSecretCookie(Request request, String secret) {
-        Cookie cookie = mock(Cookie.class);
-        given(cookie.getValue()).willReturn(secret);
-        given(request.cookie(CsrfMiddleware.secretCookieName())).willReturn(cookie);
+        given(request.headers("Cookie")).willReturn(java.util.List.of(CsrfMiddleware.secretCookieName() + "=" + secret));
         return request;
     }
 
@@ -394,5 +392,48 @@ public class CsrfMiddlewareTest {
         String after = secretFromCookies(resp);
         assertTrue(CsrfTokens.isValidSecret(after));
         assertNotEquals(before, after);
+    }
+
+    @Test
+    public void writesFromAnotherSiteOrSubdomainAreRefusedEvenWithAToken() throws Exception {
+        for (String site : new String[]{"same-site", "cross-site", "something-new"}) {
+            String secret = CsrfTokens.newSecret();
+            Request post = request("POST", null);
+            given(post.input("__token")).willReturn(CsrfTokens.mask(secret));
+            given(post.header("Sec-Fetch-Site")).willReturn(site);
+            MiddlewareChain chain = mock(MiddlewareChain.class);
+            Response resp = mock(Response.class);
+
+            new CsrfMiddleware(sessionWith(secret)).handle(post, resp, chain);
+
+            verify(chain, never()).next();
+            verify(resp).json(any(HashMap.class), eq(403));
+        }
+        for (String site : new String[]{"same-origin", "none"}) {
+            String secret = CsrfTokens.newSecret();
+            Request post = request("POST", null);
+            given(post.input("__token")).willReturn(CsrfTokens.mask(secret));
+            given(post.header("Sec-Fetch-Site")).willReturn(site);
+            MiddlewareChain chain = mock(MiddlewareChain.class);
+
+            new CsrfMiddleware(sessionWith(secret)).handle(post, mock(Response.class), chain);
+
+            verify(chain).next();
+        }
+    }
+
+    @Test
+    public void aSmuggledSecretCookieIsIgnored() throws Exception {
+        String attacker = CsrfTokens.newSecret();
+        String name = CsrfMiddleware.secretCookieName();
+        Request post = request("POST", null);
+        given(post.headers("Cookie")).willReturn(java.util.List.of(
+                "t1=\"x\" " + name + "=" + attacker + "; " + name + "=" + CsrfTokens.newSecret()));
+        given(post.input("__token")).willReturn(CsrfTokens.mask(attacker));
+        MiddlewareChain chain = mock(MiddlewareChain.class);
+
+        new CsrfMiddleware(new MapSession()).handle(post, mock(Response.class), chain);
+
+        verify(chain, never()).next();
     }
 }
