@@ -18,7 +18,9 @@ import io.undertow.server.handlers.resource.PathResourceManager;
 import io.undertow.server.handlers.resource.ResourceManager;
 import io.undertow.server.session.InMemorySessionManager;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.severell.core.session.SessionCookieSettings;
 import com.severell.core.session.SessionSettings;
+import org.apache.logging.log4j.LogManager;
 import org.apache.commons.dbcp2.BasicDataSource;
 import javax.sql.DataSource;
 import io.undertow.server.session.SessionAttachmentHandler;
@@ -97,6 +99,10 @@ public class ServerProvider extends ServiceProvider {
     }
 
     private SessionAttachmentHandler sessionHandler() {
+        if (!SessionCookieSettings.secure() && !Config.isLocal()) {
+            LogManager.getLogger(ServerProvider.class).warn("SESSION_COOKIE_SECURE is off outside local development: "
+                    + "session and CSRF cookies lose their __Host- protection and can be planted by other subdomains");
+        }
         int lifetime = SessionSettings.lifetimeSeconds();
         if (SessionSettings.DATABASE.equals(SessionSettings.driver())) {
             DatabaseSessionManager manager = new DatabaseSessionManager(sessionDataSource(), new ObjectMapper(), lifetime);

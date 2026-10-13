@@ -316,14 +316,47 @@ public class CsrfMiddlewareTest {
     }
 
     @Test
-    public void whenTheSessionFirstHoldsSomethingTheSecretMovesIntoIt() throws Exception {
+    public void aSessionHoldingSomethingWithoutASecretRefusesTheCookiesSecret() throws Exception {
+        String cookieSecret = CsrfTokens.newSecret();
+        Request post = withSecretCookie(request("POST", null), cookieSecret);
+        given(post.input("__token")).willReturn(CsrfTokens.mask(cookieSecret));
+        MiddlewareChain chain = mock(MiddlewareChain.class);
+
+        new CsrfMiddleware(signedIn()).handle(post, mock(Response.class), chain);
+
+        verify(chain, never()).next();
+    }
+
+    @Test
+    public void whenTheSessionFirstHoldsSomethingItGetsItsOwnSecret() throws Exception {
         String secret = CsrfTokens.newSecret();
         MapSession session = new MapSession();
         MiddlewareChain chain = chainThat(() -> session.put("after_login", "/somewhere"));
 
         new CsrfMiddleware(session).handle(withSecretCookie(request("GET", null), secret), mock(Response.class), chain);
 
-        assertEquals(secret, session.getString("csrfToken"), "forms already on screen keep working");
+        assertTrue(CsrfTokens.isValidSecret(session.getString("csrfToken")));
+        assertNotEquals(secret, session.getString("csrfToken"), "never adopt a secret that may have been seen before");
+    }
+
+    @Test
+    public void aHandlerThatFailsAfterSigningInStillGetsANewSecret() throws Exception {
+        String before = CsrfTokens.newSecret();
+        MapSession session = new MapSession();
+        Request post = withSecretCookie(request("POST", null), before);
+        given(post.input("__token")).willReturn(CsrfTokens.mask(before));
+        Response resp = mock(Response.class);
+        MiddlewareChain signInThenFail = chainThat(() -> {
+            session.id = "new";
+            session.put("userid", 7);
+            throw new IllegalStateException("boom");
+        });
+
+        assertThrows(IllegalStateException.class, () -> new CsrfMiddleware(session).handle(post, resp, signInThenFail));
+
+        assertTrue(CsrfTokens.isValidSecret(session.getString("csrfToken")));
+        assertNotEquals(before, session.getString("csrfToken"));
+        assertTrue(setCookies(resp).stream().anyMatch(c -> c.contains("Max-Age=0")));
     }
 
     @Test

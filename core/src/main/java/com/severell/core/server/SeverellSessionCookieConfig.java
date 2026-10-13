@@ -12,6 +12,10 @@ import java.util.function.Predicate;
 /**
  * The session cookie, with Secure, HttpOnly and SameSite set from {@link SessionCookieSettings}.
  * Undertow's own SessionCookieConfig can't set SameSite in this version.
+ *
+ * When it's Secure the cookie is named {@code __Host-session}: browsers won't let another
+ * subdomain (or a plain-http response) set a {@code __Host-} cookie, so nobody can plant their
+ * own session in someone else's browser. Otherwise it's {@code JSESSIONID}.
  */
 public class SeverellSessionCookieConfig extends SessionCookieConfig {
 
@@ -36,6 +40,12 @@ public class SeverellSessionCookieConfig extends SessionCookieConfig {
         this.sameSite = sameSite;
         setSecure(secure);
         setHttpOnly(httpOnly);
+        setCookieName(cookieName(secure));
+    }
+
+    // __Host- cookies must be Secure, with Path=/ and no Domain (as cookie() sets them).
+    static String cookieName(boolean secure) {
+        return secure ? "__Host-session" : "JSESSIONID";
     }
 
     @Override

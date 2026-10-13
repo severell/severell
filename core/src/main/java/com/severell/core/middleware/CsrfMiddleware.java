@@ -22,8 +22,9 @@ import java.util.Set;
  * The secret tokens are checked against lives in the session once the session holds anything
  * (e.g. a signed-in user). Until then it lives in an HttpOnly cookie, so a signed-out visitor
  * doesn't need a stored session. When served over https the cookie is named with the
- * {@code __Host-} prefix, so browsers won't let another subdomain set or overwrite it. Signing
- * in or out (a new session id) always starts a new secret.
+ * {@code __Host-} prefix, so browsers won't let another subdomain set or overwrite it (the
+ * session cookie is too: see SeverellSessionCookieConfig). Signing in or out (a new session
+ * id) always starts a new secret, as does a session first holding something.
  *
  * Routes or controllers marked {@link SkipCsrf} aren't checked.
  */
@@ -54,8 +55,9 @@ public class CsrfMiddleware implements Middleware {
 
         String sessionSecret = validSecret(session.getString(SESSION_KEY));
         String cookieSecret = validSecret(cookieSecret(request));
-        // The session's secret wins: a signed-in user's forms only work with their session's.
-        String secret = sessionSecret != null ? sessionSecret : cookieSecret;
+        // Once the session holds anything (e.g. a signed-in user) only its own secret counts, so
+        // a secret seen in a cookie before sign-in can't be used after.
+        String secret = session.isEmpty() ? cookieSecret : sessionSecret;
         boolean safe = request.method() != null && SAFE_METHODS.contains(request.method().toUpperCase());
 
         if (!safe && !CsrfTokens.matches(submittedToken(request), secret)) {
@@ -70,8 +72,15 @@ public class CsrfMiddleware implements Middleware {
         }
         String sessionId = session.getId();
         response.share("csrf", CsrfTokens.mask(secret));
-        chain.next();
+        try {
+            chain.next();
+        } finally {
+            // Even if the handler failed: it may have signed someone in or out first.
+            settle(response, secret, cookieSecret, sessionId);
+        }
+    }
 
+    private void settle(Response response, String secret, String cookieSecret, String sessionId) {
         if (!Objects.equals(sessionId, session.getId())) {
             // Signed in or out: the session (and any secret in it) was replaced. Start a new
             // secret so a token someone learned before can't be used after.
@@ -87,8 +96,12 @@ public class CsrfMiddleware implements Middleware {
                 response.header("Set-Cookie", secretCookie(secret));
             }
         } else if (!secret.equals(validSecret(session.getString(SESSION_KEY)))) {
-            // The session holds something now, so keep the secret with it. Pages already
-            // showing this secret's tokens keep working.
+            // The session holds something but no secret yet. If it only started holding
+            // something during this request (e.g. a sign-in that skipped this middleware), it
+            // gets a new secret rather than the cookie's, which may have been seen before.
+            if (secret.equals(cookieSecret)) {
+                secret = CsrfTokens.newSecret();
+            }
             session.put(SESSION_KEY, secret);
         }
         response.header("Set-Cookie", xsrfCookie(CsrfTokens.mask(secret)));
