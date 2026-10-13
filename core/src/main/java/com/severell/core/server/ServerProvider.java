@@ -97,19 +97,18 @@ public class ServerProvider extends ServiceProvider {
     }
 
     /**
-     * A session id is only accepted if we issued it: it's live in memory, or (with Redis
-     * sessions) saved in Redis, e.g. from before a restart or by another server.
+     * A session id is only accepted if we issued it and it hasn't ended: it's live in memory, or
+     * with Redis sessions, saved in Redis (e.g. from before a restart or by another server).
      */
     private boolean sessionExists(InMemorySessionManager sessionManager, String id) {
-        if (sessionManager.getSession(id) != null) {
-            return true;
-        }
         if ("redis".equalsIgnoreCase(Config.get("SESSION_DRIVER", "Memory"))) {
+            // Redis decides: a session another server signed out or replaced is gone from Redis
+            // even if this server still has a copy in memory.
             JedisPool pool = c.make(JedisPool.class);
             try (Jedis jedis = pool.getResource()) {
                 return jedis.exists(UndertowRedisSession.key(id));
             }
         }
-        return false;
+        return sessionManager.getSession(id) != null;
     }
 }

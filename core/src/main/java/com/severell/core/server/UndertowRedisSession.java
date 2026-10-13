@@ -7,10 +7,12 @@ import com.severell.core.session.RemoteSession;
 import com.severell.core.session.Session;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.params.SetParams;
 
 import java.io.*;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -34,17 +36,33 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
         return "session-" + sessionId;
     }
 
+    // Whether the session is new in this request: the browser didn't send its id (a first
+    // visit), or regenerate()/reset() made it. Only a new session may be created in Redis.
+    private boolean createdHere;
+    // The browser sent this session's id but it was gone from Redis by the time it was loaded:
+    // it was signed out or replaced meanwhile, so it must not be written back.
+    private boolean ended;
+
     public void getRemoteSession() {
         String key = getActualKey();
+        io.undertow.server.handlers.Cookie cookie = exchange == null ? null : exchange.getRequestCookies().get("JSESSIONID");
+        createdHere = cookie == null || !undertowSession.getId().equals(cookie.getValue());
         JedisPool pool = container.make(JedisPool.class);
         ObjectInputStream objectInputStream = null;
         try(Jedis jedis = pool.getResource()) {
-            if(jedis.exists(key)) {
-                String data = jedis.get(key);
+            String data = jedis.get(key);
+            ended = data == null && !createdHere;
+            if(data != null) {
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(data));
                 objectInputStream
                         = new ObjectInputStream(inputStream);
                 HashMap<String, Object> session = (HashMap<String, Object>) objectInputStream.readObject();
+                // Redis has the current data; drop anything this server's copy has that it doesn't.
+                for(String name : new HashSet<>(undertowSession.getAttributeNames())) {
+                    if(!session.containsKey(name)) {
+                        undertowSession.removeAttribute(name);
+                    }
+                }
                 for(Map.Entry<String, Object> map : session.entrySet()) {
                     undertowSession.setAttribute(map.getKey(), map.getValue());
                 }
@@ -66,6 +84,9 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
 
     @Override
     public void updateRemoteSession() {
+        if (ended && !createdHere) {
+            return;
+        }
         String key = getActualKey();
         JedisPool pool = container.make(JedisPool.class);
 
@@ -87,7 +108,10 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
             }
             objectOutputStream.writeObject(session);
 
-            jedis.set(key, Base64.getEncoder().encodeToString(writer.toByteArray()));
+            String value = Base64.getEncoder().encodeToString(writer.toByteArray());
+            // XX: only update a session that still exists, so a write can't revive one that was
+            // deleted while this request ran. NX: a session created here is new to Redis.
+            jedis.set(key, value, createdHere ? SetParams.setParams().nx() : SetParams.setParams().xx());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -110,6 +134,7 @@ public class UndertowRedisSession extends UndertowInMemorySession implements Ses
 
     @Override
     protected void forgetSession(String oldId) {
+        createdHere = true;
         // Delete the old copy before the new session is created, so the old id is unknown from
         // now on and can't be used to load the data.
         JedisPool pool = container.make(JedisPool.class);

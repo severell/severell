@@ -27,7 +27,7 @@ public class UndertowInMemorySessionTest {
         given(old.getAttribute("userid")).willReturn(7);
         given(old.getAttribute("after_login")).willReturn("/oauth/authorize?x");
         given(old.getAttribute("csrfToken")).willReturn("secret");
-        given(manager.createSession(exchange, config)).willReturn(fresh);
+        given(manager.createSession(org.mockito.ArgumentMatchers.eq(exchange), org.mockito.ArgumentMatchers.any(SessionConfig.class))).willReturn(fresh);
         UndertowInMemorySession session = new UndertowInMemorySession(old);
         session.setExchange(exchange);
         return session;
@@ -64,7 +64,22 @@ public class UndertowInMemorySessionTest {
 
         var order = inOrder(old, manager);
         order.verify(old).invalidate(exchange);
-        order.verify(manager).createSession(exchange, config);
+        order.verify(manager).createSession(org.mockito.ArgumentMatchers.eq(exchange), org.mockito.ArgumentMatchers.any(SessionConfig.class));
+    }
+
+    @Test
+    public void theNewSessionNeverTakesTheIdTheBrowserSent() {
+        UndertowInMemorySession session = session();
+        given(config.findSessionId(exchange)).willReturn("planted-id");
+        org.mockito.ArgumentCaptor<SessionConfig> used = org.mockito.ArgumentCaptor.forClass(SessionConfig.class);
+
+        session.regenerate();
+
+        verify(manager).createSession(org.mockito.ArgumentMatchers.eq(exchange), used.capture());
+        assertNull(used.getValue().findSessionId(exchange));
+        // Everything else still goes to the real config, e.g. setting the new cookie.
+        used.getValue().setSessionId(exchange, "new-id");
+        verify(config).setSessionId(exchange, "new-id");
     }
 
     @Test
