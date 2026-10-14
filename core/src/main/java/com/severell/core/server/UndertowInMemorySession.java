@@ -66,6 +66,15 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
     }
 
     @Override
+    public Object take(String key) {
+        if (this.undertowSession instanceof DatabaseSession) {
+            return ((DatabaseSession) this.undertowSession).take(key);
+        }
+        // Undertow's in-memory sessions remove from a concurrent map: only one caller gets it.
+        return undertowSession.removeAttribute(key);
+    }
+
+    @Override
     public boolean isEmpty() {
         return undertowSession.getAttributeNames().isEmpty();
     }

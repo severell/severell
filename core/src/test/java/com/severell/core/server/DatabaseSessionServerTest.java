@@ -46,7 +46,7 @@ public class DatabaseSessionServerTest {
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setURL("jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1");
         try (Connection c = dataSource.getConnection(); Statement s = c.createStatement()) {
-            s.execute("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, expires_at timestamp NOT NULL)");
+            s.execute("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, created_at timestamp, expires_at timestamp NOT NULL)");
         }
         serverA = server(dataSource);
         serverB = server(dataSource);
@@ -67,7 +67,7 @@ public class DatabaseSessionServerTest {
 
     // Port 0: the OS picks a free port when the server binds, so tests can't race for one.
     private Undertow server(JdbcDataSource dataSource) {
-        DatabaseSessionManager manager = new DatabaseSessionManager(dataSource, new ObjectMapper(), 1800);
+        DatabaseSessionManager manager = new DatabaseSessionManager(dataSource, new ObjectMapper(), 1800, 14 * 24 * 3600);
         manager.start();
         SeverellSessionCookieConfig config = new SeverellSessionCookieConfig(false, true, "Lax", id -> true);
         Undertow server = Undertow.builder()

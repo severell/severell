@@ -39,6 +39,8 @@ public class DatabaseSessionManagerTest {
         public void setError(boolean error) { this.error = error; }
     }
 
+    private static final int MAX = 14 * 24 * 3600;
+
     private JdbcDataSource dataSource;
     private MutableClock clock;
     private DatabaseSessionManager manager;
@@ -55,9 +57,9 @@ public class DatabaseSessionManagerTest {
     public void setUp() throws Exception {
         dataSource = new JdbcDataSource();
         dataSource.setURL("jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1");
-        sql("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, expires_at timestamp NOT NULL)");
+        sql("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, created_at timestamp, expires_at timestamp NOT NULL)");
         clock = new MutableClock();
-        manager = new DatabaseSessionManager(dataSource, new ObjectMapper(), 1800, clock);
+        manager = new DatabaseSessionManager(dataSource, new ObjectMapper(), 1800, MAX, clock);
         manager.start();
         config = mock(SessionConfig.class);
     }
@@ -98,7 +100,7 @@ public class DatabaseSessionManagerTest {
     public void startFailsClearlyWithoutTheTable() throws Exception {
         JdbcDataSource empty = new JdbcDataSource();
         empty.setURL("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1");
-        DatabaseSessionManager noTable = new DatabaseSessionManager(empty, new ObjectMapper(), 1800);
+        DatabaseSessionManager noTable = new DatabaseSessionManager(empty, new ObjectMapper(), 1800, MAX);
         IllegalStateException e = assertThrows(IllegalStateException.class, noTable::start);
         assertTrue(e.getMessage().contains("sessions"));
     }
@@ -313,7 +315,6 @@ public class DatabaseSessionManagerTest {
         assertSame(manager, session.getSessionManager());
         session.setMaxInactiveInterval(5);
         session.requestDone(null);
-        assertEquals(0, session.getCreationTime());
         assertEquals(0, session.getLastAccessedTime());
         assertEquals(7, session.setAttribute("userid", null));
         assertThrows(UnsupportedOperationException.class, () -> session.changeSessionId(null, config));
@@ -337,5 +338,96 @@ public class DatabaseSessionManagerTest {
         sql("DROP TABLE sessions");
         loaded.setAttribute("userid", 8);
         assertThrows(IllegalStateException.class, loaded::save);
+    }
+
+    @Test
+    public void aSessionInUseStillEndsAtItsMaximumLifetime() {
+        String id = newSessionWith("userid", 7).getId();
+        // Used every 20 minutes for 14 days: the idle timeout never hits, the maximum lifetime does.
+        Instant end = clock.now.plus(Duration.ofDays(14));
+        while (clock.now.plus(Duration.ofMinutes(20)).isBefore(end)) {
+            clock.now = clock.now.plus(Duration.ofMinutes(20));
+            DatabaseSession session = load(id);
+            assertNotNull(session, "still within 14 days at " + clock.now);
+            session.save();
+        }
+        clock.now = end;
+        assertNull(load(id));
+    }
+
+    @Test
+    public void changesNearTheEndDontExtendPastTheMaximum() {
+        String id = newSessionWith("userid", 7).getId();
+        clock.now = clock.now.plus(Duration.ofDays(14)).minus(Duration.ofMinutes(5));
+        // As if it had been kept alive up to here.
+        sqlQuietly("UPDATE sessions SET expires_at = TIMESTAMP '2099-01-01 00:00:00'");
+        DatabaseSession session = load(id);
+        assertNotNull(session);
+        session.setAttribute("theme", "dark");
+        session.save();
+        clock.now = clock.now.plus(Duration.ofMinutes(5));
+        assertNull(load(id));
+    }
+
+    @Test
+    public void startFailsClearlyWithoutTheCreatedAtColumn() throws Exception {
+        JdbcDataSource old = new JdbcDataSource();
+        old.setURL("jdbc:h2:mem:" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1");
+        try (Connection c = old.getConnection(); Statement st = c.createStatement()) {
+            st.execute("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, expires_at timestamp NOT NULL)");
+        }
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> new DatabaseSessionManager(old, new ObjectMapper(), 1800, MAX).start());
+        assertTrue(e.getMessage().contains("created_at"));
+    }
+
+    @Test
+    public void rowsFromBeforeTheMaximumLifetimeAreTreatedAsEnded() throws Exception {
+        String id = newSessionWith("userid", 7).getId();
+        sql("UPDATE sessions SET created_at = NULL");
+        assertNull(load(id));
+    }
+
+    @Test
+    public void creationTimeIsReported() {
+        DatabaseSession session = newSessionWith("userid", 7);
+        assertEquals(clock.now.toEpochMilli(), session.getCreationTime());
+        clock.now = clock.now.plus(Duration.ofMinutes(5));
+        assertEquals(session.getCreationTime(), load(session.getId()).getCreationTime());
+    }
+
+    private void sqlQuietly(String statement) {
+        try {
+            sql(statement);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @Test
+    public void onlyOneConcurrentRequestCanTakeAValue() throws Exception {
+        String id = newSessionWith("token", "abc").getId();
+        DatabaseSession first = load(id);
+        DatabaseSession second = load(id);
+        UndertowDatabaseSession firstView = new UndertowDatabaseSession(null);
+        firstView.setUndertowSession(first);
+        UndertowDatabaseSession secondView = new UndertowDatabaseSession(null);
+        secondView.setUndertowSession(second);
+
+        assertEquals("abc", firstView.take("token"));
+        assertNull(secondView.take("token"), "already taken by the other request");
+        first.save();
+        second.save();
+        assertNull(load(id).getAttribute("token"));
+        assertNotNull(load(id), "the session itself carries on");
+    }
+
+    @Test
+    public void takingAValueSetInThisRequestNeedsNoWrite() {
+        HttpServerExchange exchange = new HttpServerExchange(null);
+        DatabaseSession session = (DatabaseSession) manager.createSession(exchange, config);
+        session.setAttribute("token", "abc");
+        assertEquals("abc", session.take("token"));
+        assertNull(session.take("token"));
     }
 }

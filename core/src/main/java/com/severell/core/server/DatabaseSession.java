@@ -31,12 +31,14 @@ public class DatabaseSession implements Session {
     private final HttpServerExchange exchange;
     private final SessionConfig config;
     private final Instant expiresAt;
+    private final Instant createdAt;
     // Not in the database yet: created in this request.
     private boolean isNew;
     private boolean invalid;
 
-    private DatabaseSession(DatabaseSessionManager manager, String id, ObjectNode data, Instant expiresAt,
+    private DatabaseSession(DatabaseSessionManager manager, String id, ObjectNode data, Instant createdAt, Instant expiresAt,
                             boolean isNew, HttpServerExchange exchange, SessionConfig config) {
+        this.createdAt = createdAt;
         this.manager = manager;
         this.id = id;
         this.data = data;
@@ -47,12 +49,12 @@ public class DatabaseSession implements Session {
     }
 
     static DatabaseSession created(DatabaseSessionManager manager, String id, HttpServerExchange exchange, SessionConfig config) {
-        return new DatabaseSession(manager, id, JsonNodeFactory.instance.objectNode(), null, true, exchange, config);
+        return new DatabaseSession(manager, id, JsonNodeFactory.instance.objectNode(), manager.now(), null, true, exchange, config);
     }
 
-    static DatabaseSession loaded(DatabaseSessionManager manager, String id, ObjectNode data, Instant expiresAt,
+    static DatabaseSession loaded(DatabaseSessionManager manager, String id, ObjectNode data, Instant createdAt, Instant expiresAt,
                                   HttpServerExchange exchange, SessionConfig config) {
-        return new DatabaseSession(manager, id, data, expiresAt, false, exchange, config);
+        return new DatabaseSession(manager, id, data, createdAt, expiresAt, false, exchange, config);
     }
 
     /**
@@ -78,12 +80,16 @@ public class DatabaseSession implements Session {
                 manager.merge(this, changes, removed);
                 changes.removeAll();
                 removed.clear();
-            } else if (expiresAt != null && manager.touchDue(expiresAt)) {
+            } else if (expiresAt != null && manager.touchDue(createdAt, expiresAt)) {
                 manager.touch(this);
             }
         } catch (SQLException | IOException e) {
             throw new IllegalStateException("Couldn't save the session", e);
         }
+    }
+
+    Instant createdAt() {
+        return createdAt;
     }
 
     boolean isInvalid() {
@@ -148,6 +154,25 @@ public class DatabaseSession implements Session {
     }
 
     /**
+     * Removes a value straight away and returns it, so concurrent requests can't both get it.
+     */
+    public Object take(String name) {
+        checkValid();
+        if (isNew || changes.has(name)) {
+            // Only this request has seen it.
+            return removeAttribute(name);
+        }
+        try {
+            JsonNode taken = manager.take(this, name);
+            data.remove(name);
+            removed.remove(name);
+            return taken == null || taken.isNull() ? null : manager.mapper().treeToValue(taken, Object.class);
+        } catch (SQLException | IOException e) {
+            throw new IllegalStateException("Couldn't update the session", e);
+        }
+    }
+
+    /**
      * Deletes the session now, so the id stops working everywhere straight away.
      */
     @Override
@@ -179,7 +204,7 @@ public class DatabaseSession implements Session {
 
     @Override
     public long getCreationTime() {
-        return 0;
+        return createdAt.toEpochMilli();
     }
 
     @Override

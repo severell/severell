@@ -42,6 +42,12 @@ public class Command {
             public String compile(Blueprint table,Grammar grammar, Command command) {
                 return grammar.foreign(table, command);
             }
+        },
+        INDEX{
+            @Override
+            public String compile(Blueprint table,Grammar grammar, Command command) {
+                return grammar.index(table, command);
+            }
         };
 
 

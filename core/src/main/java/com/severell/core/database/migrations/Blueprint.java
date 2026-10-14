@@ -50,6 +50,15 @@ public class Blueprint {
     }
 
     /**
+     * Create an index, e.g. on a column often searched or sorted by
+     * @param columns The columns to index
+     * @return Command
+     */
+    public Command index(String... columns) {
+        return this.indexCommand(false, Command.CommandType.INDEX, columns);
+    }
+
+    /**
      * Create a foreign key
      * @param columns The columns to be used for the foreign key
      * @return
