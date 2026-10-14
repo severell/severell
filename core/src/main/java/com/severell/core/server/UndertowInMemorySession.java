@@ -15,6 +15,13 @@ import com.severell.core.session.Session;
 
 public class UndertowInMemorySession extends BaseSessionDriver implements Session {
 
+    /**
+     * When a regenerated in-memory session really started (epoch millis): regenerate() keeps the
+     * data, so it mustn't restart the maximum-lifetime clock. Database sessions keep this in
+     * their created_at column instead.
+     */
+    static final String STARTED_KEY = "severell.sessionStarted";
+
     io.undertow.server.session.Session undertowSession;
     HttpServerExchange exchange;
 
@@ -106,6 +113,7 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
         SessionConfig config = exchange.getAttachment(SessionConfig.ATTACHMENT_KEY);
         SessionManager manager = undertowSession.getSessionManager();
 
+        long started = startedAt(undertowSession);
         Map<String, Object> data = new HashMap<>();
         if (keepData) {
             for (String name : undertowSession.getAttributeNames()) {
@@ -120,7 +128,23 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
         // still accepted. Hide the cookie so the new session always gets a new id.
         io.undertow.server.session.Session fresh = manager.createSession(exchange, new NewIdSessionConfig(config));
         data.forEach(fresh::setAttribute);
+        if (keepData) {
+            // Same data, same clock: regenerating can't extend the maximum lifetime.
+            if (fresh instanceof DatabaseSession) {
+                ((DatabaseSession) fresh).startedAt(java.time.Instant.ofEpochMilli(started));
+            } else {
+                fresh.setAttribute(STARTED_KEY, started);
+            }
+        }
         undertowSession = fresh;
+    }
+
+    /**
+     * @return when the session started, carried across regenerate()
+     */
+    static long startedAt(io.undertow.server.session.Session session) {
+        Object started = session.getAttribute(STARTED_KEY);
+        return started instanceof Number ? ((Number) started).longValue() : session.getCreationTime();
     }
 
     /**

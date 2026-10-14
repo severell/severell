@@ -20,6 +20,13 @@ public class BlueprintTest {
     }
 
     @Test
+    public void uniqueIndex() {
+        Blueprint table = new Blueprint("users");
+        table.unique("email");
+        assertEquals(List.of("create unique index users_email_unique on users (email)"), table.compileCommands(new PostgresGrammar()));
+    }
+
+    @Test
     public void indexAlongsideAddedColumns() {
         Blueprint table = new Blueprint("sessions");
         table.timestamp("created_at").nullable();

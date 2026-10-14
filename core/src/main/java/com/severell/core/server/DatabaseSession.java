@@ -31,7 +31,7 @@ public class DatabaseSession implements Session {
     private final HttpServerExchange exchange;
     private final SessionConfig config;
     private final Instant expiresAt;
-    private final Instant createdAt;
+    private Instant createdAt;
     // Not in the database yet: created in this request.
     private boolean isNew;
     private boolean invalid;
@@ -90,6 +90,19 @@ public class DatabaseSession implements Session {
 
     Instant createdAt() {
         return createdAt;
+    }
+
+    /**
+     * For a session regenerated from an older one: it keeps the older one's start, so its
+     * maximum lifetime isn't extended. Only before it's first saved.
+     */
+    void startedAt(Instant started) {
+        if (!isNew) {
+            throw new IllegalStateException("Only a new session's start can be set");
+        }
+        if (started.isBefore(createdAt)) {
+            createdAt = started;
+        }
     }
 
     boolean isInvalid() {

@@ -59,6 +59,15 @@ public class Blueprint {
     }
 
     /**
+     * Create a unique index: no two rows may have the same values in these columns
+     * @param columns The columns that must be unique together
+     * @return Command
+     */
+    public Command unique(String... columns) {
+        return this.indexCommand(false, Command.CommandType.UNIQUE, columns);
+    }
+
+    /**
      * Create a foreign key
      * @param columns The columns to be used for the foreign key
      * @return

@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DatabaseSessionServerTest {
 
     private final HttpClient client = HttpClient.newBuilder().proxy(HttpClient.Builder.NO_PROXY).build();
+    private JdbcDataSource dataSource;
     private Undertow serverA;
     private Undertow serverB;
     private int portA;
@@ -43,7 +44,7 @@ public class DatabaseSessionServerTest {
 
     @BeforeEach
     public void start() throws Exception {
-        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource = new JdbcDataSource();
         dataSource.setURL("jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1");
         try (Connection c = dataSource.getConnection(); Statement s = c.createStatement()) {
             s.execute("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, created_at timestamp, expires_at timestamp NOT NULL)");
@@ -218,5 +219,23 @@ public class DatabaseSessionServerTest {
 
         String body = get(portB, "/whoami", id).body();
         assertTrue(body.contains("a=set") && body.contains("b=set"), body);
+    }
+
+    @Test
+    public void signingInKeepsTheSessionsOriginalStart() throws Exception {
+        String planted = cookieId(get(portA, "/seed", null));
+        try (Connection c = dataSource.getConnection(); Statement s = c.createStatement()) {
+            s.execute("UPDATE sessions SET created_at = DATEADD('DAY', -3, created_at)");
+        }
+        String signedIn = cookieId(get(portA, "/login", planted));
+        assertNotEquals(planted, signedIn);
+        try (Connection c = dataSource.getConnection(); Statement s = c.createStatement();
+             java.sql.ResultSet rs = s.executeQuery("SELECT created_at FROM sessions")) {
+            assertTrue(rs.next());
+            java.time.Instant created = rs.getTimestamp(1, java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))).toInstant();
+            assertTrue(created.isBefore(java.time.Instant.now().minus(java.time.Duration.ofDays(2))),
+                    "regenerate() kept the 3-day-old start: " + created);
+            assertFalse(rs.next());
+        }
     }
 }

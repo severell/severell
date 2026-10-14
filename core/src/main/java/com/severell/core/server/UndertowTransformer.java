@@ -38,7 +38,7 @@ public class UndertowTransformer {
     }
 
     static boolean pastMaxLifetime(Session session) {
-        long ageMillis = System.currentTimeMillis() - session.getCreationTime();
+        long ageMillis = System.currentTimeMillis() - UndertowInMemorySession.startedAt(session);
         return ageMillis >= SessionSettings.maxLifetimeSeconds() * 1000L;
     }
 }

@@ -90,6 +90,13 @@ public abstract class Grammar {
                 String.join(", ", (String[])command.param("columns")));
     }
 
+    public String unique(Blueprint table, Command command) {
+        return String.format("create unique index %s on %s (%s)",
+                command.param("index"),
+                table.getTableName(),
+                String.join(", ", (String[])command.param("columns")));
+    }
+
     public String foreign(Blueprint table, Command command) {
         String sql = String.format("alter table %s add constraint %s ",
                 table.getTableName(),
