@@ -54,10 +54,13 @@ public class Migrate {
                 CommandLogger.printlnGreen(String.format("Migrated - %s (%d ms)", cl.getSimpleName(), diff));
                 CommandLogger.println("");
             }catch (InvocationTargetException e) {
-                MigrationException me = (MigrationException) e.getCause();
+                Throwable cause = e.getCause();
                 CommandLogger.printlnRed(String.format("Failed to Migrate - %s", cl.getSimpleName()));
-                CommandLogger.printlnRed(String.format("Reason - %s", me.getMessage()));
+                CommandLogger.printlnRed(String.format("Reason - %s", cause.getMessage()));
                 CommandLogger.println("");
+                // Stop here: later migrations may depend on this one, and whoever runs this (a
+                // deploy step, say) must see that it failed.
+                throw new IllegalStateException("Failed to migrate " + cl.getSimpleName() + ": " + cause.getMessage(), cause);
             }
 
         }

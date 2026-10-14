@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -81,6 +83,13 @@ public class MigrateTest {
         return list;
     }
 
+    // The failure is reported and nothing after it runs.
+    private static void assertStoppedAtTheFailure(String out) {
+        int failed = out.indexOf("Failed to Migrate - ErrorMigration");
+        assertTrue(failed >= 0, out);
+        assertFalse(out.indexOf("Migrating - ", failed) >= 0, "a migration ran after the failure: " + out);
+    }
+
     /*
      * TESTS
      */
@@ -89,20 +98,19 @@ public class MigrateTest {
     public void runUpTestThroughCommand() throws Exception {
         MigrateCommand command = new MigrateCommand();
         command.setConnection(connection);
-        command.execute();
+        // A failed migration fails the command, so a deploy step running it fails too.
+        assertThrows(IllegalStateException.class, command::execute);
 
-        assertTrue(outContent.toString().contains("Migrated - TestMigration"));
-        assertTrue(outContent.toString().contains("Failed to Migrate - ErrorMigration"));
+        assertStoppedAtTheFailure(outContent.toString());
     }
 
     @Test
     public void runUpTest() throws Exception {
         Migrate migrate = new Migrate(connection);
         Migrate spyMigrate = spy(migrate);
-        spyMigrate.runUp();
+        assertThrows(IllegalStateException.class, spyMigrate::runUp);
 
-        assertTrue(outContent.toString().contains("Migrated - TestMigration"));
-        assertTrue(outContent.toString().contains("Failed to Migrate - ErrorMigration"));
+        assertStoppedAtTheFailure(outContent.toString());
     }
 
     @Test

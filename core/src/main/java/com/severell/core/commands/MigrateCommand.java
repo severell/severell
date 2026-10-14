@@ -17,7 +17,8 @@ public class MigrateCommand extends Command {
             Connection con = connection == null ? getConnection() : connection;
             new Migrate(con).runUp();
         } catch (Exception e) {
-            e.printStackTrace();
+            // Fail the command (and a deploy step running it) rather than report success.
+            throw new IllegalStateException("Migrations failed: " + e.getMessage(), e);
         }
     }
 }
