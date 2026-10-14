@@ -25,14 +25,15 @@ import java.util.concurrent.TimeUnit;
  * Keeps sessions in a database table so every server sees the same sessions:
  *
  * <pre>
- * sessions (id varchar(64) primary key, data text not null, expires_at timestamp not null)
+ * sessions (id varchar(64) primary key, data text not null, created_at timestamp, expires_at timestamp not null)
  * </pre>
  *
  * Values are stored as JSON (never Java serialization), so the table can't be used to run
  * code. The id column holds a SHA-256 of the session id, so reading the table doesn't reveal
  * ids that could be used to take over sessions. A session is only saved once something is
  * stored in it, is only written when it changes (or to extend its expiry), and expires after
- * the configured idle time. Expired rows are deleted hourly. Expiry times are stored in UTC,
+ * the configured idle time, or at the latest the maximum lifetime after it was created, however
+ * often it's used. Expired rows are deleted hourly. Expiry times are stored in UTC,
  * so servers in different time zones agree on them.
  *
  * Sessions are saved by {@link com.severell.core.middleware.SessionMiddleware}, so it must be
@@ -51,16 +52,18 @@ public class DatabaseSessionManager implements SessionManager {
     private final SessionIdGenerator idGenerator = new SecureRandomSessionIdGenerator();
     private final Clock clock;
     private volatile int timeoutSeconds;
+    private final int maxLifetimeSeconds;
     private ScheduledExecutorService cleaner;
 
-    public DatabaseSessionManager(DataSource dataSource, ObjectMapper mapper, int timeoutSeconds) {
-        this(dataSource, mapper, timeoutSeconds, Clock.systemUTC());
+    public DatabaseSessionManager(DataSource dataSource, ObjectMapper mapper, int timeoutSeconds, int maxLifetimeSeconds) {
+        this(dataSource, mapper, timeoutSeconds, maxLifetimeSeconds, Clock.systemUTC());
     }
 
-    DatabaseSessionManager(DataSource dataSource, ObjectMapper mapper, int timeoutSeconds, Clock clock) {
+    DatabaseSessionManager(DataSource dataSource, ObjectMapper mapper, int timeoutSeconds, int maxLifetimeSeconds, Clock clock) {
         this.dataSource = dataSource;
         this.mapper = mapper;
         this.timeoutSeconds = timeoutSeconds;
+        this.maxLifetimeSeconds = maxLifetimeSeconds;
         this.clock = clock;
     }
 
@@ -75,11 +78,11 @@ public class DatabaseSessionManager implements SessionManager {
     @Override
     public synchronized void start() {
         try (Connection c = dataSource.getConnection();
-             PreparedStatement s = c.prepareStatement("SELECT id FROM " + TABLE + " WHERE 1 = 0")) {
+             PreparedStatement s = c.prepareStatement("SELECT id, data, created_at, expires_at FROM " + TABLE + " WHERE 1 = 0")) {
             s.executeQuery().close();
         } catch (SQLException e) {
             throw new IllegalStateException("SESSION_DRIVER=Database needs a \"" + TABLE + "\" table: "
-                    + "id varchar(64) primary key, data text not null, expires_at timestamp not null", e);
+                    + "id varchar(64) primary key, data text not null, created_at timestamp, expires_at timestamp not null", e);
         }
         if (cleaner == null) {
             cleaner = Executors.newSingleThreadScheduledExecutor(r -> {
@@ -135,18 +138,20 @@ public class DatabaseSessionManager implements SessionManager {
 
     private DatabaseSession load(String id, HttpServerExchange exchange, SessionConfig config) {
         try (Connection c = dataSource.getConnection();
-             PreparedStatement s = c.prepareStatement("SELECT data, expires_at FROM " + TABLE + " WHERE id = ?")) {
+             PreparedStatement s = c.prepareStatement("SELECT data, expires_at, created_at FROM " + TABLE + " WHERE id = ?")) {
             s.setString(1, key(id));
             try (ResultSet rs = s.executeQuery()) {
                 if (!rs.next()) {
                     return null;
                 }
                 Instant expiresAt = rs.getTimestamp(2, utc()).toInstant();
-                if (!expiresAt.isAfter(now())) {
+                Timestamp created = rs.getTimestamp(3, utc());
+                // A row without a creation time predates the maximum lifetime: treat it as ended.
+                if (!expiresAt.isAfter(now()) || created == null) {
                     return null;
                 }
                 ObjectNode data = (ObjectNode) mapper.readTree(rs.getString(1));
-                return DatabaseSession.loaded(this, id, data, expiresAt, exchange, config);
+                return DatabaseSession.loaded(this, id, data, created.toInstant(), expiresAt, exchange, config);
             }
         } catch (SQLException | java.io.IOException e) {
             throw new IllegalStateException("Couldn't load the session", e);
@@ -159,10 +164,11 @@ public class DatabaseSessionManager implements SessionManager {
     void insert(DatabaseSession session, ObjectNode data) throws SQLException {
         String json = checkSize(data);
         try (Connection c = dataSource.getConnection();
-             PreparedStatement s = c.prepareStatement("INSERT INTO " + TABLE + " (id, data, expires_at) VALUES (?, ?, ?)")) {
+             PreparedStatement s = c.prepareStatement("INSERT INTO " + TABLE + " (id, data, created_at, expires_at) VALUES (?, ?, ?, ?)")) {
             s.setString(1, key(session.getId()));
             s.setString(2, json);
-            s.setTimestamp(3, Timestamp.from(newExpiry()), utc());
+            s.setTimestamp(3, Timestamp.from(session.createdAt()), utc());
+            s.setTimestamp(4, Timestamp.from(newExpiry(session.createdAt())), utc());
             s.executeUpdate();
         }
     }
@@ -180,7 +186,8 @@ public class DatabaseSessionManager implements SessionManager {
             c.setAutoCommit(false);
             try {
                 ObjectNode current;
-                try (PreparedStatement s = c.prepareStatement("SELECT data FROM " + TABLE + " WHERE id = ? AND expires_at > ? FOR UPDATE")) {
+                Instant createdAt;
+                try (PreparedStatement s = c.prepareStatement("SELECT data, created_at FROM " + TABLE + " WHERE id = ? AND expires_at > ? FOR UPDATE")) {
                     s.setString(1, key(session.getId()));
                     s.setTimestamp(2, Timestamp.from(now()), utc());
                     try (ResultSet rs = s.executeQuery()) {
@@ -188,6 +195,12 @@ public class DatabaseSessionManager implements SessionManager {
                             c.rollback();
                             return false;
                         }
+                        Timestamp created = rs.getTimestamp(2, utc());
+                        if (created == null) {
+                            c.rollback();
+                            return false;
+                        }
+                        createdAt = created.toInstant();
                         current = (ObjectNode) mapper.readTree(rs.getString(1));
                     }
                 }
@@ -196,7 +209,7 @@ public class DatabaseSessionManager implements SessionManager {
                 String json = checkSize(current);
                 try (PreparedStatement s = c.prepareStatement("UPDATE " + TABLE + " SET data = ?, expires_at = ? WHERE id = ?")) {
                     s.setString(1, json);
-                    s.setTimestamp(2, Timestamp.from(newExpiry()), utc());
+                    s.setTimestamp(2, Timestamp.from(newExpiry(createdAt)), utc());
                     s.setString(3, key(session.getId()));
                     s.executeUpdate();
                 }
@@ -212,12 +225,53 @@ public class DatabaseSessionManager implements SessionManager {
     }
 
     /**
+     * Removes one value from the stored session at once, under a row lock.
+     *
+     * @return the value removed, or null if it wasn't there (or the session no longer exists)
+     */
+    com.fasterxml.jackson.databind.JsonNode take(DatabaseSession session, String name) throws SQLException, java.io.IOException {
+        try (Connection c = dataSource.getConnection()) {
+            boolean autoCommit = c.getAutoCommit();
+            c.setAutoCommit(false);
+            try {
+                ObjectNode current;
+                try (PreparedStatement s = c.prepareStatement("SELECT data FROM " + TABLE + " WHERE id = ? AND expires_at > ? FOR UPDATE")) {
+                    s.setString(1, key(session.getId()));
+                    s.setTimestamp(2, Timestamp.from(now()), utc());
+                    try (ResultSet rs = s.executeQuery()) {
+                        if (!rs.next()) {
+                            c.rollback();
+                            return null;
+                        }
+                        current = (ObjectNode) mapper.readTree(rs.getString(1));
+                    }
+                }
+                com.fasterxml.jackson.databind.JsonNode taken = current.remove(name);
+                if (taken != null) {
+                    try (PreparedStatement s = c.prepareStatement("UPDATE " + TABLE + " SET data = ? WHERE id = ?")) {
+                        s.setString(1, current.toString());
+                        s.setString(2, key(session.getId()));
+                        s.executeUpdate();
+                    }
+                }
+                c.commit();
+                return taken;
+            } catch (SQLException | java.io.IOException | RuntimeException e) {
+                c.rollback();
+                throw e;
+            } finally {
+                c.setAutoCommit(autoCommit);
+            }
+        }
+    }
+
+    /**
      * Extends an unchanged session's expiry, if it still exists and hasn't expired.
      */
     void touch(DatabaseSession session) throws SQLException {
         try (Connection c = dataSource.getConnection();
              PreparedStatement s = c.prepareStatement("UPDATE " + TABLE + " SET expires_at = ? WHERE id = ? AND expires_at > ?")) {
-            s.setTimestamp(1, Timestamp.from(newExpiry()), utc());
+            s.setTimestamp(1, Timestamp.from(newExpiry(session.createdAt())), utc());
             s.setString(2, key(session.getId()));
             s.setTimestamp(3, Timestamp.from(now()), utc());
             s.executeUpdate();
@@ -259,8 +313,10 @@ public class DatabaseSessionManager implements SessionManager {
      * Extend the expiry of an unchanged session only once a tenth of the lifetime has passed,
      * rather than writing on every request.
      */
-    boolean touchDue(Instant expiresAt) {
-        return expiresAt.minusSeconds(timeoutSeconds - timeoutSeconds / 10).isBefore(now());
+    boolean touchDue(Instant createdAt, Instant expiresAt) {
+        return expiresAt.minusSeconds(timeoutSeconds - timeoutSeconds / 10).isBefore(now())
+                // Nothing to extend once the session is at its maximum lifetime.
+                && newExpiry(createdAt).isAfter(expiresAt);
     }
 
     private static String checkSize(ObjectNode data) {
@@ -283,8 +339,11 @@ public class DatabaseSessionManager implements SessionManager {
         return clock.instant();
     }
 
-    private Instant newExpiry() {
-        return now().plusSeconds(timeoutSeconds);
+    // Idle timeout from now, but never past the maximum lifetime.
+    private Instant newExpiry(Instant createdAt) {
+        Instant idle = now().plusSeconds(timeoutSeconds);
+        Instant max = createdAt.plusSeconds(maxLifetimeSeconds);
+        return idle.isBefore(max) ? idle : max;
     }
 
     static String key(String sessionId) {

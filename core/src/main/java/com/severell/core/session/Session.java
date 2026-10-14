@@ -41,6 +41,19 @@ public interface Session {
     void put(String key, Object value);
 
     /**
+     * Removes a value and returns it, for one-time values such as a token checked once. With the
+     * Memory and Database drivers it's atomic: if two requests take the same key at once, only
+     * one of them gets the value.
+     * @param key Key of the object
+     * @return the value, or null if there wasn't one (or another request took it)
+     */
+    default Object take(String key) {
+        Object value = get(key);
+        put(key, null);
+        return value;
+    }
+
+    /**
      * Set the Request Object for the Session
      * @param r Request obj.
      */

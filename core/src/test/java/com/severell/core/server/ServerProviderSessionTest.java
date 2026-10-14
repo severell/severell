@@ -39,7 +39,7 @@ public class ServerProviderSessionTest {
     public void databaseDriverUsesTheSessionsTable() throws Exception {
         String url = "jdbc:h2:mem:" + UUID.randomUUID() + ";MODE=PostgreSQL;DB_CLOSE_DELAY=-1";
         try (Connection c = DriverManager.getConnection(url); Statement s = c.createStatement()) {
-            s.execute("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, expires_at timestamp NOT NULL)");
+            s.execute("CREATE TABLE sessions (id varchar(64) PRIMARY KEY, data text NOT NULL, created_at timestamp, expires_at timestamp NOT NULL)");
         }
         config("ENV=TEST\nSESSION_DRIVER=Database\nDB_DRIVER=org.h2.Driver\nDB_CONNSTRING=" + url + "\nDB_USERNAME=\nDB_PASSWORD=\n");
 

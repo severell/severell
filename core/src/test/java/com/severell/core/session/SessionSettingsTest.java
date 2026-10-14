@@ -51,4 +51,20 @@ public class SessionSettingsTest {
         load(dir, "SESSION_LIFETIME=0\n");
         assertThrows(IllegalArgumentException.class, SessionSettings::lifetimeSeconds);
     }
+
+    @Test
+    public void maximumLifetimeDefaultsToFourteenDays(@TempDir Path dir) throws Exception {
+        load(dir, "OTHER=1\n");
+        assertEquals(14 * 24 * 3600, SessionSettings.maxLifetimeSeconds());
+    }
+
+    @Test
+    public void maximumLifetimeCanBeSetButNotBelowTheIdleLifetime(@TempDir Path dir) throws Exception {
+        load(dir, "SESSION_MAX_LIFETIME=1440\n");
+        assertEquals(86400, SessionSettings.maxLifetimeSeconds());
+        load(dir, "SESSION_LIFETIME=60\nSESSION_MAX_LIFETIME=30\n");
+        assertThrows(IllegalArgumentException.class, SessionSettings::maxLifetimeSeconds);
+        load(dir, "SESSION_MAX_LIFETIME=99999999999\n");
+        assertThrows(IllegalArgumentException.class, SessionSettings::maxLifetimeSeconds);
+    }
 }

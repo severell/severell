@@ -105,7 +105,8 @@ public class ServerProvider extends ServiceProvider {
         }
         int lifetime = SessionSettings.lifetimeSeconds();
         if (SessionSettings.DATABASE.equals(SessionSettings.driver())) {
-            DatabaseSessionManager manager = new DatabaseSessionManager(sessionDataSource(), new ObjectMapper(), lifetime);
+            DatabaseSessionManager manager = new DatabaseSessionManager(sessionDataSource(), new ObjectMapper(), lifetime,
+                    SessionSettings.maxLifetimeSeconds());
             // A plain mapper of its own: an app-wide one could be configured with polymorphic
             // typing, which would let stored JSON choose classes to create.
             manager.start();

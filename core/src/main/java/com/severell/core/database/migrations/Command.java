@@ -42,6 +42,24 @@ public class Command {
             public String compile(Blueprint table,Grammar grammar, Command command) {
                 return grammar.foreign(table, command);
             }
+        },
+        INDEX{
+            @Override
+            public String compile(Blueprint table,Grammar grammar, Command command) {
+                return grammar.index(table, command);
+            }
+        },
+        UNIQUE{
+            @Override
+            public String compile(Blueprint table,Grammar grammar, Command command) {
+                return grammar.unique(table, command);
+            }
+        },
+        UNIQUE_IGNORE_CASE{
+            @Override
+            public String compile(Blueprint table,Grammar grammar, Command command) {
+                return grammar.uniqueIgnoreCase(table, command);
+            }
         };
 
 

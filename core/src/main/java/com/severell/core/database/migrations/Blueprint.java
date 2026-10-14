@@ -50,6 +50,33 @@ public class Blueprint {
     }
 
     /**
+     * Create an index, e.g. on a column often searched or sorted by
+     * @param columns The columns to index
+     * @return Command
+     */
+    public Command index(String... columns) {
+        return this.indexCommand(false, Command.CommandType.INDEX, columns);
+    }
+
+    /**
+     * Create a unique index: no two rows may have the same values in these columns
+     * @param columns The columns that must be unique together
+     * @return Command
+     */
+    public Command unique(String... columns) {
+        return this.indexCommand(false, Command.CommandType.UNIQUE, columns);
+    }
+
+    /**
+     * Create a unique index that ignores case, e.g. so "Ann@x.com" and "ann@x.com" can't both exist
+     * @param column The column that must be unique, ignoring case
+     * @return Command
+     */
+    public Command uniqueIgnoreCase(String column) {
+        return this.indexCommand(false, Command.CommandType.UNIQUE_IGNORE_CASE, column);
+    }
+
+    /**
      * Create a foreign key
      * @param columns The columns to be used for the foreign key
      * @return

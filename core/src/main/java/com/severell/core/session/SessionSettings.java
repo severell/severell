@@ -7,6 +7,8 @@ import com.severell.core.config.Config;
  *
  * SESSION_DRIVER: Memory (default; one server only) or Database (shared by every server; needs
  * a "sessions" table). SESSION_LIFETIME: minutes a session lasts without being used (default 30).
+ * SESSION_MAX_LIFETIME: minutes a session lasts at most, however often it's used (default 14 days),
+ * so a stolen session cookie stops working. Signing in starts a new session, and a new clock.
  */
 public class SessionSettings {
 
@@ -29,16 +31,31 @@ public class SessionSettings {
     }
 
     public static int lifetimeSeconds() {
-        String value = Config.get("SESSION_LIFETIME", "30").trim();
+        return minutes("SESSION_LIFETIME", "30") * 60;
+    }
+
+    /**
+     * @throws IllegalArgumentException if it's shorter than SESSION_LIFETIME
+     */
+    public static int maxLifetimeSeconds() {
+        int max = minutes("SESSION_MAX_LIFETIME", String.valueOf(14 * 24 * 60)) * 60;
+        if (max < lifetimeSeconds()) {
+            throw new IllegalArgumentException("SESSION_MAX_LIFETIME can't be shorter than SESSION_LIFETIME");
+        }
+        return max;
+    }
+
+    private static int minutes(String key, String defaultValue) {
+        String value = Config.get(key, defaultValue).trim();
         int minutes;
         try {
             minutes = Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("SESSION_LIFETIME must be a number of minutes, not \"" + value + "\"");
+            throw new IllegalArgumentException(key + " must be a number of minutes, not \"" + value + "\"");
         }
-        if (minutes < 1) {
-            throw new IllegalArgumentException("SESSION_LIFETIME must be at least 1 minute");
+        if (minutes < 1 || minutes > Integer.MAX_VALUE / 60) {
+            throw new IllegalArgumentException(key + " must be between 1 and " + Integer.MAX_VALUE / 60 + " minutes");
         }
-        return minutes * 60;
+        return minutes;
     }
 }
