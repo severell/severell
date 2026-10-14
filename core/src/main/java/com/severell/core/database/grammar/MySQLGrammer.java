@@ -134,6 +134,15 @@ public class MySQLGrammer extends Grammar {
         );
     }
 
+    // MySQL needs an extra pair of parentheses around an expression in an index (8.0.13+).
+    @Override
+    public String uniqueIgnoreCase(Blueprint table, Command command) {
+        return String.format("create unique index %s on %s ((lower(%s)))",
+                command.param("index"),
+                table.getTableName(),
+                ((String[])command.param("columns"))[0]);
+    }
+
     @Override
     public String primary(Blueprint table, Command command) {
         return String.format("%s table %s add primary key (%s)",

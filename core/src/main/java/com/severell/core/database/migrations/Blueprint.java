@@ -68,6 +68,15 @@ public class Blueprint {
     }
 
     /**
+     * Create a unique index that ignores case, e.g. so "Ann@x.com" and "ann@x.com" can't both exist
+     * @param column The column that must be unique, ignoring case
+     * @return Command
+     */
+    public Command uniqueIgnoreCase(String column) {
+        return this.indexCommand(false, Command.CommandType.UNIQUE_IGNORE_CASE, column);
+    }
+
+    /**
      * Create a foreign key
      * @param columns The columns to be used for the foreign key
      * @return

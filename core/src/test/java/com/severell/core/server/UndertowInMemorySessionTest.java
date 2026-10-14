@@ -58,6 +58,10 @@ public class UndertowInMemorySessionTest {
         given(fresh.getAttribute(UndertowInMemorySession.STARTED_KEY)).willReturn(1000L);
         given(fresh.getCreationTime()).willReturn(5000L);
         assertEquals(1000L, UndertowInMemorySession.startedAt(fresh));
+
+        // A start later than the session itself is ignored, so it can't keep a session alive.
+        given(fresh.getAttribute(UndertowInMemorySession.STARTED_KEY)).willReturn(Long.MAX_VALUE);
+        assertEquals(5000L, UndertowInMemorySession.startedAt(fresh));
     }
 
     @Test

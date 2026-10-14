@@ -143,8 +143,14 @@ public class UndertowInMemorySession extends BaseSessionDriver implements Sessio
      * @return when the session started, carried across regenerate()
      */
     static long startedAt(io.undertow.server.session.Session session) {
+        long created = session.getCreationTime();
+        if (session instanceof DatabaseSession) {
+            // Kept in created_at.
+            return created;
+        }
         Object started = session.getAttribute(STARTED_KEY);
-        return started instanceof Number ? ((Number) started).longValue() : session.getCreationTime();
+        // Only ever earlier than the session itself, so a bad value can't extend its life.
+        return started instanceof Number ? Math.min(((Number) started).longValue(), created) : created;
     }
 
     /**

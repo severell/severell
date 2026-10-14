@@ -54,6 +54,12 @@ public class Command {
             public String compile(Blueprint table,Grammar grammar, Command command) {
                 return grammar.unique(table, command);
             }
+        },
+        UNIQUE_IGNORE_CASE{
+            @Override
+            public String compile(Blueprint table,Grammar grammar, Command command) {
+                return grammar.uniqueIgnoreCase(table, command);
+            }
         };
 
 

@@ -27,6 +27,18 @@ public class BlueprintTest {
     }
 
     @Test
+    public void uniqueIgnoringCase() {
+        Blueprint table = new Blueprint("users");
+        table.uniqueIgnoreCase("email");
+        assertEquals(List.of("create unique index users_email_unique_ignore_case on users (lower(email))"),
+                table.compileCommands(new PostgresGrammar()));
+        Blueprint mysql = new Blueprint("users");
+        mysql.uniqueIgnoreCase("email");
+        assertEquals(List.of("create unique index users_email_unique_ignore_case on users ((lower(email)))"),
+                mysql.compileCommands(new MySQLGrammer()));
+    }
+
+    @Test
     public void indexAlongsideAddedColumns() {
         Blueprint table = new Blueprint("sessions");
         table.timestamp("created_at").nullable();
