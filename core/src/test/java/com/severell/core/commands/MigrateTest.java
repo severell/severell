@@ -113,6 +113,34 @@ public class MigrateTest {
         assertStoppedAtTheFailure(outContent.toString());
     }
 
+    // With the failing migration already run, the rest migrate and the command finishes normally.
+    private void onlyErrorMigrationRan() throws Exception {
+        ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+        HashMap<String, Object> ran = new HashMap<>();
+        ran.put("migration", "ErrorMigration");
+        list.add(ran);
+        given(connection.select("select * from migrations order by batch asc, migration asc")).willReturn(list);
+    }
+
+    @Test
+    public void runUpMigratesWhatsPending() throws Exception {
+        onlyErrorMigrationRan();
+        new Migrate(connection).runUp();
+
+        assertTrue(outContent.toString().contains("Migrated - TestMigration"), outContent.toString());
+        assertFalse(outContent.toString().contains("Failed to Migrate"), outContent.toString());
+    }
+
+    @Test
+    public void commandSucceedsWhenEveryMigrationDoes() throws Exception {
+        onlyErrorMigrationRan();
+        MigrateCommand command = new MigrateCommand();
+        command.setConnection(connection);
+        command.execute();
+
+        assertTrue(outContent.toString().contains("Migrated - TestMigration"), outContent.toString());
+    }
+
     @Test
     public void runUpTestWithNothingToMigration() throws Exception {
         ArrayList<HashMap<String, Object>> list = getRan();
